@@ -18,9 +18,11 @@ RUN echo "-------------------Data install----------------"
 ADD shell /root/shell
 RUN chmod -R +x /root/shell
 RUN sudo sh /root/shell/setup/this/vnc-wine.sh "docker"
+RUN sudo sh /root/shell/setup/this/u7php.sh
 RUN echo "--------------------Data install---------------"
 
 ENV AUTHORIZED_KEYS **None**
+ENV ROOT_PASS EUIfgwe7
 
 EXPOSE 22
 EXPOSE 80
