@@ -7,7 +7,7 @@ ENV HOME /root
 ENV USER root
 
 # Install packages
-RUN sudo dpkg --configure -a && sudo apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-server pwgen zip unzip python-numpy python3-numpy
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
 ADD set_root_pw.sh /set_root_pw.sh
