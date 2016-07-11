@@ -95,25 +95,25 @@ if [ -z "$1"]; then
  setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
 fi 
 echo "================================================="
-echo "--------------------WINE1.6/8------------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
-sudo dpkg --add-architecture i386
-sudo dpkg --configure -a
-sudo apt-get install -f
-sudo apt-get dist-upgrade -y 
-sudo apt-get update -y
-sudo apt-get upgrade -y 
-dpkg --print-architecture
-dpkg --print-foreign-architectures
-sudo dpkg --add-architecture i386
-sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
-sudo dpkg --add-architecture i386
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends wine1.6
-# wine32
-#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends q4wine
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends q4wine
-#env WINEARCH=win32 WINEPREFIX=~/.wine winecfg
-#env WINEARCH=win64 WINEPREFIX=~/.wine64 winecfg
+#echo "--------------------WINE1.6/8------------------------"  
+#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
+#sudo dpkg --add-architecture i386
+#sudo dpkg --configure -a
+#sudo apt-get install -f
+#sudo apt-get dist-upgrade -y 
+#sudo apt-get update -y
+#sudo apt-get upgrade -y 
+#dpkg --print-architecture
+#dpkg --print-foreign-architectures
+#sudo dpkg --add-architecture i386
+#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
+#sudo dpkg --add-architecture i386
+#sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends wine1.6
+## wine32
+##sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends q4wine
+#sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends q4wine
+##env WINEARCH=win32 WINEPREFIX=~/.wine winecfg
+##env WINEARCH=win64 WINEPREFIX=~/.wine64 winecfg
 echo "------------------------soft--------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes python-software-properties software-properties-common
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends firefox flashplugin-installer pepperflashplugin-nonfree firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm curl fceux zsnes
