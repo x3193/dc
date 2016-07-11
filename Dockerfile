@@ -1,4 +1,5 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
+#FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
 
