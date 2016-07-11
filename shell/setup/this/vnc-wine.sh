@@ -8,7 +8,7 @@ sudo chmod -R 7777 /root/shell/conf
 echo "---------------------souce.list-----------------------"  
 cd /root/shell/conf/source
 sudo cp -R -f /etc/apt/sources.list /etc/apt/sources.list.backup
-sudo cp -R -f sources.list /etc/apt
+sudo cp -R -f sources.list.xenial /etc/apt/sources.list
 sudo rm -rf -R /var/lib/apt/lists/*
 sudo dpkg --configure -a
 sudo apt-get install -f

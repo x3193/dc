@@ -134,15 +134,4 @@ echo "------------------------Clean--------------------"
 sudo apt-get autoremove -y  
 sudo apt-get clean -y  
 sudo apt-get autoclean -y  
-echo "----------------------update xenial----------------------"  
-cd /root/shell/conf/source
-sudo cp -R -f /etc/apt/sources.list /etc/apt/sources.list.backup
-sudo cp -R -f sources.list /etc/apt
-sudo rm -rf -R /var/lib/apt/lists/*
-sudo dpkg --configure -a
-sudo apt-get install -f
-sudo apt-get update -y
-sudo apt-get upgrade -y 
-sudo apt-get dist-upgrade -y 
-sudo apt-get update -y
 echo "--------------------------------------------"  
