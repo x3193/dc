@@ -28,6 +28,7 @@ sudo mkfontscale
 sudo mkfontdir
 sudo fc-cache -fv
 echo "---------------------input-----------------------"  
+sudo apt-get remove ibus -y
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim
 sudo dpkg --configure -a

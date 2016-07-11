@@ -27,13 +27,6 @@ sudo cp -R -f /ttf/*.ttf /usr/share/fonts/xpfonts
 sudo mkfontscale
 sudo mkfontdir
 sudo fc-cache -fv
-echo "---------------------input-----------------------"  
-sudo apt-get remove ibus -y
-export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim
-sudo dpkg --configure -a
-sudo apt-get install -f
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim-pinyin scim-tables-zh -y
 echo "---------------------------SSH-----------------"  
 cd /root/shell/conf 
 sudo rm -rf ~/.ssh
@@ -130,7 +123,13 @@ sudo mkdir -vp /usr/local/lib
 sudo cp -R -f rar unrar /usr/local/bin
 sudo cp -R -f rarfiles.lst /etc
 sudo cp -R -f default.sfx /usr/local/lib
-echo "------------------------rarlinux--------------------" 
+echo "---------------------input-----------------------"  
+sudo apt-get remove ibus -y
+export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim
+sudo dpkg --configure -a
+sudo apt-get install -f
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim-pinyin scim-tables-zh -y
 echo "------------------------Clean--------------------"  
 sudo apt-get autoremove -y  
 sudo apt-get clean -y  
