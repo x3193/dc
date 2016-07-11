@@ -18,7 +18,10 @@ RUN chmod +x /*.sh
 RUN echo "-------------------Data install----------------"
 ADD shell /root/shell
 RUN chmod -R +x /root/shell
-RUN sudo sh /root/shell/setup/this/vnc-wine.sh "docker"
+#RUN sudo sh /root/shell/setup/this/vnc-wine.sh "docker"
+
+
+
 #RUN sudo sh /root/shell/setup/this/u7php.sh
 RUN echo "--------------------Data install---------------"
 
