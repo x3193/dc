@@ -20,7 +20,7 @@ if [ "${AUTHORIZED_KEYS}" != "**None**" ]; then
 fi
 
 echo "-----------------------------------"
-sudo sh /root/shell/loader/this/*.sh
+sudo sh /root/shell/loader/this/vnc.sh
 echo "-----------------------------------"
 
 if [ ! -f /.root_pw_set ]; then
