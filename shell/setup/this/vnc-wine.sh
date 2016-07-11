@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "---------------------pre-install-----------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends wget vim zip unzip python-numpy python3-numpy
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron
 echo "-----------------------configure---------------------"  
 sudo dpkg --configure -a
 sudo chmod -R 7777 /root/shell/conf 
@@ -49,7 +49,7 @@ sudo cp -R -f ~/.ssh/* ~/ssh
 cd /root/shell/conf/ssh 
 sudo cp -R -f ssh /etc/init.d 
 echo "================================================="
-sudo service ssh start 
+#sudo service ssh start 
 echo "================================================="
 echo "---------------------crontab-----------------------"  
 cd /root/shell/conf/cron 
@@ -57,9 +57,9 @@ sudo cp -R -f crontab /etc
 sudo cp -R -f cron_hourly.sh /etc/cron.hourly 
 sudo cp -R -f cron_daily.sh /etc/cron.daily 
 echo "================================================="
-sudo /etc/init.d/cron restart 
-sudo cron  
-sudo /etc/init.d/cron restart 
+#sudo /etc/init.d/cron restart 
+#sudo cron  
+#sudo /etc/init.d/cron restart 
 echo "================================================="
 echo "---------------------proxy-----------------------" 
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes proxychains expect dnsutils
@@ -135,4 +135,3 @@ sudo apt-get autoremove -y
 sudo apt-get clean -y  
 sudo apt-get autoclean -y  
 echo "--------------------------------------------"  
-
