@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "---------------------pre-install-----------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron
 echo "-----------------------configure---------------------"  
 sudo dpkg --configure -a
 sudo chmod -R 7777 /root/shell/conf 
@@ -12,15 +12,15 @@ sudo cp -R -f sources.list.xenial /etc/apt/sources.list
 sudo rm -rf -R /var/lib/apt/lists/*
 sudo dpkg --configure -a
 sudo apt-get install -f
-sudo apt-get dist-upgrade -y 
 sudo apt-get update -y
 sudo apt-get upgrade -y 
+sudo apt-get dist-upgrade -y 
 echo "---------------------zh-cn-----------------------"  
 cd /root/shell/conf 
 #sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> ~/.profile
 sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /etc/profile
 sudo echo "TZ='Asia/Shanghai'; export TZ" >> ~/.profile
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
 sudo mkdir -vp /usr/share/fonts/xpfonts
 cd /root/shell/conf 
 sudo cp -R -f /ttf/*.ttf /usr/share/fonts/xpfonts
@@ -56,7 +56,7 @@ echo "================================================="
 #sudo /etc/init.d/cron restart 
 echo "================================================="
 echo "---------------------proxy-----------------------" 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes proxychains expect dnsutils
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends proxychains expect dnsutils
 #sudo echo "socks5 127.0.0.1 9999" >> /etc/proxychains.conf
 cd /root/shell/conf/Proxychains
 sudo mkdir -vp /root/Desktop/Proxychains
@@ -64,9 +64,8 @@ sudo cp -R -f *.desktop /root/Desktop/Proxychains
 sudo cp -R -f proxychains.conf /etc
 echo "--------------------VNC------------------------"  
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
-#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes xorg lxde tightvncserver gtk2-engines-murrine autocutsel git
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
-echo "CHROMIUM_FLAGS='--user-data-dir'" >> /etc/chromium-browser/default
+#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --install-recommends xorg lxde tightvncserver gtk2-engines-murrine autocutsel git
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git 
 cd /root/shell/conf/vncserver
 sudo chmod -R 7777 /root/shell/conf 
 sudo find /root/shell/conf/* -name noVNC-master.zip -delete 
@@ -90,27 +89,28 @@ if [ -z "$1"]; then
 fi 
 echo "================================================="
 echo "--------------------WINE1.6/8------------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
+sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --install-recommends wine1.6
 sudo dpkg --add-architecture i386
 sudo dpkg --configure -a
 sudo apt-get install -f
-sudo apt-get dist-upgrade -y 
 sudo apt-get update -y
 sudo apt-get upgrade -y 
+sudo apt-get dist-upgrade -y 
 dpkg --print-architecture
 dpkg --print-foreign-architectures
 sudo dpkg --add-architecture i386
-sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends wine1.6
+sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --install-recommends wine1.6
 sudo dpkg --add-architecture i386
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends wine1.6
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends wine1.6
 # wine32
-#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --force-yes --install-recommends q4wine
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --install-recommends q4wine
+#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --install-recommends q4wine
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends q4wine
 #env WINEARCH=win32 WINEPREFIX=~/.wine winecfg
 #env WINEARCH=win64 WINEPREFIX=~/.wine64 winecfg
 echo "------------------------soft--------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes python-software-properties software-properties-common
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends firefox flashplugin-installer pepperflashplugin-nonfree firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm curl fceux zsnes
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends python-software-properties software-properties-common
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer pepperflashplugin-nonfree firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm curl fceux zsnes chromium-browser
+echo "CHROMIUM_FLAGS='--user-data-dir'" >> /etc/chromium-browser/default
 echo "------------------------rarlinux--------------------" 
 cd /root/shell/conf/
 sudo mkdir -vp /root/shell/conf/rarlinux
@@ -126,10 +126,10 @@ sudo cp -R -f default.sfx /usr/local/lib
 echo "---------------------input-----------------------"  
 sudo apt-get remove ibus -y
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends scim
 sudo dpkg --configure -a
 sudo apt-get install -f
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes scim-pinyin scim-tables-zh -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends scim-pinyin scim-tables-zh -y
 echo "------------------------Clean--------------------"  
 sudo apt-get autoremove -y  
 sudo apt-get clean -y  
