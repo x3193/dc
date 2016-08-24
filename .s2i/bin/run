@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# run the application
+find /* -name 'run.sh' -exec echo {} >> /var/www/html/vindex.php \;

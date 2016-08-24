@@ -2,7 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "ubt1404-example",
+    "name": "cakephp-example",
     "annotations": {
       "description": "An example CakePHP application with no database",
       "tags": "quickstart,php,cakephp",
@@ -10,7 +10,7 @@
     }
   },
   "labels": {
-    "template": "ubt1404-example"
+    "template": "cakephp-example"
   },
   "objects": [
     {
@@ -83,8 +83,8 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "${NAMESPACE}",
-              "name": "docker:latest"
-            },          
+              "name": "php:5.6"
+            },
             "env":  [
               {
                   "name": "COMPOSER_MIRROR",
@@ -134,7 +134,7 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "ubt1404-example"
+                "cakephp-example"
               ],
               "from": {
                 "kind": "ImageStreamTag",
@@ -160,7 +160,7 @@
           "spec": {
             "containers": [
               {
-                "name": "ubt1404-example",
+                "name": "cakephp-example",
                 "image": " ",
                 "ports": [
                   {
@@ -239,14 +239,14 @@
       "displayName": "Name",
       "description": "The name assigned to all of the frontend objects defined in this template.",
       "required": true,
-      "value": "ubt1404-example"
+      "value": "cakephp-example"
     },
     {
       "name": "NAMESPACE",
       "displayName": "Namespace",
       "description": "The OpenShift Namespace where the ImageStream resides.",
       "required": true,
-      "value": "x3193"
+      "value": "openshift"
     },
     {
       "name": "MEMORY_LIMIT",
@@ -260,7 +260,7 @@
       "displayName": "Git Repository URL",
       "description": "The URL of the repository with your application source code.",
       "required": true,
-      "value": "https://github.com/x3193/ubt1404.git"
+      "value": "https://github.com/openshift/cakephp-ex.git"
     },
     {
       "name": "SOURCE_REPOSITORY_REF",
@@ -276,7 +276,7 @@
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the CakePHP service, if left blank a value will be defaulted.",
-      "value": "www.ops.x3193.usa.cc"
+      "value": ""
     },
     {
       "name": "GITHUB_WEBHOOK_SECRET",

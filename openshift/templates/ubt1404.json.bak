@@ -29,11 +29,6 @@
             "port": 8080,
             "targetPort": 8080
           }
-          {
-            "name": "ssh",
-            "port": 2222,
-            "targetPort": 22
-          }
         ],
         "selector": {
           "name": "${NAME}"
@@ -88,8 +83,8 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "${NAMESPACE}",
-              "name": "docker:lastest"
-            },
+              "name": "docker:latest"
+            },          
             "env":  [
               {
                   "name": "COMPOSER_MIRROR",
@@ -171,9 +166,6 @@
                   {
                     "containerPort": 8080
                   }
-                  {
-                    "containerPort": 22
-                  }
                 ],
                 "readinessProbe": {
                   "timeoutSeconds": 3,
@@ -254,7 +246,7 @@
       "displayName": "Namespace",
       "description": "The OpenShift Namespace where the ImageStream resides.",
       "required": true,
-      "value": "openshift"
+      "value": "x3193"
     },
     {
       "name": "MEMORY_LIMIT",
@@ -268,7 +260,7 @@
       "displayName": "Git Repository URL",
       "description": "The URL of the repository with your application source code.",
       "required": true,
-      "value": "https://github.com/openshift/cakephp-ex.git"
+      "value": "https://github.com/x3193/ubt1404.git"
     },
     {
       "name": "SOURCE_REPOSITORY_REF",
