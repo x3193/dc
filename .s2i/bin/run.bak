@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # run the application
-echo {} >> /var/www/html/vindex.php
+echo '00000000000' >> /var/www/html/vindex.php
