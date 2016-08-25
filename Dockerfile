@@ -10,12 +10,11 @@ ADD run.sh /run.sh
 RUN chmod +x /*.sh
 
 #---
-RUN sudo sh ./run.sh
+
 #---
 LABEL io.openshift.expose-services="8080:http,22:tcp"
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers;echo "Defaults visiblepw" >> /etc/sudoers
 # Set the default user for the image, the user itself was created in the base image
-USER 1001
 #---
 
 ENV AUTHORIZED_KEYS **None**
@@ -27,5 +26,7 @@ EXPOSE 6080
 EXPOSE 5901
 EXPOSE 5902
 EXPOSE 8080
+
+USER 1001
 
 #CMD ["/run.sh"]
