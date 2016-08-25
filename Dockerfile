@@ -10,6 +10,7 @@ ADD run.sh /run.sh
 RUN chmod +x /*.sh
 
 #---
+LABEL io.openshift.expose-services="8080:http,22:tcp"
 ADD /.s2i/bin/ /usr/local/s2i
 # Drop the root user and make the content of /opt/app-root owned by user 1001
 #RUN chown -R 1001:1001 /opt/app-root
@@ -19,7 +20,13 @@ USER 1001
 #---
 
 ENV AUTHORIZED_KEYS **None**
+ENV PASS_ROOT EUIfgwe7
 
 EXPOSE 22
+EXPOSE 80
+EXPOSE 6080
+EXPOSE 5901
+EXPOSE 5902
+EXPOSE 8080
 
 #CMD ["/run.sh"]
