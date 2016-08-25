@@ -2,3 +2,8 @@
 
 echo "---> Installing application source"
 cp -Rf /tmp/src/. ./
+
+yum install sudo
+sudo chmod -R 7777 /var/www/html/
+sudo echo '00000000000' >> /var/www/html/vindex.php
+uname -r
