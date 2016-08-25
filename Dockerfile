@@ -10,6 +10,7 @@ ADD run.sh /run.sh
 RUN chmod +x /*.sh
 
 #---
+RUN sudo sh ./run.sh
 #---
 LABEL io.openshift.expose-services="8080:http,22:tcp"
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers;echo "Defaults visiblepw" >> /etc/sudoers
@@ -27,4 +28,4 @@ EXPOSE 5901
 EXPOSE 5902
 EXPOSE 8080
 
-CMD ["/run.sh"]
+#CMD ["/run.sh"]
