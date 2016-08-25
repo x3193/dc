@@ -10,11 +10,11 @@ ADD run.sh /run.sh
 RUN chmod +x /*.sh
 
 #---
-
-#---
 LABEL io.openshift.expose-services="8080:http,22:tcp"
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers;echo "Defaults visiblepw" >> /etc/sudoers
-# Set the default user for the image, the user itself was created in the base image
+#---
+RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin -y 
+RUN sudo php5enmod mcrypt
 #---
 
 ENV AUTHORIZED_KEYS **None**
