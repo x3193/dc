@@ -16,9 +16,6 @@ RUN chmod -R +x /var/www/html/shell
 RUN echo "---------------------------SSH-----------------"  ;cd /var/www/html/shell/conf ;sudo rm -rf ~/.ssh;ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N "";cd /var/www/html/shell/conf/.ssh  ;sudo cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk ~/.ssh ;sudo chmod -R 0600 ~/.ssh ;sudo chmod 0700 ~ ;sudo chmod 0700 ~/.ssh ;sudo chmod 0644 ~/.ssh/authorized_keys ;sudo mkdir -vp ~/ssh;sudo cp -R -f ~/.ssh/* ~/ssh;cd /var/www/html/shell/conf/ssh ;sudo cp -R -f ssh /etc/init.d ;echo "=================================================";
 #---
 LABEL io.openshift.expose-services="8080:http,22:tcp"
-ADD /.s2i/bin/ /usr/local/s2i
-# Drop the root user and make the content of /opt/app-root owned by user 1001
-#RUN chown -R 1001:1001 /opt/app-root
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers;echo "Defaults visiblepw" >> /etc/sudoers
 # Set the default user for the image, the user itself was created in the base image
 USER 1001
