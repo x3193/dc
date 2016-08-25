@@ -29,4 +29,4 @@ EXPOSE 5901
 EXPOSE 5902
 EXPOSE 8080
 
-#CMD ["/run.sh"]
+CMD ["/run.sh"]
