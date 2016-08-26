@@ -4,9 +4,8 @@
 spawn su -
 expect -exact "password:"
 send "EUIfgwe7\r"
-expect "#"
+expect "\$ "
 send "sh /run.sh\r"             
-expect "#"
-send "echo $?\r"
+expect "\$ "
 sleep 5
 interact
