@@ -1,5 +1,5 @@
 #!/bin/bash
 
 #exec /usr/sbin/sshd -D
-su root
-service ssh start
+sudo su
+sudo service ssh start
