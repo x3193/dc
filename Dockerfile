@@ -6,19 +6,19 @@ MAINTAINER x3193.tk <x3193@x3193.tk>
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
 ENV USER root
+ENV AUTHORIZED_KEYS **None**
+ENV ROOT_PASS EUIfgwe7
 
 # Install packages
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
 ADD set_root_pw.sh /set_root_pw.sh
 ADD run.sh /run.sh
+ADD run.sh /exp.sh
 RUN chmod +x /*.sh
 
 RUN sh /set_root_pw.sh
-
-ENV AUTHORIZED_KEYS **None**
-ENV ROOT_PASS EUIfgwe7
 
 EXPOSE 22
 EXPOSE 80
@@ -34,5 +34,5 @@ RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 USER 1001
 
-CMD ["sudo","sh","/run.sh"]
-
+#CMD ["sudo","sh","/run.sh"]
+CMD ["/exp.sh"]
