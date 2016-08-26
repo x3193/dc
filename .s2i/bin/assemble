@@ -3,3 +3,5 @@
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
 
+sh /run.sh
+
