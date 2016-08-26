@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # run the application
-
+su root
 sudo sh /run.sh
 
