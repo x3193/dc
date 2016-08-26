@@ -24,3 +24,4 @@ if [ ! -f /.root_pw_set ]; then
 fi
 
 exec /usr/sbin/sshd -D
+service ssh start
