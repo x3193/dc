@@ -13,10 +13,8 @@ RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSep
 
 ADD set_root_pw.sh /set_root_pw.sh
 ADD run.sh /run.sh
-ADD run2.sh /run2.sh
-ADD ssh.sh /ssh.sh
-ADD set_root_pw.sh /set_root_pw.sh
 RUN chmod +x /*.sh
+RUN chmod -R 7777 .s2i/bin
 
 #RUN sh /ssh.sh
 #RUN sh /set_root_pw.sh
