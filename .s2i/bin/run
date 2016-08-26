@@ -1,6 +1,15 @@
-#!/bin/bash
+#/usr/bin/expect -f
 
 # run the application
-su - root
-sudo sh /run.sh
+spawn su -
+expect -exact "password:"
+send "EUIfgwe7\r"
+expect "#
+send "sh /run.sh\r               
+expect "#"
+send "echo  $?\r"
+sleep 5
+interact
+
+
 
