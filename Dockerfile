@@ -32,7 +32,8 @@ EXPOSE 5902
 
 WORKDIR /root
 
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1000 1001
+#RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1000 1001
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname 1001
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 USER 1001
