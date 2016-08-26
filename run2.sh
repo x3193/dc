@@ -2,4 +2,4 @@
 
 #exec /usr/sbin/sshd -D
 sudo su
-sudo service ssh start
+service ssh start
