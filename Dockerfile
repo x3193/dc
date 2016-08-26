@@ -15,7 +15,7 @@ ADD set_root_pw.sh /set_root_pw.sh
 ADD run.sh /run.sh
 RUN chmod +x /*.sh
 
-RUN sh /run.sh
+RUN sh /set_root_pw.sh
 
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
