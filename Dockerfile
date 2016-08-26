@@ -14,10 +14,6 @@ RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSep
 ADD set_root_pw.sh /set_root_pw.sh
 ADD run.sh /run.sh
 RUN chmod +x /*.sh
-RUN chmod -R 7777 .s2i/bin
-
-#RUN sh /ssh.sh
-#RUN sh /set_root_pw.sh
 
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
@@ -30,8 +26,8 @@ EXPOSE 5902
 
 WORKDIR /root
 
-#RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1000 1001
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname 1001
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1000 1001
+#RUN adduser --shell /bin/bash --system --ingroup root --force-badname 1001
 RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 USER 1001
