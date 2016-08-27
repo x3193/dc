@@ -10,6 +10,8 @@ send "sh /run.sh\r"
 expect "\# "
 send "echo $?\r"
 expect "\# "
+send "echo '========'\r"
+expect "\# "
 sleep 15
 expect eof 
 interact
