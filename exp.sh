@@ -11,4 +11,5 @@ expect "\# "
 send "echo $?\r"
 expect "\# "
 sleep 15
+expect eof 
 interact
