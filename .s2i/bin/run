@@ -1,6 +1,6 @@
 #!/bin/bash
 
-expect /exp.sh
+expect ./exp.sh
 
 
 
