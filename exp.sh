@@ -1,7 +1,7 @@
 #/usr/bin/expect -f
 
 # run the application
-set timeout 5
+set timeout 15
 spawn su -
 expect -exact "password:"
 send "EUIfgwe7\r"
