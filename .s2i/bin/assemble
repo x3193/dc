@@ -2,5 +2,6 @@
 
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
+sudo echo "0000000"
 
 
