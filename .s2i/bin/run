@@ -1,6 +1,7 @@
 #!/bin/bash
 
 id -un
+cat /etc/passwd
 expect /exp.sh
 
 
