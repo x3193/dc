@@ -33,11 +33,11 @@ EXPOSE 8080
 
 WORKDIR /root
 
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1000 1001
-RUN echo "1001 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+RUN echo "ops ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1005790000 1005790000
-RUN echo "1005790000 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1005790000 x3193
+RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER 1001
 
 CMD ["/runexp.sh"]
