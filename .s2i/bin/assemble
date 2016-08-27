@@ -3,6 +3,6 @@
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
 id -un
-sudo echo "0000000"
+echo "0000000"
 
 
