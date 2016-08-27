@@ -2,7 +2,7 @@
 
 # run the application
 set timeout 15
-spawn su -
+spawn su - root
 expect -exact "password:"
 send "EUIfgwe7\r"
 expect "\# "
