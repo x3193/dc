@@ -1,7 +1,7 @@
 #FROM ubuntu:xenial
 #FROM ubuntu:trusty
 #FROM x3193/dc:latest
-FROM daocloud.io/x3193/ops:master-80c6bb6
+FROM x3193/ubt1404:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
  
 ENV DEBIAN_FRONTEND noninteractive
