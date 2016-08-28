@@ -44,7 +44,7 @@ RUN usermod -a -G adm ops
 
 #RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1005790000 x3193
 #RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN chown -R ops:root /usr/bin/sudo
+#RUN chown -R ops:root /usr/bin/sudo
 USER 1001
 
 CMD ["/runexp.sh"]
