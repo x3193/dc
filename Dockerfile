@@ -22,6 +22,11 @@ ADD runexp.sh /runexp.sh
 RUN chmod +x /*.sh
 
 RUN sh /set_root_pw.sh
+RUN wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+RUN mkdir -vp /var/www/html
+RUN chmod -R 7777 /var/www/html
+RUN unzip -o -d /var/www/html/ noVNC-master.zip
+RUN chmod -R 7777 /var/www/html
 #RUN whereis expect
 
 EXPOSE 22
@@ -53,6 +58,7 @@ RUN chown -R ops:root /etc/init.d
 RUN chown -R ops:root /etc/ssh
 RUN chown -R ops:root /usr/sbin/sshd
 RUN chown -R ops:root /usr/sbin/adduser
+
 
 USER 1001
 #USER 0
