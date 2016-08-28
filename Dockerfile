@@ -33,7 +33,7 @@ EXPOSE 8080
 
 WORKDIR /root
 
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+RUN adduser --shell /bin/bash --system --ingroup sudo --force-badname --uid 1001 ops
 RUN echo "ops:EUIfgwe7" | chpasswd
 #RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN echo "Defaults visiblepw" >> /etc/sudoers
