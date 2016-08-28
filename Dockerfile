@@ -49,8 +49,6 @@ RUN usermod -a -G adm ops
 #RUN chown -R ops:root /etc/init.d
 #RUN chown -R ops:root /etc/ssh/
 RUN echo "1005790000 ALL=(ALL:ALL) ALL" >> /etc/sudoers
-RUN usermod -a -G sudo 1005790000
-RUN usermod -a -G adm 1005790000
 RUN chown -R 1005790000:root /etc/init.d
 RUN chown -R 1005790000:root /etc/ssh/
 RUN chown -R 1005790000:root /usr/sbin/sshd
