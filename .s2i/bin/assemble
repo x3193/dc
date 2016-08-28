@@ -4,8 +4,7 @@
 #cp -Rf /tmp/src/. ./
 id -un
 echo "20000000"
-#expect /exp.sh
-su -
+expect /exp.sh
 sudo ls
 cat /etc/pam.d/su
 
