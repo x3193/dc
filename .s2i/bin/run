@@ -1,6 +1,7 @@
 #!/bin/bash
 
-exit 1
+/etc/init.d/ssh start
+exit 0
 #sudo echo "000000"
 id -un
 cat /etc/passwd
