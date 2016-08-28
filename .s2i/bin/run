@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exit
+exit 0
 #sudo echo "000000"
 id -un
 cat /etc/passwd
