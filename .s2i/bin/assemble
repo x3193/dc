@@ -2,9 +2,10 @@
 
 id -un
 #ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
-exec /usr/sbin/sshd -D
+#exec /usr/sbin/sshd -D
+whereis exec
 #id -un
-#/etc/init.d/ssh start
+/etc/init.d/ssh start
 exit 0
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
