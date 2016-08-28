@@ -5,6 +5,7 @@
 id -un
 echo "20000000"
 #expect /exp.sh
+su -
 sudo ls
 cat /etc/pam.d/su
 
