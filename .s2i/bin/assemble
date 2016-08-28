@@ -4,7 +4,7 @@
 #cp -Rf /tmp/src/. ./
 id -un
 echo "20000000"
-expect /exp.sh
+#expect /exp.sh
 sudo ls
 
 
