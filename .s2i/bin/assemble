@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-adduser
 id -un
 ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
 exec /usr/sbin/sshd -D
