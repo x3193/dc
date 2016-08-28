@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-id -un
+#id -un
 #/etc/init.d/ssh start
 exit 0
 #echo "---> Installing application source"
