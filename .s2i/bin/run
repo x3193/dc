@@ -1,9 +1,10 @@
 #!/bin/bash
 
-sudo echo "000000"
-id -un
+#sudo echo "000000"
+#id -un
 cat /etc/passwd
-expect /exp.sh
+#expect /exp.sh
+service ssh start
 
 
 
