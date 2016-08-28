@@ -13,5 +13,5 @@ spawn su - root
 #send "echo '========'\r"
 #expect "#"
 sleep 15
-expect eof 
+#/expect eof 
 interact
