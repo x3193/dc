@@ -4,6 +4,6 @@
 #cp -Rf /tmp/src/. ./
 id -un
 echo "0000000"
-sudo echo "0000000"
+sudo echo "2222222"
 
 
