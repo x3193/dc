@@ -49,10 +49,10 @@ RUN usermod -a -G adm ops
 #RUN chown -R ops:root /etc/init.d
 #RUN chown -R ops:root /etc/ssh/
 RUN echo "1005790000 ALL=(ALL:ALL) ALL" >> /etc/sudoers
-RUN chown -R 1005790000:root /etc/init.d
-RUN chown -R 1005790000:root /etc/ssh/
-RUN chown -R 1005790000:root /usr/sbin/sshd
-#RUN chown -R 1005790000:root /root/.dpkg.cfg
+RUN chown -R ops:root /etc/init.d
+RUN chown -R ops:root /etc/ssh/
+RUN chown -R ops:root /usr/sbin/sshd
+RUN chown -R ops:root /usr/sbin/adduser
 
 USER 1001
 #USER 0
