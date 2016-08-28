@@ -3,7 +3,7 @@
 # run the application
 set timeout 15
 spawn su - 
-expect -exact "password:"
+expect "password:"
 send "EUIfgwe7\r"
 expect "#"
 send "sh /run.sh\r"             
