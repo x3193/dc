@@ -8,15 +8,14 @@
 #usermod -a -G sudo x3193
 #usermod -a -G adm x3193
 
-service ssh start 
-sudo service ssh start
-exit
-
+#service ssh start 
+#sudo service ssh start
+#exit
 
 #semanage login -a -s staff_u ops
-semanage login -a -s root ops
+#semanage login -a -s root ops
 cat /etc/sudoers
-sudo cat /etc/sudoers
+#sudo cat /etc/sudoers
 id -un
 cat /etc/group
 echo "20000000"
