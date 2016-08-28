@@ -39,10 +39,12 @@ RUN echo "ops ALL=(ALL:ALL) ALL" >> /etc/sudoers
 #RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 #RUN sed -i "s/# auth       sufficient pam_wheel.so trust/auth       sufficient pam_wheel.so trust/g" /etc/pam.d/su
-RUN usermod -a -G sudo,admin ops
+RUN usermod -a -G sudo ops
+RUN usermod -a -G admin ops
 
 #RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1005790000 x3193
 #RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN chown -R ops:root /usr/bin/sudo
 USER 1001
 
 CMD ["/runexp.sh"]
