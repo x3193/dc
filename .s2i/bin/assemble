@@ -3,7 +3,8 @@
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
 id -un
-echo "0000000"
+echo "20000000"
 expect ./exp.sh
+sudo ls
 
 
