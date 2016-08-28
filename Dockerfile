@@ -46,9 +46,11 @@ RUN usermod -a -G adm ops
 #RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN usermod -a -G sudo x3193
 #RUN usermod -a -G adm x3193
-RUN chown -R ops:root /etc/init.d
-RUN chown -R ops:root /etc/ssh/
-USER 1001
+#RUN chown -R ops:root /etc/init.d
+#RUN chown -R ops:root /etc/ssh/
+RUN chown -R 1005790000:root /etc/init.d
+RUN chown -R 1005790000:root /etc/ssh/
+USER 1005790000
 #USER 1005790000
 
 CMD ["/runexp.sh"]
