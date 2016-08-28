@@ -6,8 +6,8 @@ cat /etc/sudoers
 id -un
 cat /etc/group
 echo "20000000"
-expect /exp.sh
 sudo ls
+expect /exp.sh
 cat /etc/pam.d/su
 
 
