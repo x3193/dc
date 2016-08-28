@@ -2,7 +2,8 @@
 
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
-apt-get install libsemanage1 -y
+ls -l /usr/bin/sudo
+chown root:root /usr/bin/sudo
 #adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1005790000 x3193
 #echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #usermod -a -G sudo x3193
