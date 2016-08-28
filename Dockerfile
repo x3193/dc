@@ -54,8 +54,8 @@ RUN chown -R 1005790000:root /etc/ssh/
 RUN chown -R 1005790000:root /usr/sbin/sshd
 #RUN chown -R 1005790000:root /root/.dpkg.cfg
 
-#USER 1001
-USER 0
+USER 1001
+#USER 0
 #USER 1005790000
 
 CMD ["/runexp.sh"]
