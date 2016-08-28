@@ -53,6 +53,9 @@ RUN usermod -a -G sudo 1005790000
 RUN usermod -a -G adm 1005790000
 RUN chown -R 1005790000:root /etc/init.d
 RUN chown -R 1005790000:root /etc/ssh/
+RUN chown -R 1005790000:root /usr/sbin/sshd
+RUN chown -R 1005790000:root /root/.dpkg.cfg
+
 USER 1005790000
 #USER 1005790000
 
