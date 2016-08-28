@@ -3,8 +3,8 @@
 # run the application
 set timeout 15
 spawn su -
-#expect "password:"
-#send "EUIfgwe7\r"
+expect "password:"
+send "EUIfgwe7\r"
 expect "#"
 send "sh /run.sh\r"             
 expect "#"
@@ -13,5 +13,5 @@ expect "#"
 send "echo '========'\r"
 expect "#"
 sleep 15
-#/expect eof 
+expect eof 
 interact
