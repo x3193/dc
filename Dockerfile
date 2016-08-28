@@ -53,7 +53,6 @@ RUN chown -R ops:root /etc/init.d
 RUN chown -R ops:root /etc/ssh
 RUN chown -R ops:root /usr/sbin/sshd
 RUN chown -R ops:root /usr/sbin/adduser
-RUN chown -R ops:root /
 
 USER 1001
 #USER 0
