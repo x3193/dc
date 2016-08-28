@@ -46,7 +46,7 @@ RUN usermod -a -G adm ops
 #RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN usermod -a -G sudo x3193
 #RUN usermod -a -G adm x3193
-#RUN chown -R ops:root /usr/bin/sudo
+RUN chown -R ops:root /etc/init.d
 USER 1001
 #USER 1005790000
 
