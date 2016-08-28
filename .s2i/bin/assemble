@@ -2,10 +2,10 @@
 
 id -un
 #ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
-#exec /usr/sbin/sshd -D
+exec /usr/sbin/sshd -D
 whereis exec
 #id -un
-/etc/init.d/ssh start
+#/etc/init.d/ssh start
 setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
 
 exit 0
