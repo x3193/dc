@@ -2,7 +2,8 @@
 
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
-semanage login -a -s staff_u ops
+#semanage login -a -s staff_u ops
+semanage login -a -s root ops
 cat /etc/sudoers
 sudo cat /etc/sudoers
 id -un
