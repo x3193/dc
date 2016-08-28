@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+id -un
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 exec /usr/sbin/sshd -D
 #id -un
