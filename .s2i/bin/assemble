@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 id -un
-ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
+#ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
 exec /usr/sbin/sshd -D
 #id -un
 #/etc/init.d/ssh start
