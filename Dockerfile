@@ -33,8 +33,9 @@ EXPOSE 8080
 
 WORKDIR /root
 
-RUN adduser --shell /bin/bash --system --ingroup sudo --force-badname --uid 1001 ops
-RUN echo "ops:EUIfgwe7" | chpasswd
+RUN adduser --shell /bin/bash --system --ingroup sudo,root --force-badname --uid 1001 ops
+#RUN echo "ops:EUIfgwe7" | chpasswd
+RUN echo "ops ALL=(ALL:ALL) ALL" >> /etc/sudoers
 #RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN echo "Defaults visiblepw" >> /etc/sudoers
 #RUN sed -i "s/# auth       sufficient pam_wheel.so trust/auth       sufficient pam_wheel.so trust/g" /etc/pam.d/su
