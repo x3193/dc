@@ -1,9 +1,5 @@
 #!/bin/bash
 
-ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
-#/etc/init.d/ssh start
-exec /usr/sbin/sshd -D
-
 exit 0
 #sudo echo "000000"
 id -un
