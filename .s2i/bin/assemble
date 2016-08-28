@@ -3,9 +3,10 @@
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
 id -un
+cat /etc/group
 echo "20000000"
 expect /exp.sh
-sudo ls
+#sudo ls
 cat /etc/pam.d/su
 
 
