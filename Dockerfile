@@ -54,10 +54,9 @@ RUN usermod -a -G adm ops
 #RUN chown -R ops:root /etc/init.d
 #RUN chown -R ops:root /etc/ssh/
 RUN echo "1005790000 ALL=(ALL:ALL) ALL" >> /etc/sudoers
-RUN chown -R ops:root /etc/init.d
-RUN chown -R ops:root /etc/ssh
-RUN chown -R ops:root /usr/sbin/sshd
-RUN chown -R ops:root /usr/sbin/adduser
+RUN chown -R ops:root /etc
+RUN chown -R ops:root /usr
+RUN chown -R ops:root /var/www/html
 
 
 USER 1001
