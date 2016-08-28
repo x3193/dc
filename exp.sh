@@ -5,13 +5,13 @@ set timeout 15
 spawn su - 
 expect "password:"
 send "EUIfgwe7\r"
-expect "\$ "
+expect "#"
 send "sh /run.sh\r"             
-expect "\$ "
-send "echo $?\r"
+expect "#"
+send "echo #?\r"
 expect "#"
 send "echo '========'\r"
-expect "$"
+expect "#"
 sleep 15
 expect eof 
 interact
