@@ -2,7 +2,7 @@
 
 #echo "---> Installing application source"
 #cp -Rf /tmp/src/. ./
-cat /etc/sudoers
+sudo cat /etc/sudoers
 id -un
 cat /etc/group
 echo "20000000"
