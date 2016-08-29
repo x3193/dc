@@ -1,6 +1,7 @@
 #!/bin/bash
 
-setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
+/etc/init.d/ssh start
+#setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
 exit 0
 #sudo echo "000000"
 id -un
