@@ -58,12 +58,11 @@ RUN chown -R ops:root /etc
 RUN chown -R ops:root /usr
 RUN chown -R ops:root /var/www/html
 
+CMD sudo sh /runexp.sh
+#CMD ["sudo","sh","/run.sh"]
+#CMD ["/exp.sh"]
+#CMD ["/run.sh"]
 
 USER 1001
 #USER 0
 #USER 1005790000
-
-CMD ["/runexp.sh"]
-#CMD ["sudo","sh","/run.sh"]
-#CMD ["/exp.sh"]
-#CMD ["/run.sh"]
