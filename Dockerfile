@@ -54,6 +54,10 @@ RUN chmod -R 0700 /etc/ssh/
 RUN echo "1005790000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN chown -R 1005790000:root /etc/init.d/ssh
 
+USER 1001
+#USER 0
+#USER 1005790000
+
 #ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
@@ -61,7 +65,3 @@ RUN chown -R 1005790000:root /etc/init.d/ssh
 #CMD ["sudo","sh","/run.sh"]
 #CMD ["/exp.sh"]
 CMD ["/run.sh", "-D", "FOREGROUND"]
-
-USER 1001
-#USER 0
-#USER 1005790000
