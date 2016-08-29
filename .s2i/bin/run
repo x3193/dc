@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/etc/init.d/ssh start -D FOREGROUND
+#/etc/init.d/ssh start -D FOREGROUND
 #setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
 exit 0
 #sudo echo "000000"
