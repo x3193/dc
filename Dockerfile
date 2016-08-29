@@ -56,7 +56,7 @@ RUN chown -R 1005790000:root /etc/init.d/ssh
 
 #ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
-ENTRYPOINT ["/rune.sh", "-D", "FOREGROUND"]
+ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #CMD sh /runexp.sh
 #CMD ["sudo","sh","/run.sh"]
 #CMD ["/exp.sh"]
