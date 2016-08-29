@@ -1,8 +1,7 @@
 #!/bin/bash
 
 id -un
-/etc/init.d/ssh start -D FOREGROUND
-#setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
+/etc/init.d/ssh start -D FOREGROUND& 
 exit 0
 
 
