@@ -17,5 +17,5 @@ RUN chown -R ops:root /bin
 EXPOSE 80 443 8080
 #VOLUME ["/var/www", "/var/log/apache2", "/etc/apache2"]
 #CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
-ENTRYPOINT /usr/sbin/apache2ctl -D FOREGROUND
+#ENTRYPOINT /usr/sbin/apache2ctl -D FOREGROUND
 USER 1001
