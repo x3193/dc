@@ -5,5 +5,5 @@ EXPOSE 80 443
 USER 1005790000
 #USER 1001
 #
-ENTRYPOINT sudo /usr/sbin/apache2ctl -D FOREGROUND
+ENTRYPOINT /usr/sbin/apache2ctl -D FOREGROUND
 #CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
