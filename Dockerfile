@@ -11,7 +11,7 @@ RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 
 RUN chown -R ops:root /var
-RUN chown -R ops:root /usr/sbin
+RUN chown -R ops:root /usr
 RUN chown -R ops:root /bin
 
 EXPOSE 80 443 8080
