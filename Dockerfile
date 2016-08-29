@@ -11,7 +11,7 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
 # Install packages
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install libsemanage1* expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo openssh-server python-numpy python3-numpy
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
@@ -22,12 +22,6 @@ ADD runexp.sh /runexp.sh
 RUN chmod +x /*.sh
 
 RUN sh /set_root_pw.sh
-RUN wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-RUN mkdir -vp /var/www/html
-RUN chmod -R 7777 /var/www/html
-RUN unzip -o -d /var/www/html/ noVNC-master.zip
-RUN chmod -R 7777 /var/www/html
-#RUN whereis expect
 
 EXPOSE 22
 EXPOSE 80
@@ -51,12 +45,14 @@ RUN usermod -a -G adm ops
 #RUN echo "x3193 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN usermod -a -G sudo x3193
 #RUN usermod -a -G adm x3193
-#RUN chown -R ops:root /etc/init.d
-#RUN chown -R ops:root /etc/ssh/
+RUN chown -R 1005790000:root /etc/init.d
+chmod -R 7777 /etc/init.d
+RUN chown -R 1005790000:root /etc/ssh/
+chmod -R 7777 /etc/ssh/
 
-RUN adduser -l  --shell /bin/bash --lastuid 1005790000 --system --ingroup root --uid 1005790000 x3193
-RUN echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN chown -R x3193:root /etc/init.d/ssh
+#RUN adduser --shell /bin/bash --lastuid 1005790000 --system --ingroup root --uid 1005790000 x3193
+RUN echo "1005790000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN chown -R 1005790000:root /etc/init.d/ssh
 
 #ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
@@ -66,6 +62,6 @@ RUN chown -R x3193:root /etc/init.d/ssh
 #CMD ["/exp.sh"]
 #CMD ["/run.sh"]
 
-USER 1001
+#USER 1001
 #USER 0
-#USER 1005790000
+USER 1005790000
