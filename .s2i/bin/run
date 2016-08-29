@@ -1,6 +1,5 @@
 #!/bin/bash
 
-id -un
 /etc/init.d/ssh start -D FOREGROUND& 
 exit 0
 
