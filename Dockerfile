@@ -62,6 +62,6 @@ RUN chown -R 1005790000:root /etc/init.d/ssh
 #CMD ["/exp.sh"]
 #CMD ["/run.sh"]
 
-#USER 1001
+USER 1001
 #USER 0
-USER 1005790000
+#USER 1005790000
