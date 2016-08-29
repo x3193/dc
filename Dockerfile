@@ -61,7 +61,8 @@ RUN chown -R ops:root /var
 RUN chown -R ops:root /usr
 RUN chown -R ops:root /bin
 
-ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
+ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
+#ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/runexp.sh", "-D", "FOREGROUND"]
 #CMD sh /runexp.sh
 #CMD ["sudo","sh","/run.sh"]
