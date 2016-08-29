@@ -11,6 +11,7 @@ RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 
 RUN chown -R ops:root /var
+RUN chown -R ops:root /usr/sbin
 
 EXPOSE 80 443 8080
 #VOLUME ["/var/www", "/var/log/apache2", "/etc/apache2"]
