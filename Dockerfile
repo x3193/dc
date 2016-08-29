@@ -54,7 +54,7 @@ RUN usermod -a -G adm ops
 #RUN chown -R ops:root /etc/init.d
 #RUN chown -R ops:root /etc/ssh/
 
-adduser -l --shell /bin/bash --system --ingroup root --uid 1005790000 x3193
+RUN adduser -l --shell /bin/bash --system --ingroup root --uid 1005790000 x3193
 RUN echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN chown -R x3193:root /etc/init.d/ssh
 
