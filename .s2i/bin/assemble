@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-/usr/sbin/apache2ctl -D FOREGROUND
+#/usr/sbin/apache2ctl -D FOREGROUND
 exit 0
 id -un
 #ssh-keygen -t rsa -f /home/ops/.ssh/id_rsa -q -N ""
