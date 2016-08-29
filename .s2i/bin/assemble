@@ -1,4 +1,5 @@
 #!/bin/bash -e
 
+ls
 #/usr/sbin/apache2ctl -D FOREGROUND
 exit 0
