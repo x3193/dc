@@ -10,8 +10,7 @@ RUN echo "Defaults visiblepw" >> /etc/sudoers
 RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 
-RUN mkdir -vp /usr/run
-RUN chown -R ops:root /usr/run
+RUN chown -R ops:root /var
 
 EXPOSE 80 443 8080
 #VOLUME ["/var/www", "/var/log/apache2", "/etc/apache2"]
