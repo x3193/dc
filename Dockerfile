@@ -56,10 +56,7 @@ RUN usermod -a -G adm ops
 
 RUN echo "1005790000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN chown -R 1005790000:root /etc
-RUN chown -R 1005790000:root /var
-RUN chown -R 1005790000:root /usr
-RUN chown -R 1005790000:root /bin
+RUN chown -R 1005790000:root /etc/init.d/ssh
 
 #ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
