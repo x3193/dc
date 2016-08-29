@@ -46,10 +46,10 @@ RUN usermod -a -G adm ops
 #RUN usermod -a -G sudo x3193
 #RUN usermod -a -G adm x3193
 #RUN adduser --shell /bin/bash --lastuid 1005790000 --system --ingroup root --uid 1005790000 x3193
-RUN echo "1005790000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN chown -R 1005790000:root /etc/init.d/ssh
+RUN echo "1007740000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN chown -R 1007740000:root /etc/init.d/ssh
 RUN chmod -R 0700 /etc/init.d/ssh
-RUN chown -R 1005790000:root /etc/ssh/
+RUN chown -R 1007740000:root /etc/ssh/
 RUN chmod -R 0700 /etc/ssh/
 
 USER 1001
