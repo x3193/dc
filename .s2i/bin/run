@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/etc/init.d/ssh start -D FOREGROUND& 
+service ssh start 
 exit 0
 
 
