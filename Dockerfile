@@ -37,6 +37,8 @@ RUN sudo php5enmod opcache
 RUN sudo php5enmod mcrypt
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sudo a2enmod rewrite
+RUN sed -i "s/Listen 80/Listen 8080/g" /etc/apache2/ports.conf
+RUN chmod -R 7777 /var/log/apache2
 
 EXPOSE 22
 EXPOSE 80
@@ -67,10 +69,10 @@ RUN echo "1007870000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN chown -R 1007870000:root /etc/ssh/
 #RUN chmod -R 0700 /etc/ssh/
 #RUN adduser --shell /bin/bash --system --ingroup root --force-badname www-data
-RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN usermod -G root www-data
 RUN usermod -a -G sudo www-data
 RUN usermod -a -G adm www-data
-RUN usermod -a -G root www-data
+RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER 1001
 #USER 0
