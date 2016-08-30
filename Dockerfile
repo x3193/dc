@@ -10,6 +10,14 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_PID_FILE /var/run/apache2.pid
+ENV APACHE_RUN_DIR /var/run/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
+# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+ENV APACHE_LOG_DIR /var/log/apache2
+
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo openssh-server python-numpy python3-numpy
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -21,7 +29,14 @@ ADD exp.sh /exp.sh
 ADD runexp.sh /runexp.sh
 RUN chmod +x /*.sh
 
+RUN whereis exec
 RUN sh /set_root_pw.sh
+#RUN whereis expect
+RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin apache2-mpm-* -y  
+RUN sudo php5enmod opcache
+RUN sudo php5enmod mcrypt
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN sudo a2enmod rewrite
 
 EXPOSE 22
 EXPOSE 80
@@ -34,7 +49,7 @@ WORKDIR /root
 
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 #RUN echo "ops:EUIfgwe7" | chpasswd
-RUN echo "ops ALL=(ALL:ALL) ALL" >> /etc/sudoers
+RUN echo "ops ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 #RUN sed -i "s/# auth       sufficient pam_wheel.so trust/auth       sufficient pam_wheel.so trust/g" /etc/pam.d/su
@@ -56,8 +71,9 @@ USER 1001
 #USER 0
 #USER 1005790000
 
-ENTRYPOINT echo "1111111"
-CMD echo "2222222"
+CMD exec apache2 -D FOREGROUND
+#ENTRYPOINT exec apache2 -D FOREGROUND
+#CMD echo "2222222"
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #CMD sh /runexp.sh
