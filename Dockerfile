@@ -66,10 +66,11 @@ RUN echo "1007870000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN chmod -R 0700 /etc/init.d/ssh
 #RUN chown -R 1007870000:root /etc/ssh/
 #RUN chmod -R 0700 /etc/ssh/
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname www-data
+#RUN adduser --shell /bin/bash --system --ingroup root --force-badname www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN usermod -a -G sudo www-data
 RUN usermod -a -G adm www-data
+RUN usermod -a -G root www-data
 
 USER 1001
 #USER 0
