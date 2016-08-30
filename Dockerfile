@@ -83,4 +83,4 @@ ENTRYPOINT exec apache2 -D FOREGROUND
 #CMD sh /runexp.sh
 #CMD ["sudo","sh","/run.sh"]
 #CMD ["/exp.sh"]
-CMD ["/run.sh", "-D", "FOREGROUND"]
+#CMD ["/run.sh", "-D", "FOREGROUND"]
