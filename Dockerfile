@@ -56,7 +56,8 @@ USER 1001
 #USER 0
 #USER 1005790000
 
-#ENTRYPOINT /etc/init.d/ssh start -D FOREGROUND
+ENTRYPOINT echo "1111111"
+CMD echo "2222222"
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #CMD sh /runexp.sh
