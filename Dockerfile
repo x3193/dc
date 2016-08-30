@@ -61,18 +61,18 @@ RUN usermod -a -G adm ops
 #RUN usermod -a -G sudo x3193
 #RUN usermod -a -G adm x3193
 #RUN adduser --shell /bin/bash --lastuid 1005790000 --system --ingroup root --uid 1005790000 x3193
-RUN echo "1007740000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN chown -R 1007740000:root /etc/init.d/ssh
-RUN chmod -R 0700 /etc/init.d/ssh
-RUN chown -R 1007740000:root /etc/ssh/
-RUN chmod -R 0700 /etc/ssh/
+RUN echo "1007870000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+#RUN chown -R 1007870000:root /etc/init.d/ssh
+#RUN chmod -R 0700 /etc/init.d/ssh
+#RUN chown -R 1007870000:root /etc/ssh/
+#RUN chmod -R 0700 /etc/ssh/
 
 USER 1001
 #USER 0
 #USER 1005790000
 
-CMD exec apache2 -D FOREGROUND
-#ENTRYPOINT exec apache2 -D FOREGROUND
+#CMD exec apache2 -D FOREGROUND
+ENTRYPOINT exec apache2 -D FOREGROUND
 #CMD echo "2222222"
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
