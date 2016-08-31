@@ -1,5 +1,6 @@
 #!/bin/bash
 
+id -un
 /etc/init.d/apache2 start
 exit 0
 
