@@ -11,8 +11,9 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
 ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+#ENV APACHE_RUN_USER www-data
 #ENV APACHE_RUN_GROUP www-data
-ENV APACHE_RUN_GROUP root
 ENV APACHE_PID_FILE /var/run/apache2.pid
 ENV APACHE_RUN_DIR /var/run/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
@@ -30,7 +31,7 @@ ADD exp.sh /exp.sh
 ADD runexp.sh /runexp.sh
 RUN chmod +x /*.sh
 
-RUN whereis exec
+#RUN whereis exec
 RUN sh /set_root_pw.sh
 #RUN whereis expect
 RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin apache2-mpm-* -y  
@@ -38,7 +39,8 @@ RUN sudo php5enmod opcache
 RUN sudo php5enmod mcrypt
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sudo a2enmod rewrite
-RUN sed -i "s/Listen 80/Listen 8080/g" /etc/apache2/ports.conf
+RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
+RUN cat /etc/apache2/ports.conf
 RUN chmod -R 7777 /var/log/apache2
 
 EXPOSE 22
@@ -52,7 +54,7 @@ WORKDIR /root
 
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 #RUN echo "ops:EUIfgwe7" | chpasswd
-RUN echo "ops ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 #RUN sed -i "s/# auth       sufficient pam_wheel.so trust/auth       sufficient pam_wheel.so trust/g" /etc/pam.d/su
@@ -70,7 +72,7 @@ RUN echo "1007870000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #RUN chown -R 1007870000:root /etc/ssh/
 #RUN chmod -R 0700 /etc/ssh/
 #RUN adduser --shell /bin/bash --system --ingroup root --force-badname www-data
-RUN usermod -G root www-data
+RUN usermod -a -G root www-data
 RUN usermod -a -G sudo www-data
 RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -80,7 +82,7 @@ USER 1001
 #USER 1005790000
 
 #CMD exec apache2 -D FOREGROUND
-ENTRYPOINT exec apache2 -D FOREGROUND
+CMD exec apache2 -D FOREGROUND
 #CMD echo "2222222"
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
 #ENTRYPOINT ["/run.sh", "-D", "FOREGROUND"]
