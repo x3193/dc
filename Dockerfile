@@ -10,8 +10,8 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
+ENV APACHE_RUN_USER ops
+ENV APACHE_RUN_GROUP root
 #ENV APACHE_RUN_USER www-data
 #ENV APACHE_RUN_GROUP www-data
 ENV APACHE_PID_FILE /var/run/apache2.pid
@@ -41,6 +41,7 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sudo a2enmod rewrite
 RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
 RUN cat /etc/apache2/ports.conf
+RUN chown -R root:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
 
 EXPOSE 22
