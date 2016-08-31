@@ -35,6 +35,7 @@ RUN chmod +x /*.sh
 RUN sh /set_root_pw.sh
 #RUN whereis expect
 RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin apache2-mpm-* -y  
+RUN service apache2 restart
 RUN sudo php5enmod opcache
 RUN sudo php5enmod mcrypt
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
@@ -45,6 +46,7 @@ RUN cat /etc/apache2/ports.conf
 RUN cat /etc/apache2/sites-available/000-default.conf
 RUN chown -R root:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
+RUN service apache2 restart
 
 EXPOSE 22
 EXPOSE 80
