@@ -1,5 +1,5 @@
 #!/bin/bash -e
 
 id -un
-/etc/init.d/apache2 start
+exec /usr/sbin/apache2 -D FOREGROUND
 exit 0
