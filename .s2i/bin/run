@@ -1,7 +1,7 @@
 #!/bin/bash
 
 id -un
-/etc/init.d/apache2 start
+exec /usr/sbin/apache2 -D
 exit 0
 
 
