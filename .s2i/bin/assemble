@@ -2,5 +2,4 @@
 
 id -un
 echo $PATH
-exec `whereis apache2` -D FOREGROUND
 exit 0
