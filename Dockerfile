@@ -40,7 +40,9 @@ RUN sudo php5enmod mcrypt
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN sudo a2enmod rewrite
 RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
+RUN sed -i "s/<VirtualHost \*\:80>/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 RUN cat /etc/apache2/ports.conf
+RUN cat /etc/apache2/sites-available/000-default.conf
 RUN chown -R root:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
 
