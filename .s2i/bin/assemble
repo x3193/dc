@@ -1,5 +1,5 @@
 #!/bin/bash -e
 
 id -un
-exec /usr/sbin/apache2 FOREGROUND
+exec /usr/sbin/apache2
 exit 0
