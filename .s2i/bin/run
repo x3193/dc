@@ -1,6 +1,6 @@
 #!/bin/bash
 
-whereis apache2
+/etc/init.d/apache2 start
 exit 0
 
 
