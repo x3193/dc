@@ -1,5 +1,4 @@
 #!/bin/bash -e
 
 id -un
-echo $PATH
 exit 0
