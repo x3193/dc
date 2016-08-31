@@ -2,5 +2,4 @@
 
 id -un
 echo $PATH
-service apache2 start -D FOREGROUND
 exit 0
