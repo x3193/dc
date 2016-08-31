@@ -1,5 +1,6 @@
 #!/bin/bash
 
+whereis apache2
 exec apache2 -D FOREGROUND
 exit 0
 
