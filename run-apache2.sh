@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec /etc/init.d/apache2 start
+exec exec /usr/sbin/apache2 -D FOREGROUND
