@@ -2,5 +2,5 @@
 
 id -un
 echo $PATH
-exec /usr/sbin/apache2 -D FOREGROUND
+exec /var/run/apache2 -D FOREGROUND
 exit 0
