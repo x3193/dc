@@ -31,5 +31,5 @@ RUN cat /etc/ssh/sshd_config
 RUN cat /etc/ssh/sshd_conf
 
 EXPOSE 2222
-USER 1007870000
+USER 1001
 CMD /run-apache2.sh
