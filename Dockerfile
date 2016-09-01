@@ -41,10 +41,13 @@ RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
 RUN sed -i "s/<VirtualHost \*\:80>/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 RUN cat /etc/apache2/ports.conf
 RUN cat /etc/apache2/sites-available/000-default.conf
-RUN chown -R root:root /var/log/apache2
+RUN chown -R www-data:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
+RUN chown -R www-data:root /var/run/apache2
+RUN chmod -R 7777 /var/run/apache2
+RUN chown -R www-data:root /var/lock/apache2
+RUN chmod -R 7777 /var/lock/apache2
 RUN service apache2 restart
-
 
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -53,7 +56,7 @@ RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN chown -R 1000340000:root /etc/ssh/
-RUN chmod -R 0700 /etc/ssh/
+RUN chmod -R 7777 /etc/ssh/
 RUN echo "AllowUsers ops 1000340000" >> /etc/ssh/sshd_conf
 RUN sed -i "s/Port 22*/Port 2222/g" /etc/ssh/sshd_config
 RUN service ssh restart
