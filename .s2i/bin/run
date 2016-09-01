@@ -1,9 +1,7 @@
 #!/bin/bash
 
-id -un
-find / -name 'apache'
 echo $PATH
-exec /usr/sbin/apache2 -D
+exec /usr/sbin/sshd -D
 exit 0
 
 
