@@ -24,9 +24,9 @@ RUN sh /set_root_pw.sh
 
 #apache2
 #ENV APACHE_RUN_USER ops
-ENV APACHE_RUN_GROUP root
-ENV APACHE_RUN_USER 1007870000
-#ENV APACHE_RUN_GROUP www-data
+#ENV APACHE_RUN_GROUP root
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
 ENV APACHE_PID_FILE /var/run/apache2.pid
 ENV APACHE_RUN_DIR /var/run/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
@@ -39,8 +39,8 @@ RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
 RUN sed -i "s/<VirtualHost \*\:80>/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 RUN cat /etc/apache2/ports.conf
 RUN cat /etc/apache2/sites-available/000-default.conf
-RUN chown -R 1007870000:root /var/log/apache2
-RUN chmod -R 0700 /var/log/apache2
+RUN chown -R www-data:root /var/log/apache2
+RUN chmod -R 7777 /var/log/apache2
 RUN usermod -a -G root www-data
 RUN usermod -a -G sudo www-data
 RUN usermod -a -G adm www-data
