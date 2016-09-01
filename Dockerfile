@@ -41,7 +41,9 @@ RUN cat /etc/apache2/ports.conf
 RUN cat /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
+RUN chown -R www-data:root /var/run
 RUN chmod -R 7777 /var/run
+RUN chown -R www-data:root /var/lock
 RUN chmod -R 7777 /var/lock
 RUN usermod -a -G root www-data
 RUN usermod -a -G sudo www-data
