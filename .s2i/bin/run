@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec /usr/sbin/apache2 -D
+exec /usr/sbin/sshd -D
 
 
 
