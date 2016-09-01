@@ -27,7 +27,7 @@ RUN sh /set_root_pw.sh
 #ENV APACHE_RUN_GROUP root
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE /var/run/apache2.pid
+ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
 ENV APACHE_RUN_DIR /var/run/apache2
 ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
