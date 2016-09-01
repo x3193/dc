@@ -78,4 +78,4 @@ EXPOSE 8080
 EXPOSE 2222
 
 USER 1001
-CMD exec /usr/sbin/sshd -D
+CMD run-apache2.sh
