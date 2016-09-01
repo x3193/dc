@@ -2,6 +2,7 @@
 
 id -un
 exec /usr/sbin/sshd -D
+exit 0
 
 
 
