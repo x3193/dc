@@ -1,4 +1,4 @@
 #!/bin/bash
 
 exec /usr/sbin/sshd -D
-exec top -bcn 1
+top -bcn 1
