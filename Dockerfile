@@ -56,14 +56,14 @@ RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
 RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
-RUN echo "1007870000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "1009490000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ADD run-apache2.sh /run-apache2.sh
 RUN chmod a+x /run-apache2.sh
 
-RUN chown -R 1007870000:root /etc/ssh/
+RUN chown -R 1009490000:root /etc/ssh/
 RUN chmod -R 0700 /etc/ssh/
-RUN echo "AllowUsers ops 1007870000" >> /etc/ssh/sshd_conf
+RUN echo "AllowUsers ops 1009490000" >> /etc/ssh/sshd_conf
 RUN sed -i "s/Port 22*/Port 2222/g" /etc/ssh/sshd_config
 RUN service ssh restart
 RUN cat /etc/ssh/sshd_config
