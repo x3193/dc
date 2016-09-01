@@ -1,8 +1,5 @@
 #!/bin/bash
 
-id
-sudo chmod 0700 /usr/sbin/sshd
-echo $PATH
 exec /usr/sbin/sshd -D
 exit 0
 
