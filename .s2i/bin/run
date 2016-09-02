@@ -3,7 +3,7 @@
 id -un
 echo "run"
 exec /usr/sbin/sshd -D
-apache2
+exec apache2
 exit 0
 
 
