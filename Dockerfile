@@ -72,10 +72,11 @@ RUN service apache2 start
 RUN echo "====="
 #vnc
 RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends net-tools wget vim zip unzip xorg lxde tightvncserver x11vnc autocutsel git 
+RUN cd /root
 RUN sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-RUN chown -R root:root /var/run/apache2
-sudo mkdir -vp /root/.vnc
-sudo chmod -R 7777 /root/.vnc
+RUN sudo mkdir -vp /root/.vnc
+RUN chown -R root:root /root/.vnc
+RUN sudo chmod -R 7777 /root/.vnc
 RUN sudo mkdir -vp /var/www/html
 RUN sudo chmod -R 7777 /var/www/html
 RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
