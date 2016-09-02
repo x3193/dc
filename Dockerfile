@@ -69,6 +69,8 @@ RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
 RUN echo "====="
+RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends net-tools wget vim zip unzip xorg lxde tightvncserver x11vnc autocutsel git 
+RUN echo "====="
 
 EXPOSE 22
 EXPOSE 80
