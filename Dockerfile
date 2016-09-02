@@ -75,8 +75,8 @@ RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends 
 RUN cd /root
 RUN sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
 RUN sudo mkdir -vp /root/.vnc
-RUN chown -R 1000340000:root /root/.vnc
-RUN sudo chmod -R 7777 /root/.vnc
+RUN chown -R 1000340000:root /root
+#RUN sudo chmod -R 7777 /root/.vnc
 RUN sudo mkdir -vp /var/www/html
 RUN chown -R 1000340000:root /var/www/html
 RUN sudo chmod -R 7777 /var/www/html
