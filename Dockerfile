@@ -3,12 +3,6 @@ FROM ubuntu:trusty
 #FROM x3193/dc:latest
 #FROM x3193/ubt1404:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
- 
-ENV DEBIAN_FRONTEND noninteractive
-ENV HOME /root
-ENV USER root
-ENV AUTHORIZED_KEYS **None**
-ENV ROOT_PASS EUIfgwe7
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo openssh-server python-numpy python3-numpy
