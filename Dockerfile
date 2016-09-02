@@ -78,6 +78,7 @@ RUN chmod -R 7777 /root
 RUN sudo mkdir -vp /var/www/html
 RUN sudo chmod -R 7777 /var/www/html
 RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
+RUN sudo chmod -R 7777 /var/www/html
 RUN echo "====="
 
 EXPOSE 22
