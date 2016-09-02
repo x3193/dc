@@ -26,6 +26,7 @@ ADD run-apache2.sh /run-apache2.sh
 RUN chmod a+x /run-apache2.sh
 
 RUN echo "====="
+#ssh
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
@@ -69,7 +70,12 @@ RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
 RUN echo "====="
+#vnc
 RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends net-tools wget vim zip unzip xorg lxde tightvncserver x11vnc autocutsel git 
+RUN sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+RUN sudo mkdir -vp /var/www/html
+RUN sudo chmod -R 7777 /var/www/html
+RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
 RUN echo "====="
 
 EXPOSE 22
