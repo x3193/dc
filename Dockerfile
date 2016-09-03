@@ -70,7 +70,7 @@ RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
 RUN echo "====="
-# /root
+# /root /var/www
 RUN chown -R 1000340000:root /root
 RUN chmod -R 7777 /root
 RUN chown -R 1000340000:root /var/www
