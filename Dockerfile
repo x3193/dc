@@ -77,11 +77,27 @@ RUN chmod -R 7777 /root
 RUN chown -R 1000340000:root /var/www
 RUN chmod -R 7777 /var/www
 RUN echo "====="
+#vnc
+RUN apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
 RUN wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
 RUN unzip -o -d /var/www/html/ noVNC-master.zip
 RUN wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
 RUN unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 RUN chmod -R 7777 /var/www/html
+RUN echo "====="
+#dir
+RUN chown -R 1000340000:root /root
+RUN chmod -R 7777 /root
+RUN chown -R 1000340000:root /var/www
+RUN chmod -R 7777 /var/www
+RUN chown -R 1000340000:root /etc/init.d
+RUN chmod -R 7777 /etc/init.d
+RUN chown -R www-data:root /var/log/apache2
+RUN chmod -R 7777 /var/log/apache2
+RUN chown -R www-data:root /var/run/apache2
+RUN chmod -R 7777 /var/run/apache2
+RUN chown -R www-data:root /var/lock/apache2
+RUN chmod -R 7777 /var/lock/apache2
 RUN echo "====="
 
 EXPOSE 22
@@ -89,7 +105,8 @@ EXPOSE 80
 EXPOSE 6080
 EXPOSE 5901
 EXPOSE 5902
-
+RUN echo "====="
+#ops
 EXPOSE 8080
 EXPOSE 2222
 
