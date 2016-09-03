@@ -82,7 +82,7 @@ RUN chown -R 1000340000:root /var/www/html
 RUN sudo chmod -R 7777 /var/www/html
 RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
 RUN sudo chmod -R 7777 /var/www/html
-echo "====="
+RUN echo "====="
 RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends cron
 RUN echo "*/5 * * * * ops setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &" >> /etc/crontab
 RUN chown -R 1000340000:root /etc/crontab
