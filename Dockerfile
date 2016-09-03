@@ -100,6 +100,8 @@ RUN chmod -R 7777 /var/run/apache2
 RUN chown -R www-data:root /var/lock/apache2
 RUN chmod -R 7777 /var/lock/apache2
 RUN chown -R 1000340000:root /etc/X11
+RUN chown -R 1000340000:root /etc/ssh/
+RUN chmod -R 0700 /etc/ssh/
 RUN echo "====="
 
 EXPOSE 22
