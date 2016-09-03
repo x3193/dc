@@ -70,19 +70,6 @@ RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
 RUN echo "====="
-#vnc
-RUN sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends net-tools wget vim zip unzip xorg lxde tightvncserver x11vnc autocutsel git 
-RUN cd /root
-RUN sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-RUN sudo mkdir -vp /root/.vnc
-RUN chown -R 1000340000:root /root
-#RUN sudo chmod -R 7777 /root/.vnc
-RUN sudo mkdir -vp /var/www/html
-RUN chown -R 1000340000:root /var/www/html
-RUN sudo chmod -R 7777 /var/www/html
-RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
-RUN sudo chmod -R 7777 /var/www/html
-RUN echo "====="
 RUN sudo apt-get install openssl shellinabox -y
 RUN sudo service shellinabox start
 RUN echo "====="
