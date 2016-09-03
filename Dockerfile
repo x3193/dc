@@ -26,6 +26,9 @@ ADD run-apache2.sh /run-apache2.sh
 RUN chmod a+x /run-apache2.sh
 
 RUN echo "====="
+# /root
+RUN chown -R 1000340000:root /root
+RUN chmod -R 7777 /root
 #ssh
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -70,8 +73,7 @@ RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
 RUN echo "====="
-RUN sudo apt-get install openssl shellinabox -y
-RUN sudo service shellinabox start
+
 RUN echo "====="
 
 EXPOSE 22
