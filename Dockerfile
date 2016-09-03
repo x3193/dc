@@ -84,7 +84,7 @@ RUN sudo unzip -o -d /var/www/html/ noVNC-master.zip
 RUN sudo chmod -R 7777 /var/www/html
 RUN echo "====="
 RUN sudo apt-get install openssl shellinabox -y
-RUN sudo service shellinaboxd start
+RUN sudo service shellinabox start
 RUN echo "====="
 
 EXPOSE 22
