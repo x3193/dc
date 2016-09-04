@@ -83,6 +83,8 @@ RUN wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
 RUN unzip -o -d /var/www/html/ noVNC-master.zip
 RUN wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
 RUN unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
+RUN sudo mkdir -vp /root/.vnc
+RUN sudo chmod -R 7777 /root/.vnc
 RUN echo "000000" > /root/.vnc/passwd
 RUN chmod -R 0600 /root/.vnc/passwd
 RUN chmod -R 7777 /var/www/html
