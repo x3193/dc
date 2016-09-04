@@ -14,7 +14,7 @@ ENV ROOT_PASS EUIfgwe7
 RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN echo "Defaults visiblepw" >> /etc/sudoers
-RUN usermod -a -G ops
+RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 USER ops
 
@@ -35,11 +35,11 @@ RUN sudo chmod a+x /run-apache2.sh
 
 RUN sudo echo "====="
 #1001
-RUN sudo adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
-RUN sudo echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN sudo echo "Defaults visiblepw" >> /etc/sudoers
-RUN sudo usermod -a -G sudo ops
-RUN sudo usermod -a -G adm ops
+#RUN sudo adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+#RUN sudo echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+#RUN sudo echo "Defaults visiblepw" >> /etc/sudoers
+#RUN sudo usermod -a -G sudo ops
+#RUN sudo usermod -a -G adm ops
 #ssh
 #RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN sudo chown -R 1000340000:root /etc/ssh/
