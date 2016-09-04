@@ -10,9 +10,13 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo
-RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-USER 1000340000
+#1001
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "Defaults visiblepw" >> /etc/sudoers
+RUN usermod -a -G ops
+RUN usermod -a -G adm ops
+USER ops
 
 # Install packages
 RUN sudo dpkg --configure -a && sudo apt-get install -f && sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
