@@ -11,7 +11,7 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
 # Install packages
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
@@ -27,11 +27,11 @@ RUN chmod a+x /run-apache2.sh
 
 RUN echo "====="
 #1001
-#RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
-#RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-#RUN echo "Defaults visiblepw" >> /etc/sudoers
-#RUN usermod -a -G sudo ops
-#RUN usermod -a -G adm ops
+RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "Defaults visiblepw" >> /etc/sudoers
+RUN usermod -a -G sudo ops
+RUN usermod -a -G adm ops
 #ssh
 #RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN chown -R 1000340000:root /etc/ssh/
@@ -66,7 +66,7 @@ RUN chmod -R 7777 /var/run/apache2
 RUN chown -R www-data:root /var/lock/apache2
 RUN chmod -R 7777 /var/lock/apache2
 RUN usermod -a -G root www-data
-RUN usermod -a -G www-data
+RUN usermod -a -G sudo www-data
 RUN usermod -a -G adm www-data
 RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN service apache2 start
