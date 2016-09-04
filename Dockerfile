@@ -10,7 +10,21 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
-RUN chown -R 1000340000:root /
+RUN chown -R 1000340000:root /etc
+RUN chown -R 1000340000:root /usr
+RUN chown -R 1000340000:root /var
+RUN chown -R 1000340000:root /bin
+RUN chown -R 1000340000:root /lib
+RUN chown -R 1000340000:root /lib64
+RUN chown -R 1000340000:root /media
+RUN chown -R 1000340000:root /mnt
+RUN chown -R 1000340000:root /opt
+RUN chown -R 1000340000:root /root
+RUN chown -R 1000340000:root /run
+RUN chown -R 1000340000:root /sbin
+RUN chown -R 1000340000:root /srv
+RUN chown -R 1000340000:root /tmp
+
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
