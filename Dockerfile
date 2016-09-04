@@ -10,6 +10,8 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
+RUN chown -R 1000340000:root /
+
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
