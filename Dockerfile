@@ -105,6 +105,9 @@ RUN echo "000000" > /root/.vnc/passwd
 RUN chmod -R 0600 /root/.vnc/passwd
 RUN chmod -R 7777 /var/www/html
 RUN chown -R 1000340000:root /etc/X11
+
+RUN apt-get install openssl shellinabox ajaxterm gateone -y
+
 RUN echo "====="
 #dir
 RUN chown -R 1000340000:root /root
