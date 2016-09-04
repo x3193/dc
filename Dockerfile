@@ -11,7 +11,7 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
 # Install packages
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo expect net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
