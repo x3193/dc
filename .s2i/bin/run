@@ -3,6 +3,7 @@
 id -un
 echo "run"
 
+lxterminal
 tightvncserver :1
 setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
 apache2
