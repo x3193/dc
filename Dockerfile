@@ -10,6 +10,10 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo
+RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+USER 1000340000
+
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 #RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -33,7 +37,7 @@ RUN echo "Defaults visiblepw" >> /etc/sudoers
 RUN usermod -a -G sudo ops
 RUN usermod -a -G adm ops
 #ssh
-RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+#RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 RUN chown -R 1000340000:root /etc/ssh/
 RUN chmod -R 0700 /etc/ssh/
 RUN echo "AllowUsers ops 1000340000" >> /etc/ssh/sshd_conf
@@ -120,5 +124,5 @@ EXPOSE 2222
 
 WORKDIR /root
 
-USER 1001
+#USER 1001
 CMD /run-apache2.sh
