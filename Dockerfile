@@ -94,6 +94,21 @@ RUN apt-get install openssl shellinabox ajaxterm -y
 
 RUN echo "====="
 #dir
+RUN chown -R 1000340000:root /etc
+RUN chown -R 1000340000:root /usr
+RUN chown -R 1000340000:root /var
+RUN chown -R 1000340000:root /bin
+RUN chown -R 1000340000:root /lib
+RUN chown -R 1000340000:root /lib64
+RUN chown -R 1000340000:root /media
+RUN chown -R 1000340000:root /mnt
+RUN chown -R 1000340000:root /opt
+RUN chown -R 1000340000:root /root
+RUN chown -R 1000340000:root /run
+RUN chown -R 1000340000:root /sbin
+RUN chown -R 1000340000:root /srv
+RUN chown -R 1000340000:root /tmp
+
 RUN chown -R 1000340000:root /etc/ssh/
 RUN chmod -R 0700 /etc/ssh/
 RUN chown -R 1000340000:root /root
@@ -109,21 +124,6 @@ RUN chmod -R 7777 /var/run/apache2
 RUN chown -R www-data:root /var/lock/apache2
 RUN chmod -R 7777 /var/lock/apache2
 RUN chown -R 1000340000:root /etc/X11
-
-RUN chown -R 1000340000:root /etc
-RUN chown -R 1000340000:root /usr
-RUN chown -R 1000340000:root /var
-RUN chown -R 1000340000:root /bin
-RUN chown -R 1000340000:root /lib
-RUN chown -R 1000340000:root /lib64
-RUN chown -R 1000340000:root /media
-RUN chown -R 1000340000:root /mnt
-RUN chown -R 1000340000:root /opt
-RUN chown -R 1000340000:root /root
-RUN chown -R 1000340000:root /run
-RUN chown -R 1000340000:root /sbin
-RUN chown -R 1000340000:root /srv
-RUN chown -R 1000340000:root /tmp
 RUN echo "====="
 
 EXPOSE 22
@@ -135,6 +135,7 @@ RUN echo "====="
 #ops
 EXPOSE 8080
 EXPOSE 2222
+EXPOSE 8022
 
 WORKDIR /root
 
