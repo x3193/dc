@@ -86,9 +86,8 @@ RUN unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 RUN mkdir -vp /root/.vnc
 RUN chmod -R 7777 /root/.vnc
 RUN chmod -R 7777 /var/www/html
-RUN chown -R 1000340000:root /etc/X11
 RUN apt-get install icewm -y
-cp -r /etc/X11/icewm /root/.icewm
+RUN cp -r /etc/X11/icewm /root/.icewm
 RUN echo "====="
 #dir
 RUN chown -R 1000340000:root /etc
@@ -108,12 +107,8 @@ RUN chown -R 1000340000:root /tmp
 
 RUN chown -R 1000340000:root /etc/ssh/
 RUN chmod -R 0700 /etc/ssh/
-RUN chown -R 1000340000:root /root
-RUN chmod -R 7777 /root
 RUN chown -R 1000340000:root /var/www
 RUN chmod -R 7777 /var/www
-RUN chown -R 1000340000:root /etc/init.d
-RUN chmod -R 7777 /etc/init.d
 RUN chown -R www-data:root /var/log/apache2
 RUN chmod -R 7777 /var/log/apache2
 RUN chown -R www-data:root /var/run/apache2
