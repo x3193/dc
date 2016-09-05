@@ -85,13 +85,10 @@ RUN wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
 RUN unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 RUN mkdir -vp /root/.vnc
 RUN chmod -R 7777 /root/.vnc
-RUN echo "000000" > /root/.vnc/passwd
-RUN chmod -R 0600 /root/.vnc/passwd
 RUN chmod -R 7777 /var/www/html
 RUN chown -R 1000340000:root /etc/X11
-
-RUN apt-get install openssl shellinabox ajaxterm -y
-
+RUN apt-get install icewm -y
+cp -r /etc/X11/icewm /root/.icewm
 RUN echo "====="
 #dir
 RUN chown -R 1000340000:root /etc
