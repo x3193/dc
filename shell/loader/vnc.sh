@@ -1,25 +1,13 @@
 #!/bin/bash
 
-id -un
-echo "run"
+echo "--------------------VNC------------------------" 
 
-cron
-/etc/init.d/cron restart
-rm -rf -R /tmp/*
-chmod -R 7777 /var/www/html
+sudo cron
+sudo rm -rf -R /tmp/*
 
-service apache2 restart ;
-service ssh start ;
-service mysql restart ;
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
 TZ='Asia/Shanghai'; export TZ
 tightvncserver :1
 setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
-apache2
-exec /usr/sbin/sshd -D
 
-exit 0
-
-
-
-
+echo "--------------------VNC------------------------"
