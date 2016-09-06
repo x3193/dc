@@ -57,5 +57,6 @@ EXPOSE 8080
 EXPOSE 2222
 
 WORKDIR /root
+USER 1001
 
 CMD ["/run-opsv3.sh","full"]
