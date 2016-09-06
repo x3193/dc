@@ -2,7 +2,8 @@
  
 echo "---------------------pre-install-----------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron
-echo "-----------------------configure---------------------"  
+echo "-----------------------configure---------------------"
+sudo dpkg --add-architecture i386  
 sudo dpkg --configure -a
 sudo chmod -R 7777 /var/www/html/shell/conf 
 echo "---------------------souce.list-----------------------"  
