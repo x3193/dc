@@ -36,9 +36,9 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-RUN sudo mkdir -vp /var/www/html
-ADD shell /var/www/html/shell
-RUN chmod -R +x /var/www/html/shell
+#RUN sudo mkdir -vp /var/www/html
+#ADD shell /var/www/html/shell
+#RUN chmod -R +x /var/www/html/shell
 ##RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
 ##RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
 ##RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
