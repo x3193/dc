@@ -65,4 +65,4 @@ WORKDIR /root
 USER 1000340000
 #USER 1001
 
-CMD ["/run-opsv3.sh"]
+#CMD ["/run-opsv3.sh"]
