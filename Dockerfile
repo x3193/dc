@@ -41,9 +41,9 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
-RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
-RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
+##RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
+##RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
+##RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
 
 
 RUN echo "--------------------Data install---------------"
@@ -65,4 +65,4 @@ WORKDIR /root
 USER 1000340000
 #USER 1001
 
-#CMD ["/run-opsv3.sh"]
+CMD ["/run.sh","full"]
