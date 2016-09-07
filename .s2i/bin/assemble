@@ -1,4 +1,4 @@
 #!/bin/bash -e
 
-id -un
+echo "--------------------Data install---------------"
 exit 0
