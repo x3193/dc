@@ -25,4 +25,10 @@ if [ ! -f /.root_pw_set ]; then
 	/set_root_pw.sh
 fi
 
+if [ -z "$2"] ; then
+	echo "-----------------------------------"
+	sudo sh /var/www/html/shell/loader/this/vnc.sh $1
+	echo "-----------------------------------"
+fi
+
 exec /usr/sbin/sshd -D
