@@ -9,7 +9,10 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
-RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
+ENV LC_ALL zh_CN.UTF-8
+ENV LANG zh_CN.UTF-8
+ENV LANGUAGE zh_CN:zh:en_US:en
+ENV TZ Asia/Shanghai
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -36,9 +39,9 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-RUN sudo mkdir -vp /var/www/html
-ADD shell /var/www/html/shell
-RUN chmod -R +x /var/www/html/shell
+##RUN sudo mkdir -vp /var/www/html
+##ADD shell /var/www/html/shell
+##RUN chmod -R +x /var/www/html/shell
 ##RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
 ##RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
 ##RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
