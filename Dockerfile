@@ -1,7 +1,7 @@
 #FROM ubuntu:xenial
 FROM ubuntu:trusty
 #FROM x3193/dc:latest
-MAINTAINER x3193.tk <x3193@x3193.tk> 
+MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
  
 ENV DEBIAN_FRONTEND noninteractive
 ENV HOME /root
