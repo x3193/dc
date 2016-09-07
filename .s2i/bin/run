@@ -7,8 +7,9 @@ cp -R -f /tmp/scripts /root/scripts
 rm -rf -R /tmp/*
 chmod -R 0700 /var/www/html
 
-setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
 apache2
+tightvncserver :1
+setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
 sh /run.sh "full" "ops"
 
 exit 0
