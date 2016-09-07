@@ -9,10 +9,7 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
-ENV LC_ALL zh_CN.UTF-8
-ENV LANG zh_CN.UTF-8
-ENV LANGUAGE zh_CN:zh:en_US:en
-ENV TZ Asia/Shanghai
+
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -44,7 +41,7 @@ ADD shell /var/www/html/shell
 RUN chmod -R +x /var/www/html/shell
 ##RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
 ##RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
-RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
+##RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
 
 
 RUN echo "--------------------Data install---------------"
@@ -66,4 +63,4 @@ WORKDIR /root
 USER 1061680000
 #USER 1001
 
-CMD ["/run.sh","full"]
+CMD ["/run.sh","full","ops"]
