@@ -8,8 +8,14 @@ sudo apt-get dist-upgrade -y ;
 sudo apt-get update -y;
 sudo apt-get upgrade -y ;
 echo "---------------------------php-----------------"  
-#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y firefox putty htop unrar-free zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-xdebug phpmyadmin -y  
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin -y  
+if [ $1 = "trusty" ]; then
+	#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y firefox putty htop unrar-free zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-xdebug phpmyadmin -y  
+ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin -y  
+fi
+if [ $1 = "xenial" ]; then
+	#sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y firefox putty htop unrar-free zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apc php5-mcrypt php5-gd php5-curl php5-xdebug phpmyadmin -y  
+ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y zip unzip git wget vim supervisor git apache2 libapache2-mod-php5 mysql-server php5-mysql pwgen php-apcu php5-mcrypt php5-gd php5-curl php5-dev phpmyadmin -y  
+fi
 sudo service apache2 restart  
 sudo service mysql restart  
 sudo cp -f -R /etc/php5/apache2/php.ini /etc/php5/apache2/php.ini.backup
