@@ -60,6 +60,9 @@ EXPOSE 2222
 EXPOSE 3377
 
 WORKDIR /root
+
+#USER root
 USER 1000340000
+#USER 1001
 
 CMD ["/run.sh","full"]
