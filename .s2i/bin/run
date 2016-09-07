@@ -2,11 +2,6 @@
 
 id -un
 echo "run"
-
-apache2
-tightvncserver :1
-setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
-
 exec /usr/sbin/sshd -D
 exit 0
 
