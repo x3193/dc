@@ -1,5 +1,5 @@
-#FROM ubuntu:xenial
-FROM ubuntu:trusty
+FROM ubuntu:xenial
+#FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
  
@@ -39,7 +39,7 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
+RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "xenial" "nowine"
 RUN sudo sh /var/www/html/shell/setup/this/u7php.sh
 RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
 
