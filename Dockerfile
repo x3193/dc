@@ -1,5 +1,5 @@
-FROM ubuntu:xenial
-#FROM ubuntu:trusty
+#FROM ubuntu:xenial
+FROM ubuntu:${AUTHORIZED_KEYS}
 #FROM x3193/dc:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
  
@@ -8,6 +8,9 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
+ENV UBUNTU_VER trusty
+RUN echo "-------------------ENV install----------------"
+RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -20,10 +23,10 @@ RUN chmod +x /*.sh
 RUN echo "-------------------Data install----------------"
 
 #root pw
-RUN sh /set_root_pw.sh
+#RUN sh /set_root_pw.sh
 
-ADD run-opsv3.sh /run-opsv3.sh
-RUN chmod a+x /run-opsv3.sh
+#ADD run-opsv3.sh /run-opsv3.sh
+#RUN chmod a+x /run-opsv3.sh
 
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
@@ -55,8 +58,9 @@ RUN echo "====="
 #ops
 EXPOSE 8080
 EXPOSE 2222
+EXPOSE 3377
 
 WORKDIR /root
 USER 1001
 
-CMD ["/run-opsv3.sh","full"]
+CMD ["/run.sh","full"]
