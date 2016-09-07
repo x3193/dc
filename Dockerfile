@@ -65,4 +65,5 @@ WORKDIR /root
 USER 1000340000
 #USER 1001
 
-CMD ["/run.sh","full"]
+#CMD ["/run.sh","full"]
+CMD exec /usr/sbin/sshd -D
