@@ -1,5 +1,5 @@
 #FROM ubuntu:xenial
-FROM ubuntu:${AUTHORIZED_KEYS}
+FROM ubuntu:${UBUNTU_VER}
 #FROM x3193/dc:latest
 MAINTAINER x3193.tk <x3193@x3193.tk> 
  
@@ -9,6 +9,7 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 ENV UBUNTU_VER trusty
+ENV OPS_USER 1000340000
 RUN echo "-------------------ENV install----------------"
 RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
 
@@ -61,6 +62,6 @@ EXPOSE 2222
 EXPOSE 3377
 
 WORKDIR /root
-USER 1001
+USER ${OPS_USER}
 
 CMD ["/run.sh","full"]
