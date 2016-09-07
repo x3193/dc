@@ -3,10 +3,6 @@
 id -un
 echo "run"
 
-cp -R -f /tmp/scripts /root/scripts
-rm -rf -R /tmp/*
-chmod -R 0700 /var/www/html
-
 apache2
 tightvncserver :1
 setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
