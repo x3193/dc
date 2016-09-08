@@ -23,8 +23,8 @@ RUN echo "-------------------Data install----------------"
 
 #root pw
 #RUN sh /set_root_pw.sh
-#ADD run-opsv3.sh /run-opsv3.sh
-#RUN chmod a+x /run-opsv3.sh
+ADD run-opsv3.sh /run-opsv3.sh
+RUN chmod a+x /run-opsv3.sh
 
 #ENV APACHE_RUN_USER ops
 #ENV APACHE_RUN_GROUP root
@@ -62,4 +62,5 @@ WORKDIR /root
 USER 1061680000
 #USER 1001
 
-CMD /run.sh full ops
+#CMD /run.sh full ops
+CMD run-opsv3.sh
