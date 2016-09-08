@@ -20,10 +20,6 @@ RUN chmod -R 7777 /*.sh
 
 RUN echo "-------------------Data install----------------"
 
-#root pw
-#RUN sh /set_root_pw.sh
-
-
 #ENV APACHE_RUN_USER ops
 #ENV APACHE_RUN_GROUP root
 ENV APACHE_RUN_USER www-data
@@ -42,7 +38,8 @@ RUN chmod -R 7777 /var/www/html/shell
 
 ADD run-opsv3.sh /run-opsv3.sh
 RUN chmod -R 7777 /run-opsv3.sh
-RUN sh /run.sh full ops
+RUN sh /set_root_pw.sh
+#RUN sh /run.sh full ops
 #RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
 
 RUN echo "--------------------Data install---------------"
