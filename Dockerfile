@@ -28,8 +28,8 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-RUN { [ "${BUILDLEV}" = "base" || "${BUILDLEV}" = "full" ] && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"  || echo "" ; }
-RUN { [ "${BUILDLEV}" = "base" || "${BUILDLEV}" = "full" ] && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}  || echo "" ; }
+RUN { [ "${BUILDLEV}" == "base" || "${BUILDLEV}" = "full" ] && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"  || echo "" ; }
+RUN { [ "${BUILDLEV}" == "base" || "${BUILDLEV}" = "full" ] && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}  || echo "" ; }
 
 RUN echo "==========="
 
@@ -41,8 +41,8 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-ADD run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh /run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
-RUN chmod -R 7777 /run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
+ADD run$( [ ${APPNAME} == "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh /run$( [ ${APPNAME} == "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
+RUN chmod -R 7777 /run$( [ ${APPNAME} == "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
 RUN sh /set_root_pw.sh
 RUN { [ "${BUILDLEV}" = "start" || "${BUILDLEV}" = "full"  ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} || echo "" ; }
 RUN echo "==========="
