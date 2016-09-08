@@ -25,8 +25,8 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-#RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
-#RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
+RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
+RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
 RUN echo "==========="
 ENV OPSUID 1068700000
@@ -41,12 +41,10 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 RUN chmod -R 7777 /run-${APPNAME}.sh
 RUN sh /set_root_pw.sh
-RUN sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh start
+#RUN sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh full
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
-
-RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
 
 RUN echo "-------------------------------------------------"
 EXPOSE 22
