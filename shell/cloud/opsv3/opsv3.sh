@@ -3,8 +3,8 @@
 echo "--------------------OPSV3------------------------" 
 echo "====="
 #input
-echo "bind \'\"\\e[A\": history-search-backward\'" >> ~/.bashrc
-echo "bind \'\"\\e[B\": history-search-forward\'" >> ~/.bashrc
+echo "bind \'\"^[[A\": history-search-backward\'" >> ~/.bashrc
+echo "bind \'\"^[[B\": history-search-forward\'" >> ~/.bashrc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
