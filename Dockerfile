@@ -22,7 +22,7 @@ RUN chmod +x /*.sh
 RUN echo "-------------------Data install----------------"
 
 #root pw
-#RUN sh /set_root_pw.sh
+RUN sh /set_root_pw.sh
 ADD run-opsv3.sh /run-opsv3.sh
 RUN chmod a+x /run-opsv3.sh
 
