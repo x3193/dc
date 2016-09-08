@@ -2,7 +2,6 @@
 
 id -un
 echo "run"
-export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
 apache2
 tightvncserver :1
 exec /usr/sbin/sshd -D
