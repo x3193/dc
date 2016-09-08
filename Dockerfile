@@ -58,8 +58,8 @@ EXPOSE 3377
 WORKDIR /root
 
 #USER root
-USER 1066030000
-#USER 1001
+#USER 1066030000
+USER 1001
 
 CMD /run.sh full ops
 #CMD run-opsv3.sh
