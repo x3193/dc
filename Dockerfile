@@ -24,8 +24,8 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-##RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
-##RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
+RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
+RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
 
 
 #ENV APACHE_RUN_USER ops
@@ -41,8 +41,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ADD run-opsv3.sh /run-opsv3.sh
 RUN chmod -R 7777 /run-opsv3.sh
 RUN sh /set_root_pw.sh
-#RUN sh /run.sh full ops
-RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh start
+RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh full
 
 RUN echo "--------------------Data install---------------"
 
