@@ -8,7 +8,7 @@ xsetroot -solid grey
 export XKL_XMODMAP_DISABLE=1
 setsid autocutsel &
 #lxsession
-#/etc/X11/Xsession
-icewm-session &
-lxsession &
+/etc/X11/Xsession
+#icewm-session &
+#lxsession &
 
