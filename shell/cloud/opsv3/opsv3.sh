@@ -22,7 +22,7 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
-if [ $1 = "ok" ]; then
+if [ $1 = "full" ]; then
 #apache2
 DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 service apache2 restart
