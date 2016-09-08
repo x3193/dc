@@ -17,7 +17,7 @@ usermod -a -G adm ops
 chown -R 1068700000:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
 echo "AllowUsers ops 1068700000" >> /etc/ssh/sshd_conf
-sed -i "s/Port 22*/Port 2222/g" /etc/ssh/sshd_config
+sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
 cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
@@ -28,8 +28,8 @@ if [ $1 = "full" ]; then
 DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 service apache2 restart
 echo "ServerName localhost" >> /etc/apache2/apache2.conf
-sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
-sed -i "s/<VirtualHost \*\:80>/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
+sed -i "s/Listen 80.*/Listen 8080/g" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*\:80>.*/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 cat /etc/apache2/ports.conf
 cat /etc/apache2/sites-available/000-default.conf
 chown -R www-data:root /var/log/apache2
