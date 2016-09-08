@@ -10,7 +10,6 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
 
-
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
@@ -59,7 +58,7 @@ EXPOSE 3377
 WORKDIR /root
 
 #USER root
-USER 1061680000
+USER 1066030000
 #USER 1001
 
 CMD /run.sh full ops
