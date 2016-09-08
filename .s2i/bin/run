@@ -2,6 +2,8 @@
 
 id -un
 echo "run"
+apache2
+tightvncserver :1
 exec /usr/sbin/sshd -D
 exit 0
 
