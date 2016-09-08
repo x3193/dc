@@ -41,8 +41,8 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-ADD run-${APPNAME}.sh /run-${APPNAME}.sh )
-RUN chmod -R 7777 /run-${APPNAME}.sh
+ADD run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh /run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
+RUN chmod -R 7777 /run$( [ ${APPNAME} = "x3193" ] &&  echo "" || echo "-".${APPNAME} ).sh
 RUN sh /set_root_pw.sh
 RUN { [ "${BUILDLEV}" = "start" || "${BUILDLEV}" = "full"  ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} || echo "" ; }
 RUN echo "==========="
