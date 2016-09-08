@@ -62,4 +62,4 @@ WORKDIR /root
 USER 1061680000
 #USER 1001
 
-CMD ["/run.sh","full","ops"]
+CMD /run.sh full ops
