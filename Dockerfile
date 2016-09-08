@@ -16,14 +16,14 @@ RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSep
 
 ADD set_root_pw.sh /set_root_pw.sh
 ADD run.sh /run.sh
-RUN chmod +x /*.sh
+RUN chmod -R 7777 /*.sh
 
 RUN echo "-------------------Data install----------------"
 
 #root pw
 #RUN sh /set_root_pw.sh
 #ADD run-opsv3.sh /run-opsv3.sh
-#RUN chmod a+x /run-opsv3.sh
+#RUN chmod -R 7777 /run-opsv3.sh
 
 #ENV APACHE_RUN_USER ops
 #ENV APACHE_RUN_GROUP root
