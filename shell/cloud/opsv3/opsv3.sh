@@ -61,6 +61,9 @@ chmod -R 7777 /root/.vnc
 chmod -R 7777 /var/www/html
 apt-get install icewm -y
 cp -r /etc/X11/icewm /root/.icewm
+sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
+echo "icewm-session &" >> /root/.vnc/xstartup
+echo "lxsession &" >> /root/.vnc/xstartup
 echo "====="
 fi
 
