@@ -89,6 +89,7 @@ chown -R www-data:root /var/lock/apache2
 chmod -R 7777 /var/lock/apache2
 chown -R 1068700000:root /etc/X11
 chmod -R 0600 /root/.vnc/passwd
+chmod -R 7777 /tmp
 echo "====="
 
 echo "--------------------OPSV3------------------------"
