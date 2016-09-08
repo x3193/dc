@@ -17,9 +17,9 @@ sed -i "s/Port 22*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
 cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
+exit 0
 echo "====="
 #apache2
-
 DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 service apache2 restart
 echo "ServerName localhost" >> /etc/apache2/apache2.conf
