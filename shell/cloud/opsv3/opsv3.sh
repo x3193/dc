@@ -2,6 +2,9 @@
  
 echo "--------------------OPSV3------------------------" 
 echo "====="
+#input
+echo "bind \'\"\\e[A\": history-search-backward\'" >> ~/.bashrc
+echo "bind \'\"\\e[B\": history-search-forward\'" >> ~/.bashrc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -19,7 +22,6 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
-if [ "$1" = "ok" ] ; then
 #apache2
 DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 service apache2 restart
@@ -59,7 +61,6 @@ chmod -R 7777 /var/www/html
 apt-get install icewm -y
 cp -r /etc/X11/icewm /root/.icewm
 echo "====="
-fi
 
 #dir
 chown -R 1068700000:root /etc
