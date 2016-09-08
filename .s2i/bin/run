@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-id -un
 echo "run"
 exec /usr/sbin/sshd -D
 exit 0
