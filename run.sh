@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ "$2" = "" ] || [ -z "$2" ] ; then
+
 if [ "${AUTHORIZED_KEYS}" != "**None**" ]; then
     echo "=> Found authorized keys"
     mkdir -p /root/.ssh
@@ -23,7 +25,6 @@ if [ ! -f /.root_pw_set ]; then
 	/set_root_pw.sh
 fi
 
-if [ "$2" = "" ] || [ -z "$2" ] ; then
 
 echo "-----------------------------------"
 sudo sh /var/www/html/shell/loader/this/vnc.sh $1
