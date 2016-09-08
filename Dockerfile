@@ -42,7 +42,7 @@ RUN chmod -R 7777 /var/www/html/shell
 
 ADD run-opsv3.sh /run-opsv3.sh
 RUN chmod -R 7777 /run-opsv3.sh
-RUN sh /run.sh full
+RUN sh /run.sh full ops
 #RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh
 
 RUN echo "--------------------Data install---------------"
