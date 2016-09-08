@@ -8,8 +8,9 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
+ENV APPNAME opsv3
+ENV UBUNTUVER trusty
 RUN echo "-------------------ENV install----------------"
-RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -24,12 +25,11 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh "trusty" "nowine"
-RUN sudo sh /var/www/html/shell/setup/this/u7php.sh "trusty"
+#RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
+#RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
-
-#ENV APACHE_RUN_USER ops
-#ENV APACHE_RUN_GROUP root
+RUN echo "==========="
+ENV OPSUID 1068700000
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
@@ -38,13 +38,17 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 # Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
 ENV APACHE_LOG_DIR /var/log/apache2
 
-ADD run-opsv3.sh /run-opsv3.sh
-RUN chmod -R 7777 /run-opsv3.sh
+ADD run-${APPNAME}.sh /run-${APPNAME}.sh
+RUN chmod -R 7777 /run-${APPNAME}.sh
 RUN sh /set_root_pw.sh
-RUN sudo sh /var/www/html/shell/cloud/opsv3/opsv3.sh full
+RUN sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh start
+RUN echo "==========="
 
-RUN echo "--------------------Data install---------------"
+RUN echo "--------------------Config install---------------"
 
+RUN export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' TZ='Asia/Shanghai'
+
+RUN echo "-------------------------------------------------"
 EXPOSE 22
 EXPOSE 80
 EXPOSE 6080
@@ -62,4 +66,5 @@ WORKDIR /root
 USER 1001
 
 #CMD /run.sh full
-CMD run-opsv3.sh
+#CMD run-opsv3.sh
+CMD { [ ${APPNAME} = "x3193" ] && /run.sh full || /run-${APPNAME}.sh }
