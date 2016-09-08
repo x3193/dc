@@ -18,8 +18,6 @@ service ssh restart
 cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
-
-#if [ "$1" = "ok" ] ; then
 #apache2
 DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 service apache2 restart
@@ -59,9 +57,7 @@ chmod -R 7777 /var/www/html
 apt-get install icewm -y
 cp -r /etc/X11/icewm /root/.icewm
 echo "====="
-#fi
-
-#dir
+dir
 chown -R 1066030000:root /etc
 chown -R 1066030000:root /usr
 chown -R 1066030000:root /var
