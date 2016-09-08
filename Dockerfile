@@ -69,4 +69,4 @@ USER root
 
 #CMD /run.sh full
 #CMD run-opsv3.sh
-CMD { [ ${APPNAME} = "x3193" ] && /run.sh full || /run-${APPNAME}.sh }
+CMD { [ ${APPNAME} = "x3193" ] && /run.sh full || /run-${APPNAME}.sh ; }
