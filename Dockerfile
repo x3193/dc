@@ -8,9 +8,11 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
-ENV APPNAME opsv3
 ENV UBUNTUVER trusty
+#ENV APPNAME opsv3
+ENV APPNAME x3193
 RUN echo "-------------------ENV install----------------"
+ENV OPSUID 1068700000
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -29,7 +31,7 @@ RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
 RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
 RUN echo "==========="
-ENV OPSUID 1068700000
+
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
 ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
@@ -47,6 +49,7 @@ RUN echo "==========="
 RUN echo "--------------------Config install---------------"
 
 RUN echo "-------------------------------------------------"
+
 EXPOSE 22
 EXPOSE 80
 EXPOSE 6080
@@ -60,8 +63,8 @@ EXPOSE 3377
 
 WORKDIR /root
 
-#USER root
-USER 1001
+USER root
+#USER 1001
 
 #CMD /run.sh full
 #CMD run-opsv3.sh
