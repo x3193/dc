@@ -70,4 +70,4 @@ WORKDIR /root
 USER ${UUID}
 
 #CMD /run.sh full
-CMD { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && /run.sh full || /run.sh full ${APPNAME} ; }
+CMD { ( [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] ) && /run.sh full || /run.sh full ${APPNAME} ; }
