@@ -67,5 +67,5 @@ WORKDIR /root
 USER 1001
 
 #CMD /run.sh full
-#CMD /run-${APPNAME}.sh
-CMD /run.sh full
+CMD /run-${APPNAME}.sh
+#CMD /run.sh full
