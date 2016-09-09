@@ -9,14 +9,14 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
-ENV UBUNTUVER trusty 
 # trusty xenial
-ENV APPNAME opsv3 
+ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV BUILDLEV full 
+ENV APPNAME opsv3 
 # start base full
-ENV UUID 1068700000 
+ENV BUILDLEV full 
 # root 1068700000 
+ENV UUID 1068700000 
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
