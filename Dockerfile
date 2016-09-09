@@ -49,7 +49,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 RUN chmod -R 7777 /run-${APPNAME}.sh
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${OPSUID} || echo "" ; }
+RUN { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} || echo "" ; }
 
 RUN echo "==========="
 
