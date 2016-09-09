@@ -1,6 +1,7 @@
 #!/bin/bash
  
 echo "--------------------OPSV3------------------------" 
+uid = $2
 echo "====="
 #input
 export INPUTRC=/etc/inputrc
@@ -13,10 +14,10 @@ echo "Defaults visiblepw" >> /etc/sudoers
 usermod -a -G sudo ops
 usermod -a -G adm ops
 #ssh
-#echo "${OPSUID} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-chown -R ${OPSUID}:root /etc/ssh/
+#echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
-echo "AllowUsers ops ${OPSUID}" >> /etc/ssh/sshd_conf
+echo "AllowUsers ops ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
 cat /etc/ssh/sshd_config
@@ -45,9 +46,9 @@ echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 service apache2 start
 echo "====="
 # /root /var/www
-chown -R ${OPSUID}:root /root
+chown -R ${uid}:root /root
 chmod -R 7777 /root
-chown -R ${OPSUID}:root /var/www
+chown -R ${uid}:root /var/www
 chmod -R 7777 /var/www
 echo "====="
 #vnc
@@ -69,24 +70,24 @@ echo "====="
 fi
 
 #dir
-chown -R ${OPSUID}:root /etc
-chown -R ${OPSUID}:root /usr
-chown -R ${OPSUID}:root /var
-chown -R ${OPSUID}:root /bin
-chown -R ${OPSUID}:root /lib
-chown -R ${OPSUID}:root /lib64
-chown -R ${OPSUID}:root /media
-chown -R ${OPSUID}:root /mnt
-chown -R ${OPSUID}:root /opt
-chown -R ${OPSUID}:root /root
-chown -R ${OPSUID}:root /run
-chown -R ${OPSUID}:root /sbin
-chown -R ${OPSUID}:root /srv
-chown -R ${OPSUID}:root /tmp
+chown -R ${uid}:root /etc
+chown -R ${uid}:root /usr
+chown -R ${uid}:root /var
+chown -R ${uid}:root /bin
+chown -R ${uid}:root /lib
+chown -R ${uid}:root /lib64
+chown -R ${uid}:root /media
+chown -R ${uid}:root /mnt
+chown -R ${uid}:root /opt
+chown -R ${uid}:root /root
+chown -R ${uid}:root /run
+chown -R ${uid}:root /sbin
+chown -R ${uid}:root /srv
+chown -R ${uid}:root /tmp
 
-chown -R ${OPSUID}:root /etc/ssh/
+chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
-chown -R ${OPSUID}:root /var/www
+chown -R ${uid}:root /var/www
 chmod -R 7777 /var/www
 chown -R www-data:root /var/log/apache2
 chmod -R 7777 /var/log/apache2
@@ -94,7 +95,7 @@ chown -R www-data:root /var/run/apache2
 chmod -R 7777 /var/run/apache2
 chown -R www-data:root /var/lock/apache2
 chmod -R 7777 /var/lock/apache2
-chown -R ${OPSUID}:root /etc/X11
+chown -R ${uid}:root /etc/X11
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
 echo "====="
