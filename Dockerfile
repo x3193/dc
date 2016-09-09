@@ -14,7 +14,7 @@ ENV UBUNTUVER trusty
 # x3193 opsv3
 ENV APPNAME opsv3 
 # start base full
-ENV BUILDLEV full 
+ENV BUILDLEV start
 # root 1068700000 
 ENV UUID 1068700000 
 
@@ -48,7 +48,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 
 #ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 #RUN chmod -R 7777 /run-${APPNAME}.sh
-RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
+#RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
 RUN { { { [ ${BUILDLEV} = "start" ] && [ ${UUID} != "root" ] ; } || { [ ${BUILDLEV} = "full" ] && [ ${UUID} != "root" ] ; } ; } && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
 RUN echo "==========="
