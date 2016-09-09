@@ -74,4 +74,5 @@ USER ${UUID}
 
 #CMD /run.sh full
 CMD { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && /run.sh full || /run-${APPNAME}.sh ; }
+CMD { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && /run.sh full || /run.sh full ${APPNAME} ; }
 #CMD /run.sh full
