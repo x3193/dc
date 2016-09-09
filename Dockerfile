@@ -48,7 +48,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 
 ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 RUN chmod -R 7777 /run-${APPNAME}.sh
-RUN sh /set_root_pw.sh
+RUN { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && sh /set_root_pw.sh || echo "" ; } 
 RUN { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${OPSUID} || echo "" ; }
 RUN echo "==========="
 
