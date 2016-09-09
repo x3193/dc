@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ls -l /etc/ssh
+ls -l /
 id -un
 echo "run"
 apache2
