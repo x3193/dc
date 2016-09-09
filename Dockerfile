@@ -27,8 +27,8 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-RUN { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
-RUN { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
+RUN { ( [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ) && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
+RUN { ( [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ) && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 #RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
 #RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
@@ -45,7 +45,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 #ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 #RUN chmod -R 7777 /run-${APPNAME}.sh
 #RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { [ ${BUILDLEV} = "start" ] && [ ${UUID} != "root" ] || [ ${BUILDLEV} = "full" ] && [ ${UUID} != "root" ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} || echo "" ; }
+RUN { ( ( [ ${BUILDLEV} = "start" ] && [ ${UUID} != "root" ] ) || ( [ ${BUILDLEV} = "full" ] && [ ${UUID} != "root" ] ) ) && ( sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} ) || ( echo "" ) ; }
 
 RUN echo "==========="
 
