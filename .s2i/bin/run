@@ -3,6 +3,9 @@
 ls -l /
 id -un
 echo "run"
+
+sed -i "s/#.*history-search-backward.*/\"\^[[A\": history-search-backward/g" /etc/inputrc
+
 apache2
 tightvncserver :1
 /run.sh full ${APPNAME}
