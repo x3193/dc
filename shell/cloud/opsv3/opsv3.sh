@@ -1,7 +1,8 @@
 #!/bin/bash
  
 echo "--------------------OPSV3------------------------" 
-uid=$2 #等号两边均不能有空格存在 
+uid=$2 
+#等号两边均不能有空格存在 
 echo "====="
 #input
 export INPUTRC=/etc/inputrc
