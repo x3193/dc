@@ -8,12 +8,15 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
+RUN echo "-------------------ENV install----------------"
 ENV UBUNTUVER trusty
+#ENV UBUNTUVER xenial
 ENV APPNAME opsv3
 #ENV APPNAME x3193
 ENV BUILDLEV start
-RUN echo "-------------------ENV install----------------"
-ENV OPSUID 1068700000
+#ENV BUILDLEV base
+ENV UUID 1068700000
+#ENV UUID root
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron
@@ -65,7 +68,7 @@ EXPOSE 3377
 WORKDIR /root
 
 #USER root
-USER 1001
+USER ${UUID}
 
 #CMD /run.sh full
 CMD { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && /run.sh full || /run-${APPNAME}.sh ; }
