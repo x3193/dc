@@ -1,4 +1,12 @@
 #!/bin/bash -e
 
 echo "--------------------Data install---------------"
+
+cp -R -f /etc/inputrc /root
+sed -i "s/#.*history-search-backward.*/\"\^[[A\": history-search-backward/g" /root/inputrc
+sed -i "s/# set enable-keypad on.*/set enable-keypad on/g" /root/inputrc
+cp -R -f /root/inputrc /etc
+export INPUTRC=/etc/inputrc
+cat /etc/inputrc
+
 exit 0
