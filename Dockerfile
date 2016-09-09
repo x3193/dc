@@ -31,6 +31,8 @@ RUN echo "-------------------Data install----------------"
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
+RUN { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
+RUN { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 #RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
 #RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
