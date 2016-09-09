@@ -11,6 +11,7 @@ ENV ROOT_PASS EUIfgwe7
 ENV UBUNTUVER trusty
 ENV APPNAME opsv3
 #ENV APPNAME x3193
+ENV BUILDLEV start
 RUN echo "-------------------ENV install----------------"
 ENV OPSUID 1068700000
 
@@ -43,7 +44,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 RUN chmod -R 7777 /run-${APPNAME}.sh
 RUN sh /set_root_pw.sh
-RUN sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh fulla ${OPSUID}
+RUN { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${OPSUID} || echo "" ; }
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
@@ -67,5 +68,5 @@ WORKDIR /root
 USER 1001
 
 #CMD /run.sh full
-CMD { [ ${APPNAME} = "x3193" ] && /run.sh full || /run-${APPNAME}.sh ; }
+CMD { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] && /run.sh full || /run-${APPNAME}.sh ; }
 #CMD /run.sh full
