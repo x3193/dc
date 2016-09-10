@@ -6,8 +6,7 @@ uid=$2
 echo "====="
 #input
 export INPUTRC=/etc/inputrc
-#echo "bind '\"^[[A\": history-search-backward'" >> /etc/inputrc
-#echo "bind '\"^[[B\": history-search-forward'" >> /etc/inputrc
+cp -R -f /shell/cloud/opsv3/conf/inputrc /etc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers

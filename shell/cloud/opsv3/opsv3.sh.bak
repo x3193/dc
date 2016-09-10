@@ -1,98 +1,104 @@
 #!/bin/bash
  
 echo "--------------------OPSV3------------------------" 
-RUN echo "====="
+uid=$2 
+#等号两边均不能有空格存在 
+echo "====="
+#input
+export INPUTRC=/etc/inputrc
+#echo "bind '\"^[[A\": history-search-backward'" >> /etc/inputrc
+#echo "bind '\"^[[B\": history-search-forward'" >> /etc/inputrc
 #1001
-RUN adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
-RUN echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN echo "Defaults visiblepw" >> /etc/sudoers
-RUN usermod -a -G sudo ops
-RUN usermod -a -G adm ops
+adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
+echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "Defaults visiblepw" >> /etc/sudoers
+usermod -a -G sudo ops
+usermod -a -G adm ops
 #ssh
-#RUN echo "1000340000 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN chown -R 1000340000:root /etc/ssh/
-RUN chmod -R 0700 /etc/ssh/
-RUN echo "AllowUsers ops 1000340000" >> /etc/ssh/sshd_conf
-RUN sed -i "s/Port 22*/Port 2222/g" /etc/ssh/sshd_config
-RUN service ssh restart
-RUN cat /etc/ssh/sshd_config
-RUN cat /etc/ssh/sshd_conf
-RUN echo "====="
-#apache2
-#ENV APACHE_RUN_USER ops
-#ENV APACHE_RUN_GROUP root
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
-ENV APACHE_LOG_DIR /var/log/apache2
-RUN DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
-RUN service apache2 restart
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-RUN sed -i "s/Listen 80*/Listen 8080/g" /etc/apache2/ports.conf
-RUN sed -i "s/<VirtualHost \*\:80>/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
-RUN cat /etc/apache2/ports.conf
-RUN cat /etc/apache2/sites-available/000-default.conf
-RUN chown -R www-data:root /var/log/apache2
-RUN chmod -R 7777 /var/log/apache2
-RUN chown -R www-data:root /var/run/apache2
-RUN chmod -R 7777 /var/run/apache2
-RUN chown -R www-data:root /var/lock/apache2
-RUN chmod -R 7777 /var/lock/apache2
-RUN usermod -a -G root www-data
-RUN usermod -a -G sudo www-data
-RUN usermod -a -G adm www-data
-RUN echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN service apache2 start
-RUN echo "====="
-# /root /var/www
-RUN chown -R 1000340000:root /root
-RUN chmod -R 7777 /root
-RUN chown -R 1000340000:root /var/www
-RUN chmod -R 7777 /var/www
-RUN echo "====="
-#vnc
-RUN cd /root
-RUN apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
-RUN wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-RUN unzip -o -d /var/www/html/ noVNC-master.zip
-RUN wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
-RUN unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
-RUN mkdir -vp /root/.vnc
-RUN chmod -R 7777 /root/.vnc
-RUN chmod -R 7777 /var/www/html
-RUN apt-get install icewm -y
-RUN cp -r /etc/X11/icewm /root/.icewm
-RUN echo "====="
-#dir
-RUN chown -R 1000340000:root /etc
-RUN chown -R 1000340000:root /usr
-RUN chown -R 1000340000:root /var
-RUN chown -R 1000340000:root /bin
-RUN chown -R 1000340000:root /lib
-RUN chown -R 1000340000:root /lib64
-RUN chown -R 1000340000:root /media
-RUN chown -R 1000340000:root /mnt
-RUN chown -R 1000340000:root /opt
-RUN chown -R 1000340000:root /root
-RUN chown -R 1000340000:root /run
-RUN chown -R 1000340000:root /sbin
-RUN chown -R 1000340000:root /srv
-RUN chown -R 1000340000:root /tmp
+#echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+chown -R ${uid}:root /etc/ssh/
+chmod -R 0700 /etc/ssh/
+echo "AllowUsers ops ${uid}" >> /etc/ssh/sshd_conf
+sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
+service ssh restart
+cat /etc/ssh/sshd_config
+cat /etc/ssh/sshd_conf
+echo "====="
 
-RUN chown -R 1000340000:root /etc/ssh/
-RUN chmod -R 0700 /etc/ssh/
-RUN chown -R 1000340000:root /var/www
-RUN chmod -R 7777 /var/www
-RUN chown -R www-data:root /var/log/apache2
-RUN chmod -R 7777 /var/log/apache2
-RUN chown -R www-data:root /var/run/apache2
-RUN chmod -R 7777 /var/run/apache2
-RUN chown -R www-data:root /var/lock/apache2
-RUN chmod -R 7777 /var/lock/apache2
-RUN chown -R 1000340000:root /etc/X11
-RUN echo "====="
+if [ $1 = "full" ]; then
+#apache2
+DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
+service apache2 restart
+echo "ServerName localhost" >> /etc/apache2/apache2.conf
+sed -i "s/Listen 80.*/Listen 8080/g" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*\:80>.*/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
+cat /etc/apache2/ports.conf
+cat /etc/apache2/sites-available/000-default.conf
+chown -R www-data:root /var/log/apache2
+chmod -R 7777 /var/log/apache2
+chown -R www-data:root /var/run/apache2
+chmod -R 7777 /var/run/apache2
+chown -R www-data:root /var/lock/apache2
+chmod -R 7777 /var/lock/apache2
+usermod -a -G root www-data
+usermod -a -G sudo www-data
+usermod -a -G adm www-data
+echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+service apache2 start
+echo "====="
+# /root /var/www
+chown -R ${uid}:root /root
+chmod -R 7777 /root
+chown -R ${uid}:root /var/www
+chmod -R 7777 /var/www
+echo "====="
+#vnc
+cd /root
+apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
+wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+unzip -o -d /var/www/html/ noVNC-master.zip
+wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
+unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
+mkdir -vp /root/.vnc
+chmod -R 7777 /root/.vnc
+chmod -R 7777 /var/www/html
+apt-get install icewm -y
+cp -r /etc/X11/icewm /root/.icewm
+sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
+echo "icewm-session &" >> /root/.vnc/xstartup
+echo "lxsession &" >> /root/.vnc/xstartup
+echo "====="
+fi
+
+#dir
+chown -R ${uid}:root /etc
+chown -R ${uid}:root /usr
+chown -R ${uid}:root /var
+chown -R ${uid}:root /bin
+chown -R ${uid}:root /lib
+chown -R ${uid}:root /lib64
+chown -R ${uid}:root /media
+chown -R ${uid}:root /mnt
+chown -R ${uid}:root /opt
+chown -R ${uid}:root /root
+chown -R ${uid}:root /run
+chown -R ${uid}:root /sbin
+chown -R ${uid}:root /srv
+chown -R ${uid}:root /tmp
+
+chown -R ${uid}:root /etc/ssh/
+chmod -R 0700 /etc/ssh/
+chown -R ${uid}:root /var/www
+chmod -R 7777 /var/www
+chown -R www-data:root /var/log/apache2
+chmod -R 7777 /var/log/apache2
+chown -R www-data:root /var/run/apache2
+chmod -R 7777 /var/run/apache2
+chown -R www-data:root /var/lock/apache2
+chmod -R 7777 /var/lock/apache2
+chown -R ${uid}:root /etc/X11
+chmod -R 0600 /root/.vnc/passwd
+chmod -R 7777 /tmp
+echo "====="
 
 echo "--------------------OPSV3------------------------"
