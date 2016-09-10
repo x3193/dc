@@ -6,8 +6,8 @@ uid=$2
 echo "====="
 #input
 export INPUTRC=/etc/inputrc
-#cp -R -f /shell/cloud/opsv3/conf/inputrc /etc
-cp -R -f /shell/cloud/opsv3/conf/inputrc-rh /etc/inputrc
+cp -R -f /shell/cloud/opsv3/conf/inputrc /etc
+#cp -R -f /shell/cloud/opsv3/conf/inputrc-rh /etc/inputrc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ops
 echo "ops ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -70,6 +70,7 @@ echo "lxsession &" >> /root/.vnc/xstartup
 echo "====="
 fi
 
+if [ $1 = "mini" ]; then
 #dir
 chown -R ${uid}:root /etc
 chown -R ${uid}:root /usr
@@ -100,5 +101,6 @@ chown -R ${uid}:root /etc/X11
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
 echo "====="
+fi
 
 echo "--------------------OPSV3------------------------"
