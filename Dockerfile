@@ -15,7 +15,7 @@ ENV UBUNTUVER trusty
 # x3193 opsv3
 ENV APPNAME opsv3 
 # start base full mini
-ENV BUILDLEV mini
+ENV BUILDLEV start
 # root 1068700000 
 ENV UUID 1068700000 
 
