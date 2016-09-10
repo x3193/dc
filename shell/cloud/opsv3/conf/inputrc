@@ -31,32 +31,32 @@ set mark-symlinked-directories on
 $if mode=emacs                                                                  
                                                                                 
 # allow the use of the Home/End keys                                            
-"\e[1~": beginning-of-line                                                      
-"\e[4~": end-of-line                                                            
+"^[[1~": beginning-of-line                                                      
+"^[[4~": end-of-line                                                            
                                                                                 
 # allow the use of the Delete/Insert keys                                       
-"\e[3~": delete-char                                                            
-"\e[2~": quoted-insert                                                          
+"^[[3~": delete-char                                                            
+"^[[2~": quoted-insert                                                          
                                                                                 
 # mappings for "page up" and "page down" to step to the beginning/end           
 # of the history                                                                
-# "\e[5~": beginning-of-history                                                 
-# "\e[6~": end-of-history                                                       
+# "^[[5~": beginning-of-history                                                 
+# "^[[6~": end-of-history                                                       
                                                                                 
 # alternate mappings for "page up" and "page down" to search the history        
-"\e[5~": history-search-backward                                                  
-"\e[6~": history-search-forward                                               
+"^[[5~": history-search-backward                                                  
+"^[[6~": history-search-forward                                               
                                                                                
 # mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving             
-"\e[1;5C": forward-word                                                         
-"\e[1;5D": backward-word                                                        
-"\e[5C": forward-word                                                           
-"\e[5D": backward-word                                                          
-"\e\e[C": forward-word                                                          
-"\e\e[D": backward-word                                                         
+"^[[1;5C": forward-word                                                         
+"^[[1;5D": backward-word                                                        
+"^[[5C": forward-word                                                           
+"^[[5D": backward-word                                                          
+"\e^[[C": forward-word                                                          
+"\e^[[D": backward-word                                                         
                                                                                 
 $if term=rxvt                                                                   
-"\e[8~": end-of-line                                                            
+"^[[8~": end-of-line                                                            
 "\eOc": forward-word                                                            
 "\eOd": backward-word                                                           
 $endif                                                                          
@@ -66,7 +66,7 @@ $endif
 "\eOF": end-of-line                                                           
                                                                                 
 # for freebsd console                                                           
-"\e[H": beginning-of-line   
-"\e[F": end-of-line                                                           
+"^[[H": beginning-of-line   
+"^[[F": end-of-line                                                           
                                                                                 
 $endif                                 
