@@ -18,7 +18,6 @@ if [ $1 = "start" ] ; then
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
-
 echo "sudopsw" | sudo -S echo "x3193:".${ROOT_PASS} | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -84,7 +83,7 @@ mkdir -vp /root/.vnc
 chmod -R 0700 /root/.vnc
 chmod -R 0700 /var/www/html
 if [ $1 = "dev" ] ; then
-icewm(<-openbox-lxde)
+# icewm
 apt-get install icewm -y
 cp -r /etc/X11/icewm /root/.icewm
 sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
