@@ -14,7 +14,7 @@ ENV INPUTRC /etc/inputrc
 ENV UBUNTUVER trusty 
 # x3193 opsv3
 ENV APPNAME opsv3 
-# start base full mini
+# start base full dev
 ENV BUILDLEV start
 # root 1068700000 
 ENV UUID 1068700000 

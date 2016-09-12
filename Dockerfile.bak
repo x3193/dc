@@ -71,7 +71,7 @@ EXPOSE 3377
 
 WORKDIR /root
 
-#USER root
-USER ${UUID}
+USER root
+#USER ${UUID}
 
 CMD { { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] ; } && /run.sh full || /run.sh full ${APPNAME} ; }
