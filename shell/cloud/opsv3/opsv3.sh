@@ -16,7 +16,7 @@ if [ $1 = "start" ] ; then
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
-echo "x3193:${ROOT_PASS}" | chpasswd
+echo "sudopsw" | sudo -S echo "x3193:${ROOT_PASS}" | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 #chown -R ${uid}:root /etc/ssh/
