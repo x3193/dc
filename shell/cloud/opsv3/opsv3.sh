@@ -22,7 +22,7 @@ usermod -a -G adm x3193
 echo "sudopsw" | sudo -S echo "x3193:".${ROOT_PASS} | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-#chown -R ${uid}:root /etc/ssh/
+chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
 echo "AllowUsers root x3193 ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
@@ -31,7 +31,7 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
-if [ $1 = "full" ] ; then
+#if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
 	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
@@ -49,7 +49,7 @@ fi
 sed -i "s/<VirtualHost \*\:80>.*/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 cat /etc/apache2/ports.conf
 cat /etc/apache2/sites-available/000-default.conf
-if [ $1 = "dev" ] ; then
+if [ $1 = "start" ] ; then
 chown -R www-data:root /var/log/apache2
 chmod -R 7777 /var/log/apache2
 chown -R www-data:root /var/run/apache2
@@ -65,7 +65,7 @@ if [ $1 = "start" ] ; then
 fi
 service apache2 start
 echo "====="
-if [ $1 = "dev" ] ; then
+if [ $1 = "start" ] ; then
 # /root /var/www
 chown -R ${uid}:root /root
 chmod -R 0700 /root
@@ -94,9 +94,9 @@ echo "lxsession &" >> /root/.vnc/xstartup
 fi
 fi
 echo "====="
-fi
+#fi
 
-if [ $1 = "full" ]; then
+if [ $1 != "dev" ]; then
 
 #dir
 chown -R ${uid}:root /etc
@@ -127,14 +127,12 @@ chmod -R 7777 /var/lock/apache2
 chown -R ${uid}:root /etc/X11
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
+
 echo "====="
-sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-sed -i "s/x3193:x:1001:0:/x3193:x:0:0:/g" /etc/passwd
 
-elif [ "1" = "0" ]; then
+#sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
+#sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
 
-else
-	
 fi
 
 echo "--------------------OPSV3------------------------"
