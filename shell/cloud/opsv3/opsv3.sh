@@ -11,6 +11,7 @@ export INPUTRC=/etc/inputrc
 #1001
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 x3193
 sed -i "s/x3193:x:1001:0::/x3193:x:1001:0:x3193:/g" /etc/passwd
+sed -i "s/x3193:x:1001:0:x3193:/x3193:x:${uid}:0:x3193:/g" /etc/passwd
 cat /etc/passwd
 echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 if [ $1 = "start" ] ; then
@@ -30,6 +31,7 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
+if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
 	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
@@ -92,8 +94,9 @@ echo "lxsession &" >> /root/.vnc/xstartup
 fi
 fi
 echo "====="
+fi
 
-if [ $1 == "dev" ]; then
+if [ $1 = "full" ]; then
 
 #dir
 chown -R ${uid}:root /etc
@@ -125,11 +128,13 @@ chown -R ${uid}:root /etc/X11
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
 echo "====="
+sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
+sed -i "s/x3193:x:1001:0:/x3193:x:0:0:/g" /etc/passwd
+
+elif [ "1" = "0" ]; then
 
 else
-	#uid
-	sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-	sed -i "s/x3193:x:1001:0:/x3193:x:0:0:/g" /etc/passwd
+	
 fi
 
 echo "--------------------OPSV3------------------------"
