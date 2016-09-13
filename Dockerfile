@@ -50,7 +50,7 @@ ENV APACHE_LOG_DIR /var/log/apache2
 #ADD run-${APPNAME}.sh /run-${APPNAME}.sh
 #RUN chmod -R 7777 /run-${APPNAME}.sh
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "mini" ] ; } && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+RUN { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
 RUN echo "==========="
 
@@ -71,7 +71,7 @@ EXPOSE 3377
 
 WORKDIR /root
 
-USER root
-#USER ${UUID}
+#USER root
+USER ${UUID}
 
 CMD { { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] ; } && /run.sh full || /run.sh full ${APPNAME} ; }
