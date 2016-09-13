@@ -33,7 +33,7 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
-#if [ $1 = "full" ] ; then
+if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
 	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
@@ -51,7 +51,7 @@ fi
 sed -i "s/<VirtualHost \*\:80>.*/<VirtualHost \*\:8080>/g" /etc/apache2/sites-available/000-default.conf
 cat /etc/apache2/ports.conf
 cat /etc/apache2/sites-available/000-default.conf
-if [ $1 = "start" ] ; then
+if [ $1 != "dev" ] ; then
 chown -R www-data:root /var/log/apache2
 chmod -R 7777 /var/log/apache2
 chown -R www-data:root /var/run/apache2
@@ -96,7 +96,7 @@ echo "lxsession &" >> /root/.vnc/xstartup
 fi
 fi
 echo "====="
-#fi
+fi
 
 if [ $1 != "dev" ]; then
 
@@ -133,8 +133,8 @@ chmod -R 7777 /tmp
 
 echo "====="
 
-sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
+#sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
+#sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
 
 fi
 
