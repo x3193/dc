@@ -12,6 +12,8 @@ export INPUTRC=/etc/inputrc
 adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 x3193
 sed -i "s/x3193:x:1001:0::/x3193:x:1001:0:x3193:/g" /etc/passwd
 sed -i "s/x3193:x:1001:0:x3193:/x3193:x:${uid}:0:x3193:/g" /etc/passwd
+addgroup --system --gid 1001 x3193
+sed -i "s/x3193:x:1001:/x3193:x:${uid}:/g" /etc/group
 cat /etc/passwd
 echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 if [ $1 = "start" ] ; then
@@ -100,6 +102,7 @@ if [ $1 != "dev" ]; then
 
 #dir
 chown -R ${uid}:root /etc
+chown -R ${uid}:root /home
 chown -R ${uid}:root /usr
 chown -R ${uid}:root /var
 chown -R ${uid}:root /bin
@@ -130,8 +133,8 @@ chmod -R 7777 /tmp
 
 echo "====="
 
-#sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-#sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
+sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
+sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
 
 fi
 
