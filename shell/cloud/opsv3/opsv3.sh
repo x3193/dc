@@ -1,5 +1,5 @@
 ﻿#!/bin/bash
- 
+
 echo "--------------------OPSV3------------------------" 
 uid=$2 
 #等号两边均不能有空格存在 
@@ -21,7 +21,7 @@ if [ $1 = "start" ] ; then
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
-echo "sudopsw" | sudo -S echo "x3193:".${ROOT_PASS} | sudo chpasswd
+echo "sudopsw" | sudo -S echo "x3193:${ROOT_PASS}" | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
@@ -33,7 +33,7 @@ cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
 
-if [ $1 = "full" ] ; then
+#if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
 	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
@@ -53,11 +53,11 @@ cat /etc/apache2/ports.conf
 cat /etc/apache2/sites-available/000-default.conf
 if [ $1 != "dev" ] ; then
 chown -R www-data:root /var/log/apache2
-chmod -R 7777 /var/log/apache2
+chmod -R 0700 /var/log/apache2
 chown -R www-data:root /var/run/apache2
-chmod -R 7777 /var/run/apache2
+chmod -R 0700 /var/run/apache2
 chown -R www-data:root /var/lock/apache2
-chmod -R 7777 /var/lock/apache2
+chmod -R 0700 /var/lock/apache2
 fi
 usermod -a -G root www-data
 usermod -a -G sudo www-data
@@ -96,38 +96,38 @@ echo "lxsession &" >> /root/.vnc/xstartup
 fi
 fi
 echo "====="
-fi
+#fi
 
 if [ $1 != "dev" ]; then
 
 #dir
-chown -R ${uid}:root /etc
-chown -R ${uid}:root /home
-chown -R ${uid}:root /usr
-chown -R ${uid}:root /var
-chown -R ${uid}:root /bin
-chown -R ${uid}:root /lib
-chown -R ${uid}:root /lib64
-chown -R ${uid}:root /media
-chown -R ${uid}:root /mnt
-chown -R ${uid}:root /opt
-chown -R ${uid}:root /root
-chown -R ${uid}:root /run
-chown -R ${uid}:root /sbin
-chown -R ${uid}:root /srv
-chown -R ${uid}:root /tmp
+#chown -R ${uid}:root /etc
+find /etc -name '*' -exec chown ${uid}:root {} \; 
+find /home -name '*' -exec chown ${uid}:root {} \; 
+find /usr -name '*' -exec chown ${uid}:root {} \; 
+find /var -name '*' -exec chown ${uid}:root {} \; 
+find /bin -name '*' -exec chown ${uid}:root {} \; 
+find /lib -name '*' -exec chown ${uid}:root {} \; 
+find /lib64 -name '*' -exec chown ${uid}:root {} \; 
+find /media -name '*' -exec chown ${uid}:root {} \; 
+find /mnt -name '*' -exec chown ${uid}:root {} \; 
+find /opt -name '*' -exec chown ${uid}:root {} \; 
+find /root -name '*' -exec chown ${uid}:root {} \; 
+find /run -name '*' -exec chown ${uid}:root {} \; 
+find /sbin -name '*' -exec chown ${uid}:root {} \; 
+find /srv -name '*' -exec chown ${uid}:root {} \; 
+find /tmp -name '*' -exec chown ${uid}:root {} \; 
 
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
 chown -R ${uid}:root /var/www
-chmod -R 7777 /var/www
+chmod -R 0700 /var/www
 chown -R www-data:root /var/log/apache2
-chmod -R 7777 /var/log/apache2
+chmod -R 0700 /var/log/apache2
 chown -R www-data:root /var/run/apache2
-chmod -R 7777 /var/run/apache2
+chmod -R 0700 /var/run/apache2
 chown -R www-data:root /var/lock/apache2
-chmod -R 7777 /var/lock/apache2
-chown -R ${uid}:root /etc/X11
+chmod -R 0700 /var/lock/apache2
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
 
