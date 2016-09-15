@@ -49,7 +49,7 @@ echo "====="
 #if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
-	DEBIAN_FRONTEND=noninteractive apt-get install apache2 ajaxterm -y  
+	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 	service apache2 restart
 	echo "ServerName localhost" >> /etc/apache2/apache2.conf
 fi
@@ -119,7 +119,7 @@ fi
 echo "====="
 #fi
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans
+DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends ajaxterm firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans
 
 if [ $1 != "dev" ]; then
 
