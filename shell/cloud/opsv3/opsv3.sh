@@ -21,7 +21,8 @@ if [ $1 = "start" ] ; then
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
-echo "x3193:${ROOT_PASS}" | chpasswd
+PASS=${ROOT_PASS:-$(pwgen -s 12 1)}
+echo "x3193:$PASS" | chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
