@@ -85,9 +85,13 @@ wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
 unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 mkdir -vp /var/www/html/noVNC-master/utils/websockify
 cp -R -f /var/www/html/noVNC-master/utils/websockify-master/* /var/www/html/noVNC-master/utils/websockify
+rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
 mkdir -vp /root/.vnc
 chmod -R 0700 /root/.vnc
 chmod -R 0700 /var/www/html
+cd /var/www/html/shell/conf/vncserver 
+cp -R -f passwd xstartup /root/.vnc 
+chmod -R 0600 /root/.vnc/passwd
 if [ $1 = "dev" ] ; then
 # icewm
 apt-get install icewm -y

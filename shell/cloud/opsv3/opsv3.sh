@@ -29,6 +29,17 @@ chmod -R 0700 /etc/ssh/
 echo "AllowUsers root x3193 ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
+ssh-keygen -t rsa -f /home/x3193/.ssh/id_rsa -q -N ""
+cd /var/www/html/shell/conf/.ssh  
+cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/x3193/.ssh 
+chmod -R 0600 /home/x3193/.ssh 
+chmod 0700 /home/x3193 
+chmod 0700 /home/x3193/.ssh 
+chmod 0644 /home/x3193/.ssh/authorized_keys 
+mkdir -vp /home/x3193/ssh
+cp -R -f /home/x3193/.ssh/* /home/x3193/ssh
+cd /var/www/html/shell/conf/ssh 
+cp -R -f ssh /etc/init.d 
 cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
@@ -89,6 +100,9 @@ rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
 mkdir -vp /root/.vnc
 chmod -R 0700 /root/.vnc
 chmod -R 0700 /var/www/html
+cd /var/www/html/shell/conf/vncserver 
+cp -R -f passwd xstartup /root/.vnc 
+chmod -R 0600 /root/.vnc/passwd
 if [ $1 = "dev" ] ; then
 # icewm
 apt-get install icewm -y

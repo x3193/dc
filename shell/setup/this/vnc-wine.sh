@@ -80,7 +80,9 @@ wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
 unzip -o -d /var/www/html/ noVNC-master.zip
 wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
 unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
-mv /var/www/html/noVNC-master/utils/websockify-master /var/www/html/noVNC-master/utils/websockify
+mkdir -vp /var/www/html/noVNC-master/utils/websockify
+cp -R -f /var/www/html/noVNC-master/utils/websockify-master/* /var/www/html/noVNC-master/utils/websockify
+rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
 sudo mkdir -vp /root/.vnc
 sudo chmod -R 7777 /root/.vnc
 cd /var/www/html/shell/conf/vncserver 
