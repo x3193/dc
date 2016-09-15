@@ -3,7 +3,9 @@
 ls -l /
 id -un
 echo "run"
-export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
+if [ ${BUILDLEV} != "start" ] || [ ${BUILDLEV} != "dev" ] ; then
+	export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
+fi
 export TZ='Asia/Shanghai'
 apache2
 tightvncserver :1

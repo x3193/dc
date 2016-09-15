@@ -21,7 +21,7 @@ if [ $1 = "start" ] ; then
 fi
 usermod -a -G sudo x3193
 usermod -a -G adm x3193
-echo "sudopsw" | sudo -S echo "x3193:${ROOT_PASS}" | sudo chpasswd
+echo "x3193:${ROOT_PASS}" | chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
@@ -29,6 +29,7 @@ chmod -R 0700 /etc/ssh/
 echo "AllowUsers root x3193 ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
+mkdir -vp /home/x3193/.ssh
 ssh-keygen -t rsa -f /home/x3193/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
 cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/x3193/.ssh 

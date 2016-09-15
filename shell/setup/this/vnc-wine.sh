@@ -36,6 +36,7 @@ sudo fc-cache -fv
 echo "---------------------------SSH-----------------"  
 cd /var/www/html/shell/conf 
 sudo rm -rf ~/.ssh
+mkdir -vp /home/x3193/.ssh
 #ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
