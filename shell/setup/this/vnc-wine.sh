@@ -76,12 +76,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends xorg
 cd /var/www/html/shell/conf/vncserver
 sudo chmod -R 7777 /var/www/html/shell/conf 
 sudo find /var/www/html/shell/conf/* -name noVNC-master.zip -delete 
-sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-sudo mkdir -vp /var/www/html
-sudo chmod -R 7777 /var/www/html
-sudo unzip -o -d /var/www/html/ noVNC-master.zip
-sudo chmod -R 7777 /var/www/html
-sudo unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
+wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+unzip -o -d /var/www/html/ noVNC-master.zip
+wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
+unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
+mv /var/www/html/noVNC-master/utils/websockify-master /var/www/html/noVNC-master/utils/websockify
 sudo mkdir -vp /root/.vnc
 sudo chmod -R 7777 /root/.vnc
 cd /var/www/html/shell/conf/vncserver 

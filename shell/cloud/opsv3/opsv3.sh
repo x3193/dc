@@ -81,15 +81,18 @@ if [ $1 = "start" ] ; then
 apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
 wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
 unzip -o -d /var/www/html/ noVNC-master.zip
-wget -O websockify.zip http://sf.x3193.usa.cc/backup/websockify.zip
+wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
 unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
+mkdir -vp /var/www/html/noVNC-master/utils/websockify
+cp -R -f /var/www/html/noVNC-master/utils/websockify-master/* /var/www/html/noVNC-master/utils/websockify
+rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
 mkdir -vp /root/.vnc
 chmod -R 0700 /root/.vnc
 chmod -R 0700 /var/www/html
 if [ $1 = "dev" ] ; then
 # icewm
 apt-get install icewm -y
-cp -r /etc/X11/icewm /root/.icewm
+cp -R -f /etc/X11/icewm /root/.icewm
 sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
 echo "icewm-session &" >> /root/.vnc/xstartup
 echo "lxsession &" >> /root/.vnc/xstartup
