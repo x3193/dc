@@ -23,7 +23,6 @@ usermod -a -G sudo x3193
 usermod -a -G adm x3193
 PASS=${ROOT_PASS:-$(pwgen -s 12 1)}
 echo "x3193:$PASS" | chpasswd
-sudo echo "sudopsw" | sudo -S echo "x3193:$PASS" | sudo chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
@@ -50,7 +49,7 @@ echo "====="
 #if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
 	#apache2
-	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
+	DEBIAN_FRONTEND=noninteractive apt-get install apache2 ajaxterm -y  
 	service apache2 restart
 	echo "ServerName localhost" >> /etc/apache2/apache2.conf
 fi
@@ -119,6 +118,8 @@ fi
 fi
 echo "====="
 #fi
+
+DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans
 
 if [ $1 != "dev" ]; then
 

@@ -119,6 +119,8 @@ fi
 echo "====="
 #fi
 
+DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends ajaxterm firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans
+
 if [ $1 != "dev" ]; then
 
 #dir

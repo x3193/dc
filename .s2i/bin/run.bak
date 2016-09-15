@@ -3,7 +3,7 @@
 ls -l /
 id -un
 echo "run"
-if [ $2 = "wine" ] || [ -z "$2"] ; then
+if [ ${BUILDLEV} != "start" ] || [ ${BUILDLEV} != "dev" ] ; then
 	export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
 fi
 export TZ='Asia/Shanghai'
