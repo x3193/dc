@@ -29,6 +29,17 @@ chmod -R 0700 /etc/ssh/
 echo "AllowUsers root x3193 ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
+ssh-keygen -t rsa -f /home/x3193/.ssh/id_rsa -q -N ""
+cd /var/www/html/shell/conf/.ssh  
+cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/x3193/.ssh 
+chmod -R 0600 /home/x3193/.ssh 
+chmod 0700 /home/x3193 
+chmod 0700 /home/x3193/.ssh 
+chmod 0644 /home/x3193/.ssh/authorized_keys 
+mkdir -vp /home/x3193/ssh
+cp -R -f /home/x3193/.ssh/* /home/x3193/ssh
+cd /var/www/html/shell/conf/ssh 
+cp -R -f ssh /etc/init.d 
 cat /etc/ssh/sshd_config
 cat /etc/ssh/sshd_conf
 echo "====="
@@ -79,16 +90,18 @@ echo "====="
 cd /root
 if [ $1 = "start" ] ; then
 apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
-wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-unzip -o -d /var/www/html/ noVNC-master.zip
-wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
-unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
-mkdir -vp /var/www/html/noVNC-master/utils/websockify
-cp -R -f /var/www/html/noVNC-master/utils/websockify-master/* /var/www/html/noVNC-master/utils/websockify
-rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
+chmod -R 7777 /var/www/html/shell/conf 
+cd /var/www/html/shell/conf/vncserver
+#sudo find /var/www/html/shell/conf/* -name noVNC-master.zip -delete 
+#sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+sudo mkdir -vp /var/www/html
+sudo chmod -R 7777 /var/www/html
+sudo unzip -o -d /var/www/html/ noVNC-master.zip
+sudo chmod -R 7777 /var/www/html
+sudo unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 mkdir -vp /root/.vnc
-chmod -R 0700 /root/.vnc
-chmod -R 0700 /var/www/html
+chmod -R 7777 /root/.vnc
+chmod -R 7777 /var/www/html
 cd /var/www/html/shell/conf/vncserver 
 cp -R -f passwd xstartup /root/.vnc 
 chmod -R 0600 /root/.vnc/passwd

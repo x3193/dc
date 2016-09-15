@@ -90,18 +90,20 @@ echo "====="
 cd /root
 if [ $1 = "start" ] ; then
 apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git
-wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
-unzip -o -d /var/www/html/ noVNC-master.zip
-wget -O websockify.zip https://codeload.github.com/kanaka/websockify/zip/master
-unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
-mkdir -vp /var/www/html/noVNC-master/utils/websockify
-cp -R -f /var/www/html/noVNC-master/utils/websockify-master/* /var/www/html/noVNC-master/utils/websockify
-rm -rf -R /var/www/html/noVNC-master/utils/websockify-master
+chmod -R 7777 /var/www/html/shell/conf 
+cd /var/www/html/shell/conf/vncserver
+#sudo find /var/www/html/shell/conf/* -name noVNC-master.zip -delete 
+#sudo wget -O noVNC-master.zip https://codeload.github.com/kanaka/noVNC/zip/master
+sudo mkdir -vp /var/www/html
+sudo chmod -R 7777 /var/www/html
+sudo unzip -o -d /var/www/html/ noVNC-master.zip
+sudo chmod -R 7777 /var/www/html
+sudo unzip -o -d /var/www/html/noVNC-master/utils websockify.zip
 mkdir -vp /root/.vnc
-chmod -R 0700 /root/.vnc
-chmod -R 0700 /var/www/html
+chmod -R 7777 /root/.vnc
+chmod -R 7777 /var/www/html
 cd /var/www/html/shell/conf/vncserver 
-cp -R -f passwd xstartup /root/.vnc 
+cp -R -f passwd xstartup /root/.vnc
 chmod -R 0600 /root/.vnc/passwd
 if [ $1 = "dev" ] ; then
 # icewm
