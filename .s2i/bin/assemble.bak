@@ -1,5 +1,5 @@
 #!/bin/bash -e
 
 echo "--------------------Data install---------------"
-id
+
 exit 0
