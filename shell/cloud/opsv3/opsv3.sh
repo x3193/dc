@@ -91,7 +91,7 @@ echo "====="
 #vnc
 cd /root
 if [ $1 = "start" ] ; then
-apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git gnome-schedule task-spooler lxtask
+apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans
 chmod -R 7777 /var/www/html/shell/conf 
 cd /var/www/html/shell/conf/vncserver
 #sudo find /var/www/html/shell/conf/* -name noVNC-master.zip -delete 
