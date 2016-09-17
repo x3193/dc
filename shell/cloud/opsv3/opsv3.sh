@@ -88,10 +88,24 @@ chown -R ${uid}:root /var/www
 chmod -R 0700 /var/www
 fi
 echo "====="
-#vnc
+
 cd /root
 if [ $1 = "start" ] ; then
-apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git firefox firefox-locale-zh-hant firefox-locale-zh-hans
+echo "---------------------zh-cn-----------------------"  
+cd /var/www/html/shell/conf 
+#sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> ~/.profile
+sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /etc/profile
+sudo echo "TZ='Asia/Shanghai'; export TZ" >> ~/.profile
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
+sudo mkdir -vp /usr/share/fonts/xpfonts
+cd /var/www/html/shell/conf 
+sudo cp -R -f /ttf/*.ttf /usr/share/fonts/xpfonts
+sudo mkfontscale
+sudo mkfontdir
+sudo fc-cache -fv
+#vnc
+apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git firefox firefox-locale-zh-hant firefox-locale-zh-hans language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
+apt-get install -y --install-recommends lxtask lxsession-edit lxappearance lxappearance-obconf
 chmod -R 7777 /var/www/html/shell/conf 
 cd /var/www/html/shell/conf/vncserver
 #sudo find /var/www/html/shell/conf/* -name noVNC-master.zip -delete 

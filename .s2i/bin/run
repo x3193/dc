@@ -3,13 +3,11 @@
 ls -l /
 id -un
 echo "run"
-if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
-	export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
-fi
 export TZ='Asia/Shanghai'
-if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
-	apache2
-fi
+#if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
+#fi
+export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
+apache2
 tightvncserver :1
 setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 &
 exec /usr/sbin/sshd -D

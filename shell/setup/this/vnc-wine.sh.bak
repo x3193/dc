@@ -1,7 +1,7 @@
 #!/bin/bash
  
 echo "---------------------pre-install-----------------------"  
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron curl
 echo "-----------------------configure---------------------"
 sudo dpkg --add-architecture i386  
 sudo dpkg --configure -a
@@ -126,7 +126,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends pyth
 #sudo apt-get install pepflashplugin-installer
 #gpg --keyserver pgp.mit.edu --recv-keys 1397BC53640DB551
 #gpg --export --armor 1397BC53640DB551 | sudo sh -c 'cat >> /usr/lib/pepperflashplugin-nonfree/pubkey-google.txt'
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant pepperflashplugin-nonfree firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm curl fceux zsnes chromium-browser gnome-schedule 
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm fceux zsnes chromium-browser gnome-schedule pepperflashplugin-nonfree
 #sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends lxtask lxsession-edit lxappearance lxappearance-obconf
 echo "CHROMIUM_FLAGS='--user-data-dir'" >> /etc/chromium-browser/default
 echo "------------------------rarlinux--------------------" 

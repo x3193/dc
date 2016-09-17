@@ -3,10 +3,9 @@
 ls -l /
 id -un
 echo "run"
-bash
-if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
-	export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
-fi
+#if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
+#fi
+export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
 export TZ='Asia/Shanghai'
 if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
 	apache2
