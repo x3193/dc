@@ -8,7 +8,7 @@ if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
 	export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en' 
 fi
 export TZ='Asia/Shanghai'
-if [ ${BUILDLEV} != "start" ] ; then
+if [ ${BUILDLEV} != "start" ] && [ ${BUILDLEV} != "dev" ] ; then
 	apache2
 fi
 tightvncserver :1

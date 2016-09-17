@@ -119,8 +119,6 @@ fi
 echo "====="
 #fi
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends ajaxterm firefox
-
 if [ $1 != "dev" ]; then
 
 #dir

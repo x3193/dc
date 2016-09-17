@@ -9,6 +9,7 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
+ENV TERM  xterm
 ENV INPUTRC /etc/inputrc
 # trusty xenial
 ENV UBUNTUVER trusty 
