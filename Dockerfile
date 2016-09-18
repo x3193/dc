@@ -1,5 +1,7 @@
 #FROM ubuntu:xenial
-FROM ubuntu:trusty
+#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
+#FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
  
@@ -10,6 +12,13 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 ENV TERM xterm
 ENV INPUTRC /etc/inputrc
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
+ENV APACHE_RUN_DIR /var/run/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
+# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+ENV APACHE_LOG_DIR /var/log/apache2
 RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
@@ -30,30 +39,30 @@ RUN chmod -R 7777 /*.sh
 
 RUN echo "-------------------Data install----------------"
 
+#Update
+RUN { { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; }  && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+
+#Base
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-RUN { { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ; } && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
-RUN { { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
+RUN { { { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "wine" || echo "" ; }
+RUN { { { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 
-RUN echo "==========="
+RUN echo "=====APP======"
 
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
-ENV APACHE_LOG_DIR /var/log/apache2
-
+#Setup app
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } && sudo sh /var/www/html/shell/cloud/opsv3/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+RUN { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
 
+RUN sudo mkfontscale ; sudo mkfontdir ; sudo fc-cache -fv
+
 RUN echo "-------------------------------------------------"
+
 
 EXPOSE 22
 EXPOSE 80

@@ -3,6 +3,7 @@
 echo "---------------------update-----------------------"  ;
 rm -rf /var/lib/apt/lists/*;
 sudo dpkg --configure -a;
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f;
 sudo apt-get dist-upgrade -y ;
 sudo apt-get update -y;

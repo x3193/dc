@@ -2,6 +2,7 @@
  
 echo "---------------------update-----------------------"  ;
 rm -rf /var/lib/apt/lists/*;
+sudo dpkg --add-architecture i386
 sudo dpkg --configure -a;
 sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f;

@@ -134,13 +134,13 @@ if [ $1 = "start" ] ; then
 fi
 service apache2 start
 echo "====="
-if [ $1 = "start" ] ; then
+
 # /root /var/www
 chown -R ${uid}:root /root
 chmod -R 0700 /root
 chown -R ${uid}:root /var/www
 chmod -R 0700 /var/www
-fi
+
 echo "====="
 
 cd /root

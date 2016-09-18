@@ -17,6 +17,7 @@ if [ $1 = "xenial" ]; then
 	sudo cp -R -f sources.list.xenial /etc/apt/sources.list
 fi
 sudo rm -rf -R /var/lib/apt/lists/*
+sudo dpkg --add-architecture i386
 sudo dpkg --configure -a
 sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f
@@ -124,11 +125,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends q4wi
 fi
 echo "------------------------soft-ppa-------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends python-software-properties software-properties-common
-#sudo add-apt-repository ppa:skunk/pepper-flash -y
-#sudo apt-get update
-#sudo apt-get install pepflashplugin-installer
-#gpg --keyserver pgp.mit.edu --recv-keys 1397BC53640DB551
-#gpg --export --armor 1397BC53640DB551 | sudo sh -c 'cat >> /usr/lib/pepperflashplugin-nonfree/pubkey-google.txt'
+
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm fceux zsnes chromium-browser pepperflashplugin-nonfree
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends gnome-schedule lxtask lxsession-edit lxappearance lxappearance-obconf
 echo "CHROMIUM_FLAGS='--user-data-dir'" >> /etc/chromium-browser/default
@@ -148,6 +145,7 @@ echo "---------------------input-----------------------"
 sudo apt-get remove ibus -y
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends scim
+sudo dpkg --add-architecture i386
 sudo dpkg --configure -a
 sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f
