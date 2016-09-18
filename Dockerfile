@@ -61,8 +61,6 @@ RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
 
-RUN sudo mkfontscale ; sudo mkfontdir ; sudo fc-cache -fv
-
 RUN echo "-------------------------------------------------"
 
 EXPOSE 22

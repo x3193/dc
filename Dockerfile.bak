@@ -23,11 +23,11 @@ RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME x3193 
+ENV APPNAME opsv3 
 # dev start final | base upgrade full | trans
-ENV BUILDLEV upgrade
+ENV BUILDLEV full
 # root 1068700000 
-ENV UUID root 
+ENV UUID 1068700000 
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
@@ -61,7 +61,7 @@ RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
 
-RUN sudo mkfontscale ; sudo mkfontdir ; sudo fc-cache -fv
+RUN curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://fc180fb3.m.daocloud.io
 
 RUN echo "-------------------------------------------------"
 
