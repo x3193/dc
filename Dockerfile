@@ -1,6 +1,6 @@
 #FROM ubuntu:xenial
-#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
-FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+#FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
 #FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
@@ -23,11 +23,11 @@ RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME x3193 
-# dev start final | base upgrade full 
-ENV BUILDLEV upgrade
+ENV APPNAME opsv3 
+# dev start final | base upgrade full | trans
+ENV BUILDLEV full
 # root 1068700000 
-ENV UUID root 
+ENV UUID 1068700000 
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
@@ -48,7 +48,7 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } || { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 
 RUN echo "=====upgrade======"
-#Update
+#Update or trans
 RUN { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; }  && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
 RUN echo "=====APP======"
