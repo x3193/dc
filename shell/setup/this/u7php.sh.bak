@@ -78,7 +78,7 @@ chmod -R 7777 /var/www/html
 echo "--------------------php-shell-----------------------"  
 cd /var/www/html/shell/conf/php
 #sudo cp -R -f /etc/sudoers /etc/sudoers.backup
-echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo "Defaults visiblepw" >> /etc/sudoers
 cd /var/www/html/shell/conf/php-shell
 sudo chmod -R 7777 /var/www/html/shell/conf 

@@ -48,6 +48,60 @@ echo "====="
 
 #if [ $1 = "full" ] ; then
 if [ $1 = "start" ] ; then
+echo "---------------------pre-install-----------------------"  
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo net-tools wget vim zip unzip python-numpy python3-numpy cron curl
+echo "-----------------------configure---------------------"
+sudo dpkg --add-architecture i386  
+sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
+sudo chmod -R 7777 /var/www/html/shell/conf 
+echo "---------------------souce.list-----------------------"  
+cd /var/www/html/shell/conf/source
+sudo cp -R -f /etc/apt/sources.list /etc/apt/sources.list.backup
+if [ $1 = "trusty" ] || [ -z "$1"] ; then
+	sudo cp -R -f sources.list /etc/apt/sources.list
+fi
+if [ $1 = "xenial" ]; then
+	sudo cp -R -f sources.list.xenial /etc/apt/sources.list
+fi
+sudo rm -rf -R /var/lib/apt/lists/*
+sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
+sudo apt-get install -f
+sudo apt-get update -y
+sudo apt-get upgrade -y 
+sudo apt-get dist-upgrade -y 
+echo "---------------------zh-cn-----------------------"  
+cd /var/www/html/shell/conf 
+#sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> ~/.profile
+sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /etc/profile
+sudo echo "TZ='Asia/Shanghai'; export TZ" >> ~/.profile
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
+sudo mkdir -vp /usr/share/fonts/xpfonts
+cd /var/www/html/shell/conf 
+sudo cp -R -f /ttf/*.ttf /usr/share/fonts/xpfonts
+sudo mkfontscale
+sudo mkfontdir
+sudo fc-cache -fv
+echo "---------------------------SSH-----------------"  
+cd /var/www/html/shell/conf 
+sudo rm -rf ~/.ssh
+mkdir -vp ~/.ssh
+#ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
+ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+cd /var/www/html/shell/conf/.ssh  
+sudo cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk ~/.ssh 
+sudo chmod -R 0600 ~/.ssh 
+sudo chmod 0700 ~ 
+sudo chmod 0700 ~/.ssh 
+sudo chmod 0644 ~/.ssh/authorized_keys 
+sudo mkdir -vp ~/ssh
+sudo cp -R -f ~/.ssh/* ~/ssh
+cd /var/www/html/shell/conf/ssh 
+sudo cp -R -f ssh /etc/init.d 
+echo "================================================="
+service ssh start 
+echo "================================================="
 	#apache2
 	DEBIAN_FRONTEND=noninteractive apt-get install apache2 -y  
 	service apache2 restart
@@ -88,9 +142,22 @@ chown -R ${uid}:root /var/www
 chmod -R 0700 /var/www
 fi
 echo "====="
-#vnc
+
 cd /root
 if [ $1 = "start" ] ; then
+echo "---------------------zh-cn-----------------------"  
+cd /var/www/html/shell/conf 
+#sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> ~/.profile
+sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /etc/profile
+sudo echo "TZ='Asia/Shanghai'; export TZ" >> ~/.profile
+#sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
+sudo mkdir -vp /usr/share/fonts/xpfonts
+cd /var/www/html/shell/conf 
+sudo cp -R -f /ttf/*.ttf /usr/share/fonts/xpfonts
+sudo mkfontscale
+sudo mkfontdir
+sudo fc-cache -fv
+#vnc
 apt-get install -y --install-recommends xorg lxde tightvncserver x11vnc autocutsel git firefox firefox-locale-zh-hant firefox-locale-zh-hans language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
 apt-get install -y --install-recommends lxtask lxsession-edit lxappearance lxappearance-obconf
 chmod -R 7777 /var/www/html/shell/conf 

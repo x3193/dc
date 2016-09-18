@@ -5,6 +5,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends sudo
 echo "-----------------------configure---------------------"
 sudo dpkg --add-architecture i386  
 sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo chmod -R 7777 /var/www/html/shell/conf 
 echo "---------------------souce.list-----------------------"  
 cd /var/www/html/shell/conf/source
@@ -17,6 +18,7 @@ if [ $1 = "xenial" ]; then
 fi
 sudo rm -rf -R /var/lib/apt/lists/*
 sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f
 sudo apt-get update -y
 sudo apt-get upgrade -y 
@@ -36,7 +38,7 @@ sudo fc-cache -fv
 echo "---------------------------SSH-----------------"  
 cd /var/www/html/shell/conf 
 sudo rm -rf ~/.ssh
-mkdir -vp /home/x3193/.ssh
+mkdir -vp ~/.ssh
 #ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
@@ -96,12 +98,13 @@ if [ -z "$1"]; then
  setsid /var/www/html/noVNC-master/utils/launch.sh --vnc localhost:5901 & 
 fi 
 echo "================================================="
-if [ $2 = "wine" ] || [ -z "$2"] ; then
+if [ $2 = "wine" ] || [ -z "$2" ] ; then
 
 echo "--------------------WINE1.6/8------------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get build-dep -y --install-recommends wine1.6
 sudo dpkg --add-architecture i386
 sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f
 sudo apt-get update -y
 sudo apt-get upgrade -y 
@@ -126,8 +129,8 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends pyth
 #sudo apt-get install pepflashplugin-installer
 #gpg --keyserver pgp.mit.edu --recv-keys 1397BC53640DB551
 #gpg --export --armor 1397BC53640DB551 | sudo sh -c 'cat >> /usr/lib/pepperflashplugin-nonfree/pubkey-google.txt'
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm fceux zsnes chromium-browser gnome-schedule pepperflashplugin-nonfree
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends lxtask lxsession-edit lxappearance lxappearance-obconf
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends firefox flashplugin-installer firefox-locale-zh-hant firefox-locale-zh-hans putty filezilla* dosbox putty visualboyadvance visualboyadvance-gtk libreoffice libreoffice-l10n-zh-cn pinta htop aptitude locate xchm fceux zsnes chromium-browser pepperflashplugin-nonfree
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends gnome-schedule lxtask lxsession-edit lxappearance lxappearance-obconf
 echo "CHROMIUM_FLAGS='--user-data-dir'" >> /etc/chromium-browser/default
 echo "------------------------rarlinux--------------------" 
 cd /var/www/html/shell/conf/
@@ -146,6 +149,7 @@ sudo apt-get remove ibus -y
 export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends scim
 sudo dpkg --configure -a
+sudo dpkg-reconfigure -p high -f noninteractive debconf 
 sudo apt-get install -f
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends scim-pinyin scim-tables-zh -y
 sudo mkfontscale
