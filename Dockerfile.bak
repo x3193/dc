@@ -24,8 +24,8 @@ RUN echo "-------------------ENV install----------------"
 ENV UBUNTUVER trusty 
 # x3193 opsv3
 ENV APPNAME x3193 
-# start base full dev
-ENV BUILDLEV base
+# dev start base full upgrade
+ENV BUILDLEV upgrade
 # root 1068700000 
 ENV UUID root 
 
@@ -39,14 +39,16 @@ RUN chmod -R 7777 /*.sh
 
 RUN echo "-------------------Data install----------------"
 
+RUN echo "=====upgrade======"
 #Update
-RUN { { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; }  && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+RUN { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; }  && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
+RUN echo "=====base======"
 #Base
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
-RUN { { { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "wine" || echo "" ; }
+RUN { { { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
 RUN { { { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 
 RUN echo "=====APP======"
@@ -62,7 +64,6 @@ RUN echo "--------------------Config install---------------"
 RUN sudo mkfontscale ; sudo mkfontdir ; sudo fc-cache -fv
 
 RUN echo "-------------------------------------------------"
-
 
 EXPOSE 22
 EXPOSE 80
