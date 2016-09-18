@@ -9,16 +9,16 @@ ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 RUN echo "-------------------ENV install----------------"
-ENV TERM  xterm
+ENV TERM xterm
 ENV INPUTRC /etc/inputrc
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME opsv3 
+ENV APPNAME x3193 
 # start base full dev
-ENV BUILDLEV start
+ENV BUILDLEV base
 # root 1068700000 
-ENV UUID 1068700000 
+ENV UUID root 
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
@@ -35,8 +35,6 @@ ADD shell /var/www/html/shell
 RUN chmod -R 7777 /var/www/html/shell
 RUN { { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ; } && sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine" || echo "" ; }
 RUN { { [ ${BUILDLEV} = "base" ] || [ ${BUILDLEV} = "full" ] ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
-#RUN sudo sh /var/www/html/shell/setup/this/vnc-wine.sh ${UBUNTUVER} "nowine"
-#RUN sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER}
 
 RUN echo "==========="
 
@@ -70,7 +68,6 @@ EXPOSE 3377
 
 WORKDIR /root
 
-#USER root
 USER ${UUID}
 
 CMD { { [ ${APPNAME} = "x3193" ] || [ ${APPNAME} = "" ] ; } && /run.sh full || /run.sh full ${APPNAME} ; }
