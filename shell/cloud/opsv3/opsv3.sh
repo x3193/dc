@@ -131,8 +131,9 @@ usermod -a -G sudo www-data
 usermod -a -G adm www-data
 if [ $1 = "start" ] ; then
 	echo "www-data ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+	service apache2 start	
 fi
-service apache2 start
+
 echo "====="
 
 # /root /var/www

@@ -1,7 +1,7 @@
 #FROM ubuntu:xenial
-FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
 #FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
-#FROM ubuntu:trusty
+FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
  
@@ -12,13 +12,6 @@ ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
 ENV TERM xterm
 ENV INPUTRC /etc/inputrc
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-ENV APACHE_RUN_DIR /var/run/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
-ENV APACHE_LOG_DIR /var/log/apache2
 RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
@@ -28,6 +21,13 @@ ENV APPNAME opsv3
 ENV BUILDLEV full
 # root 1068700000 
 ENV UUID 1068700000 
+ENV APACHE_RUN_USER ${UUID}
+ENV APACHE_RUN_GROUP root
+ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
+ENV APACHE_RUN_DIR /var/run/apache2
+ENV APACHE_LOCK_DIR /var/lock/apache2
+# Only /var/log/apache2 is handled by /etc/logrotate.d/apache2.
+ENV APACHE_LOG_DIR /var/log/apache2
 
 # Install packages
 RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
