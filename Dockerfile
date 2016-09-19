@@ -1,7 +1,7 @@
 #FROM ubuntu:xenial
-#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
 #FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
-FROM ubuntu:trusty
+#FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
  
@@ -16,11 +16,11 @@ RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME x3193 
+ENV APPNAME opsv3 
 # dev start final | base upgrade full | trans
-ENV BUILDLEV base
+ENV BUILDLEV final
 # root 1068700000 
-ENV UUID root
+ENV UUID 1068700000
 ENV APACHE_RUN_USER ${UUID}
 ENV APACHE_RUN_GROUP root
 ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
@@ -55,7 +55,7 @@ RUN echo "=====APP======"
 
 #Setup app
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ${UBUNTUVER} ||  echo "" ; }
 
 RUN echo "==========="
 
