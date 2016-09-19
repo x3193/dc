@@ -14,37 +14,37 @@ uid=$2
 #等号两边均不能有空格存在 
 echo "====="
 #1001
-adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 x3193
-sed -i "s/x3193:x:1001:0::/x3193:x:1001:0:x3193:/g" /etc/passwd
-sed -i "s/x3193:x:1001:0:x3193:/x3193:x:${uid}:0:x3193:/g" /etc/passwd
-addgroup --system --gid 1001 x3193
-sed -i "s/x3193:x:1001:/x3193:x:${uid}:/g" /etc/group
+adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ${UNAME}
+sed -i "s/${UNAME}:x:1001:0::/${UNAME}:x:1001:0:${UNAME}:/g" /etc/passwd
+sed -i "s/${UNAME}:x:1001:0:${UNAME}:/${UNAME}:x:${uid}:0:${UNAME}:/g" /etc/passwd
+addgroup --system --gid 1001 ${UNAME}
+sed -i "s/${UNAME}:x:1001:/${UNAME}:x:${uid}:/g" /etc/group
 cat /etc/passwd
-echo "x3193 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "${UNAME} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 if [ $1 = "start" ] ; then
 	echo "Defaults visiblepw" >> /etc/sudoers
 fi
-usermod -a -G sudo x3193
-usermod -a -G adm x3193
+usermod -a -G sudo ${UNAME}
+usermod -a -G adm ${UNAME}
 PASS=${ROOT_PASS:-$(pwgen -s 12 1)}
-echo "x3193:$PASS" | chpasswd
+echo "${UNAME}:$PASS" | chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
-echo "AllowUsers root x3193 ${uid}" >> /etc/ssh/sshd_conf
+echo "AllowUsers root ${UNAME} ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
-mkdir -vp /home/x3193/.ssh
-ssh-keygen -t rsa -f /home/x3193/.ssh/id_rsa -q -N ""
+mkdir -vp /home/${UNAME}/.ssh
+ssh-keygen -t rsa -f /home/${UNAME}/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
-cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/x3193/.ssh 
-chmod -R 0600 /home/x3193/.ssh 
-chmod 0700 /home/x3193 
-chmod 0700 /home/x3193/.ssh 
-chmod 0644 /home/x3193/.ssh/authorized_keys 
-mkdir -vp /home/x3193/ssh
-cp -R -f /home/x3193/.ssh/* /home/x3193/ssh
+cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/${UNAME}/.ssh 
+chmod -R 0600 /home/${UNAME}/.ssh 
+chmod 0700 /home/${UNAME} 
+chmod 0700 /home/${UNAME}/.ssh 
+chmod 0644 /home/${UNAME}/.ssh/authorized_keys 
+mkdir -vp /home/${UNAME}/ssh
+cp -R -f /home/${UNAME}/.ssh/* /home/${UNAME}/ssh
 cd /var/www/html/shell/conf/ssh 
 cp -R -f ssh /etc/init.d 
 cat /etc/ssh/sshd_config
@@ -78,9 +78,9 @@ sudo apt-get upgrade -y
 sudo apt-get dist-upgrade -y 
 echo "---------------------zh-cn-----------------------"  
 cd /var/www/html/shell/conf 
-#sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> ~/.profile
+#sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /root/.profile
 sudo echo "export LC_ALL='zh_CN.UTF-8' LANG='zh_CN.UTF-8' LANGUAGE='zh_CN:zh:en_US:en'" >> /etc/profile
-sudo echo "TZ='Asia/Shanghai'; export TZ" >> ~/.profile
+sudo echo "TZ='Asia/Shanghai'; export TZ" >> /root/.profile
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends language-pack-zh-hant language-pack-zh-hans language-pack-zh-hans-base language-pack-zh-hant-base language-pack-gnome-zh-hant ttf-ubuntu-font-family fonts-wqy-microhei
 sudo mkdir -vp /usr/share/fonts/xpfonts
 cd /var/www/html/shell/conf 
@@ -90,18 +90,18 @@ sudo mkfontdir
 sudo fc-cache -fv
 echo "---------------------------SSH-----------------"  
 cd /var/www/html/shell/conf 
-sudo rm -rf ~/.ssh
-mkdir -vp ~/.ssh
-#ssh-keygen -t rsa -f ~/.ssh/id_rsa -N ""
-ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
+sudo rm -rf /root/.ssh
+mkdir -vp /root/.ssh
+#ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ""
+ssh-keygen -t rsa -f /root/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
-sudo cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk ~/.ssh 
-sudo chmod -R 0600 ~/.ssh 
-sudo chmod 0700 ~ 
-sudo chmod 0700 ~/.ssh 
-sudo chmod 0644 ~/.ssh/authorized_keys 
-sudo mkdir -vp ~/ssh
-sudo cp -R -f ~/.ssh/* ~/ssh
+sudo cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /root/.ssh 
+sudo chmod -R 0600 /root/.ssh 
+sudo chmod 0700 /root 
+sudo chmod 0700 /root/.ssh 
+sudo chmod 0644 /root/.ssh/authorized_keys 
+sudo mkdir -vp /root/ssh
+sudo cp -R -f /root/.ssh/* /root/ssh
 cd /var/www/html/shell/conf/ssh 
 sudo cp -R -f ssh /etc/init.d 
 echo "================================================="
@@ -235,7 +235,7 @@ echo "====="
 chown -R ${uid}:root /root
 chmod -R 0700 /root
 chown -R ${uid}:root /var/www
-chmod -R 0700 /var/www
+chmod -R 7777 /var/www
 
 echo "====="
 
@@ -326,25 +326,25 @@ find /root -name '*' -exec chown ${uid}:root {} \;
 find /run -name '*' -exec chown ${uid}:root {} \; 
 find /sbin -name '*' -exec chown ${uid}:root {} \; 
 find /srv -name '*' -exec chown ${uid}:root {} \; 
-find /tmp -name '*' -exec chown ${uid}:root {} \; 
+find /tmp -name '*' -exec chown ${uid}:root {} \; t
 
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
 chown -R ${uid}:root /var/www
-chmod -R 0700 /var/www
+chmod -R 7777 /var/www
 chown -R ${uid}:root /var/log/apache2
-chmod -R 0700 /var/log/apache2
+chmod -R 7777 /var/log/apache2
 chown -R ${uid}:root /var/run/apache2
-chmod -R 0700 /var/run/apache2
+chmod -R 7777 /var/run/apache2
 chown -R ${uid}:root /var/lock/apache2
-chmod -R 0700 /var/lock/apache2
+chmod -R 7777 /var/lock/apache2
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 0700 /tmp
 
 echo "====="
 
 #sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-#sed -i "s/x3193:x:${uid}:0:/x3193:x:0:0:/g" /etc/passwd
+#sed -i "s/${UNAME}:x:${uid}:0:/${UNAME}:x:0:0:/g" /etc/passwd
 
 fi
 
