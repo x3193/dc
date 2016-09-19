@@ -120,11 +120,11 @@ cat /etc/apache2/ports.conf
 cat /etc/apache2/sites-available/000-default.conf
 if [ $1 != "dev" ] ; then
 chown -R www-data:root /var/log/apache2
-chmod -R 0755 /var/log/apache2
+chmod -R 7777 /var/log/apache2
 chown -R www-data:root /var/run/apache2
-chmod -R 0755 /var/run/apache2
+chmod -R 7777 /var/run/apache2
 chown -R www-data:root /var/lock/apache2
-chmod -R 0755 /var/lock/apache2
+chmod -R 7777 /var/lock/apache2
 fi
 usermod -a -G root www-data
 usermod -a -G sudo www-data
@@ -139,7 +139,7 @@ echo "====="
 chown -R ${uid}:root /root
 chmod -R 0700 /root
 chown -R ${uid}:root /var/www
-chmod -R 0700 /var/www
+chmod -R 7777 /var/www
 
 echo "====="
 
@@ -198,13 +198,13 @@ find /tmp -name '*' -exec chown ${uid}:root {} \;
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
 chown -R ${uid}:root /var/www
-chmod -R 0770 /var/www
+chmod -R 7777 /var/www
 chown -R www-data:root /var/log/apache2
-chmod -R 0700 /var/log/apache2
+chmod -R 7777 /var/log/apache2
 chown -R www-data:root /var/run/apache2
-chmod -R 0700 /var/run/apache2
+chmod -R 7777 /var/run/apache2
 chown -R www-data:root /var/lock/apache2
-chmod -R 0700 /var/lock/apache2
+chmod -R 7777 /var/lock/apache2
 chmod -R 0600 /root/.vnc/passwd
 chmod -R 7777 /tmp
 

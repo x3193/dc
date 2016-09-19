@@ -61,8 +61,6 @@ RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
 
-RUN curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://fc180fb3.m.daocloud.io
-
 RUN echo "-------------------------------------------------"
 
 EXPOSE 22
