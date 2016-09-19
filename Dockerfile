@@ -18,7 +18,7 @@ ENV UBUNTUVER trusty
 # x3193 opsv3
 ENV APPNAME opsv3 
 # dev start final | base upgrade full | trans
-ENV BUILDLEV final
+ENV BUILDLEV start
 # root 1068700000 
 ENV UUID 1068700000
 # root x3193
@@ -58,7 +58,7 @@ RUN echo "=====APP======"
 
 #Setup app
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
-RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ${UBUNTUVER} ||  echo "" ; }
+RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ${UBUNTUVER} ${UNAME} ||  echo "" ; }
 
 RUN echo "==========="
 

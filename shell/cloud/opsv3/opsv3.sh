@@ -11,40 +11,41 @@ sudo apt-get update -y;
 sudo apt-get upgrade -y ;
 #data
 uid=$2 
+USERNAME=$4
 #等号两边均不能有空格存在 
 echo "====="
 #1001
-adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ${UNAME}
-sed -i "s/${UNAME}:x:1001:0::/${UNAME}:x:1001:0:${UNAME}:/g" /etc/passwd
-sed -i "s/${UNAME}:x:1001:0:${UNAME}:/${UNAME}:x:${uid}:0:${UNAME}:/g" /etc/passwd
-addgroup --system --gid 1001 ${UNAME}
-sed -i "s/${UNAME}:x:1001:/${UNAME}:x:${uid}:/g" /etc/group
+adduser --shell /bin/bash --system --ingroup root --force-badname --uid 1001 ${USERNAME}
+sed -i "s/${USERNAME}:x:1001:0::/${USERNAME}:x:1001:0:${USERNAME}:/g" /etc/passwd
+sed -i "s/${USERNAME}:x:1001:0:${USERNAME}:/${USERNAME}:x:${uid}:0:${USERNAME}:/g" /etc/passwd
+addgroup --system --gid 1001 ${USERNAME}
+sed -i "s/${USERNAME}:x:1001:/${USERNAME}:x:${uid}:/g" /etc/group
 cat /etc/passwd
-echo "${UNAME} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "${USERNAME} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 if [ $1 = "start" ] ; then
 	echo "Defaults visiblepw" >> /etc/sudoers
 fi
-usermod -a -G sudo ${UNAME}
-usermod -a -G adm ${UNAME}
+usermod -a -G sudo ${USERNAME}
+usermod -a -G adm ${USERNAME}
 PASS=${ROOT_PASS:-$(pwgen -s 12 1)}
-echo "${UNAME}:$PASS" | chpasswd
+echo "${USERNAME}:$PASS" | chpasswd
 #ssh
 echo "${uid} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
-echo "AllowUsers root ${UNAME} ${uid}" >> /etc/ssh/sshd_conf
+echo "AllowUsers root ${USERNAME} ${uid}" >> /etc/ssh/sshd_conf
 sed -i "s/Port 22.*/Port 2222/g" /etc/ssh/sshd_config
 service ssh restart
-mkdir -vp /home/${UNAME}/.ssh
-ssh-keygen -t rsa -f /home/${UNAME}/.ssh/id_rsa -q -N ""
+mkdir -vp /home/${USERNAME}/.ssh
+ssh-keygen -t rsa -f /home/${USERNAME}/.ssh/id_rsa -q -N ""
 cd /var/www/html/shell/conf/.ssh  
-cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/${UNAME}/.ssh 
-chmod -R 0600 /home/${UNAME}/.ssh 
-chmod 0700 /home/${UNAME} 
-chmod 0700 /home/${UNAME}/.ssh 
-chmod 0644 /home/${UNAME}/.ssh/authorized_keys 
-mkdir -vp /home/${UNAME}/ssh
-cp -R -f /home/${UNAME}/.ssh/* /home/${UNAME}/ssh
+cp -R -f known_hosts id_rsa.pub id_rsa authorized_keys default.ppk /home/${USERNAME}/.ssh 
+chmod -R 0600 /home/${USERNAME}/.ssh 
+chmod 0700 /home/${USERNAME} 
+chmod 0700 /home/${USERNAME}/.ssh 
+chmod 0644 /home/${USERNAME}/.ssh/authorized_keys 
+mkdir -vp /home/${USERNAME}/ssh
+cp -R -f /home/${USERNAME}/.ssh/* /home/${USERNAME}/ssh
 cd /var/www/html/shell/conf/ssh 
 cp -R -f ssh /etc/init.d 
 cat /etc/ssh/sshd_config
@@ -344,7 +345,7 @@ chmod -R 0700 /tmp
 echo "====="
 
 #sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
-#sed -i "s/${UNAME}:x:${uid}:0:/${UNAME}:x:0:0:/g" /etc/passwd
+#sed -i "s/${USERNAME}:x:${uid}:0:/${USERNAME}:x:0:0:/g" /etc/passwd
 
 fi
 
