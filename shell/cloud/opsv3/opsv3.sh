@@ -327,7 +327,7 @@ find /root -name '*' -exec chown ${uid}:root {} \;
 find /run -name '*' -exec chown ${uid}:root {} \; 
 find /sbin -name '*' -exec chown ${uid}:root {} \; 
 find /srv -name '*' -exec chown ${uid}:root {} \; 
-find /tmp -name '*' -exec chown ${uid}:root {} \; t
+find /tmp -name '*' -exec chown ${uid}:root {} \; 
 
 chown -R ${uid}:root /etc/ssh/
 chmod -R 0700 /etc/ssh/
@@ -340,7 +340,7 @@ chmod -R 7777 /var/run/apache2
 chown -R ${uid}:root /var/lock/apache2
 chmod -R 7777 /var/lock/apache2
 chmod -R 0600 /root/.vnc/passwd
-chmod -R 0700 /tmp
+chmod -R 7777 /tmp
 
 echo "====="
 
