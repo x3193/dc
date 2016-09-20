@@ -11,13 +11,14 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
+
 ENV TERM xterm
 ENV INPUTRC /etc/inputrc
 #RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME opsv3 
+ENV APPNAME opsv3
 # dev start final | base upgrade full | trans
 ENV BUILDLEV full
 # root 1068700000 
@@ -56,7 +57,6 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 
 #Update or trans
 RUN { { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; } || { [ ${BUILDLEV} = "trans" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
-RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 
 #RUN echo "=====APP======"
 

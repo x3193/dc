@@ -1,8 +1,8 @@
 #FROM ubuntu:xenial
-FROM ubuntu:trusty
+#FROM ubuntu:trusty
 #FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
 #FROM x3193/dc:latest
-#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
 
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
 
@@ -11,13 +11,14 @@ ENV HOME /root
 ENV USER root
 ENV AUTHORIZED_KEYS **None**
 ENV ROOT_PASS EUIfgwe7
+
 ENV TERM xterm
 ENV INPUTRC /etc/inputrc
 #RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME opsv3 
+ENV APPNAME opsv3
 # dev start final | base upgrade full | trans
 ENV BUILDLEV full
 # root 1068700000 
@@ -56,11 +57,11 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 
 #Update or trans
 RUN { { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; } || { [ ${BUILDLEV} = "trans" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
-RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 
 #RUN echo "=====APP======"
 
 #Setup app
+RUN ls -a -l /var/www/html/shell
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
 RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ${UBUNTUVER} ${UNAME} ||  echo "" ; }
 

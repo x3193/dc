@@ -1,8 +1,8 @@
 #FROM ubuntu:xenial
-#FROM ubuntu:trusty
+FROM ubuntu:trusty
 #FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
 #FROM x3193/dc:latest
-FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
 
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
 
@@ -44,6 +44,7 @@ RUN chmod -R 7777 /*.sh
 #RUN echo "-------------------Data install----------------"
 
 #RUN echo "=====base======"
+
 #Base
 RUN sudo mkdir -vp /var/www/html
 ADD shell /var/www/html/shell
@@ -52,6 +53,7 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${BUILDLEV} = "base" ] && [ ${APPNAME} = "x3193" ] ; } ; } || { [ ${BUILDLEV} = "full" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/setup/this/u7php.sh ${UBUNTUVER} || echo "" ; }
 
 #RUN echo "=====upgrade======"
+
 #Update or trans
 RUN { { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; } || { [ ${BUILDLEV} = "trans" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
@@ -65,7 +67,6 @@ RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUI
 #RUN echo "==========="
 
 #RUN echo "--------------------Config install---------------"
-#RUN echo "-------------------------------------------------"
 
 EXPOSE 22 80 6080 5901 5902 8080 2222 3377
 
