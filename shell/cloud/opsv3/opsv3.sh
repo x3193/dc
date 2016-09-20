@@ -1,14 +1,10 @@
 ﻿#!/bin/bash
 
-echo "--------------------OPSV3------------------------" 
-#update
-sudo dpkg --add-architecture i386
-sudo dpkg --configure -a;
+echo "--------------------OPSV3------------------------" '
 sudo dpkg-reconfigure -p high -f noninteractive debconf 
-sudo apt-get install -f;
-sudo apt-get dist-upgrade -y ;
-sudo apt-get update -y;
-sudo apt-get upgrade -y ;
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends gnome-schedule lxtask lxsession-edit lxappearance lxappearance-obconf
+dpkg --configure -a && apt-get install -f && apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
+
 #data
 uid=$2 
 USERNAME=$4

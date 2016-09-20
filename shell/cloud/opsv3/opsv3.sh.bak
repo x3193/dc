@@ -1,14 +1,6 @@
 ﻿#!/bin/bash
 
 echo "--------------------OPSV3------------------------" 
-#update
-sudo dpkg --add-architecture i386
-sudo dpkg --configure -a;
-sudo dpkg-reconfigure -p high -f noninteractive debconf 
-sudo apt-get install -f;
-sudo apt-get dist-upgrade -y ;
-sudo apt-get update -y;
-sudo apt-get upgrade -y ;
 #data
 uid=$2 
 USERNAME=$4
@@ -340,7 +332,7 @@ chmod -R 7777 /var/run/apache2
 chown -R ${uid}:root /var/lock/apache2
 chmod -R 7777 /var/lock/apache2
 chmod -R 0600 /root/.vnc/passwd
-chmod -R 0700 /tmp
+chmod -R 7777 /tmp
 
 echo "====="
 
