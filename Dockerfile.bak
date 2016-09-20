@@ -1,6 +1,6 @@
 #FROM ubuntu:xenial
-FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
-#FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
+#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
 #FROM ubuntu:trusty
 #FROM x3193/dc:latest
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
@@ -63,7 +63,7 @@ RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUI
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
-
+RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 RUN echo "-------------------------------------------------"
 
 EXPOSE 22
