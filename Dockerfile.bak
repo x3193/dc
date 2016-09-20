@@ -16,11 +16,11 @@ RUN echo "-------------------ENV install----------------"
 # trusty xenial
 ENV UBUNTUVER trusty 
 # x3193 opsv3
-ENV APPNAME x3193 
+ENV APPNAME opsv3 
 # dev start final | base upgrade full | trans
-ENV BUILDLEV trans
+ENV BUILDLEV full
 # root 1068700000 
-ENV UUID root
+ENV UUID 1068700000
 # root x3193
 ENV UNAME x3193
 #apache2
@@ -63,7 +63,6 @@ RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUI
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
-RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 RUN echo "-------------------------------------------------"
 
 EXPOSE 22

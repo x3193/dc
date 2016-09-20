@@ -53,6 +53,7 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 RUN echo "=====upgrade======"
 #Update or trans
 RUN { { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; } || { [ ${BUILDLEV} = "trans" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
+RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 
 RUN echo "=====APP======"
 
@@ -63,7 +64,6 @@ RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUI
 RUN echo "==========="
 
 RUN echo "--------------------Config install---------------"
-RUN sudo dpkg --add-architecture i386;sudo dpkg --configure -a;sudo dpkg-reconfigure -p high -f noninteractive debconf ;sudo apt-get install -f;sudo apt-get update -y;sudo apt-get upgrade -y ;sudo apt-get dist-upgrade -y ;
 RUN echo "-------------------------------------------------"
 
 EXPOSE 22
