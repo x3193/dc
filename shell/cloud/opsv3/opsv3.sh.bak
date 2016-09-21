@@ -304,18 +304,6 @@ fi
 echo "====="
 #fi
 
-if [ $1 != "dev" ]; then
-
-echo "---------------------update-----------------------"  ;
-#rm -rf /var/lib/apt/lists/*;
-sudo dpkg --add-architecture i386
-sudo dpkg --configure -a;
-sudo dpkg-reconfigure -p high -f noninteractive debconf 
-sudo apt-get install -f;
-sudo apt-get dist-upgrade -y ;
-sudo apt-get update -y;
-sudo apt-get upgrade -y ;
-
 #dir
 #chown -R ${uid}:root /etc
 find /etc -name '*' -exec chown ${uid}:root {} \; 
@@ -351,7 +339,5 @@ echo "====="
 
 #sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
 #sed -i "s/${username}:x:${uid}:0:/${username}:x:0:0:/g" /etc/passwd
-
-fi
 
 echo "--------------------OPSV3------------------------"

@@ -263,6 +263,7 @@ if [ $1 = "dev" ] ; then
 #sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
 #echo "icewm-session &" >> /root/.vnc/xstartup
 #echo "lxsession &" >> /root/.vnc/xstartup
+cat /root/.vnc/xstartup
 fi
 echo "------------------------soft-ppa-------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends python-software-properties software-properties-common

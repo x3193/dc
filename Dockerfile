@@ -25,6 +25,7 @@ ENV BUILDLEV dev
 ENV UUID 1068700000
 # root x3193
 ENV UNAME x3193
+
 #apache2
 ENV APACHE_RUN_USER www-data
 ENV APACHE_RUN_GROUP www-data
@@ -35,7 +36,7 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_LOG_DIR /var/log/apache2
 
 # Install packages
-#RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
 ADD set_root_pw.sh /set_root_pw.sh
@@ -44,7 +45,7 @@ RUN chmod -R 7777 /*.sh
 
 #RUN echo "-------------------Data install----------------"
 
-#RUN echo "=====base======"
+#RUN echo "=====base========="
 
 #Base
 RUN sudo mkdir -vp /var/www/html
@@ -58,15 +59,15 @@ RUN { { { { [ ${BUILDLEV} = "final" ] && [ ${APPNAME} != "x3193" ] ; } || { [ ${
 #Update or trans
 RUN { { { [ ${BUILDLEV} = "upgrade" ] && [ ${APPNAME} = "x3193" ] ; } || { [ ${BUILDLEV} = "trans" ] && [ ${APPNAME} = "x3193" ] ; } ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ||  echo "" ; }
 
-#RUN echo "=====APP======"
+#RUN echo "=====APP=========="
 
 #Setup app
 RUN { [ ${APPNAME} = "opsv3" ] && sh /set_root_pw.sh || echo "" ; } 
 RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUILDLEV} = "dev" ] ; } || [ ${BUILDLEV} = "final" ] ; } && sudo sh /var/www/html/shell/cloud/${APPNAME}/${APPNAME}.sh ${BUILDLEV} ${UUID} ${UBUNTUVER} ${UNAME} ||  echo "" ; }
 
-#RUN echo "==========="
+#RUN echo "=================="
 
-#RUN echo "--------------------Config install---------------"
+#RUN echo "-------------------Data install-----------------"
 
 EXPOSE 22 80 6080 5901 5902 8080 2222 3377
 
