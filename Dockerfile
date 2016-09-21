@@ -20,7 +20,7 @@ ENV UBUNTUVER trusty
 # x3193 opsv3
 ENV APPNAME opsv3
 # dev start final | base upgrade full | trans
-ENV BUILDLEV final
+ENV BUILDLEV dev
 # root 1068700000 
 ENV UUID 1068700000
 # root x3193
