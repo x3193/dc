@@ -36,7 +36,7 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_LOG_DIR /var/log/apache2
 
 # Install packages
-RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install lxtask expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl
+RUN dpkg --configure -a && apt-get install -f && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install expect sudo net-tools openssh-server pwgen zip unzip python-numpy python3-numpy cron curl gnome-schedule lxtask
 RUN mkdir -p /var/run/sshd && sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config
 
 ADD set_root_pw.sh /set_root_pw.sh

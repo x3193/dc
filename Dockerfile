@@ -1,8 +1,8 @@
 #FROM ubuntu:xenial
-FROM ubuntu:trusty
+#FROM ubuntu:trusty
 #FROM x3193/dc:ubuntu-trusty-vnc-wine-php-2016
 #FROM x3193/dc:latest
-#FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
+FROM x3193/ubt1404:ubuntu-trusty-vnc-wine-php-2016
 
 MAINTAINER x3193.usa.cc <x3193@x3193.usa.cc> 
 
