@@ -1,8 +1,8 @@
 ﻿#!/bin/bash
 
 echo "--------------------OPSV3------------------------"
-sudo dpkg-reconfigure -p high -f noninteractive debconf 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends gnome-schedule lxtask lxsession-edit lxappearance lxappearance-obconf
+#sudo dpkg-reconfigure -p high -f noninteractive debconf 
+#sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends gnome-schedule lxtask lxsession-edit lxappearance lxappearance-obconf
 
 #data
 uid=$2 
@@ -258,11 +258,11 @@ sudo chmod -R 0600 /root/.vnc/passwd
 echo "================================================="
 if [ $1 = "dev" ] ; then
 # icewm
-apt-get install icewm -y
-cp -R -f /etc/X11/icewm /root/.icewm
-sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
-echo "icewm-session &" >> /root/.vnc/xstartup
-echo "lxsession &" >> /root/.vnc/xstartup
+#apt-get install icewm -y
+#cp -R -f /etc/X11/icewm /root/.icewm
+#sed -i "s/\/etc\/X11\/Xsession.*/\#\/etc\/X11\/Xsession/g" /root/.vnc/xstartup
+#echo "icewm-session &" >> /root/.vnc/xstartup
+#echo "lxsession &" >> /root/.vnc/xstartup
 fi
 echo "------------------------soft-ppa-------------------"  
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends python-software-properties software-properties-common
@@ -304,18 +304,6 @@ fi
 echo "====="
 #fi
 
-if [ $1 != "dev" ]; then
-
-echo "---------------------update-----------------------"  ;
-#rm -rf /var/lib/apt/lists/*;
-sudo dpkg --add-architecture i386
-sudo dpkg --configure -a;
-sudo dpkg-reconfigure -p high -f noninteractive debconf 
-sudo apt-get install -f;
-sudo apt-get dist-upgrade -y ;
-sudo apt-get update -y;
-sudo apt-get upgrade -y ;
-
 #dir
 #chown -R ${uid}:root /etc
 find /etc -name '*' -exec chown ${uid}:root {} \; 
@@ -351,7 +339,5 @@ echo "====="
 
 #sed -i "s/root:x:0:0:/root:x:${uid}:0:/g" /etc/passwd
 #sed -i "s/${username}:x:${uid}:0:/${username}:x:0:0:/g" /etc/passwd
-
-fi
 
 echo "--------------------OPSV3------------------------"
