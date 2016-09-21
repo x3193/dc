@@ -20,7 +20,7 @@ ENV UBUNTUVER trusty
 # x3193 opsv3
 ENV APPNAME opsv3
 # dev start final | base upgrade full | trans
-ENV BUILDLEV dev
+ENV BUILDLEV start
 # root 1068700000 
 ENV UUID 1068700000
 # root x3193
@@ -67,7 +67,7 @@ RUN { { { { [ ${BUILDLEV} = "start" ] || [ ${BUILDLEV} = "full" ] ; } || [ ${BUI
 
 #RUN echo "=================="
 
-#RUN echo "-------------------Data install----------------"
+#RUN echo "-------------------Data install-----------------"
 
 EXPOSE 22 80 6080 5901 5902 8080 2222 3377
 
